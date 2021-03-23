@@ -1,0 +1,26 @@
+# Here are all the files and folders that we do not want synced to the GitHub.
+# For access to these files, they are located in the Dropbox.
+
+
+# All the folders that we don't want synced.
+__pycache__/
+Archive/
+Dark\ Current\ Labview/
+DarkCurrent/
+Exported_Tubes/
+LeakDetector/
+Matplotlib\ Plots/
+VPCdata/
+
+# All the files we don't want synced.
+.DS_Store
+*.pdf
+*.png
+*.txt
+*.csv
+
+SwagerStation/BentnessData/
+SwagerStation/SwagerData/
+SwagerStation/temp_analysis_folder
+TensionStation/backup/
+TensionStation/output/
