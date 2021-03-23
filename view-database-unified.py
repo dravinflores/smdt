@@ -49,8 +49,7 @@ def getHostOS():
     return platform.system()
 
 def loadDatabase():
-    return pickle.load(open(os.path.abspath(os.path.join(path, os.pardir)) \
-        + '/sMDT/database.p', 'rb'))
+    return pickle.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'database.p'), 'rb'))
 
 ################################################################################
 # Update All Tube Data function
