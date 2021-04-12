@@ -1,6 +1,6 @@
 ###############################################################################
 #   File: tension.py
-#   Author(s): Dravin Flores
+#   Author(s): Dravin Flores, Paul Johnecheck
 #   Date Created: 06 April, 2021
 #
 #   Purpose: This file houses the tension station class. This class stores the
@@ -15,14 +15,8 @@ from station import Station
 
 
 class Tension(Station):
-    # Here are the values that determine whether a tension test is within the
-    # specification.
-    normal = 350
-    max = normal + 15
-    min = normal - 15
-
-    def __init__(self):
-        pass
+    def __init__(self, users=[], tests=[]):
+        super().__init__(users, tests)
 
     def __str__(self):
         pass

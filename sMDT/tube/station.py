@@ -1,6 +1,6 @@
 ###############################################################################
 #   File: station.py
-#   Author(s): Dravin Flores
+#   Author(s): Dravin Flores, Paul Johnecheck
 #   Date Created: 02 April, 2021
 #
 #   Purpose: This file houses the base class that all station classes will
@@ -20,7 +20,7 @@ class Station:
         'mode'
     ]
 
-    def __init__(self, users: [], tests: []):
+    def __init__(self, users=[], tests=[]):
         m_users = users
         m_tests = tests
 
