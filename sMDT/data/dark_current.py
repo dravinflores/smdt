@@ -12,6 +12,12 @@
 #   Workarounds:
 #
 ###############################################################################
+
+import os
+import sys
+path = os.path.realpath(__file__)
+sys.path.append(path[:-len(os.path.basename(__file__))])
+
 from station import Station
 
 class Dark_Current(Station):

@@ -11,8 +11,13 @@
 #   Workarounds:
 #
 ###############################################################################
+import os
 import sys
-from tube import *
+path = os.path.realpath(__file__)
+sys.path.append(path[:-len(os.path.basename(__file__))])
+
+from tube import Tube
+
 
 
 class db():

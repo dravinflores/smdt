@@ -1,26 +1,26 @@
 ###############################################################################
-#   File: __init__.py
-#   Author(s): Paul Johnecheck
-#   Date Created: 11 April, 2021
+#   File: db.py
+#   Author(s): Paul Johnecheck 
+#   Date Created: 16 April, 2021
 #
-#   Purpose: __init__file for the tube object package 
+#   Purpose: This is the class representing a tube.
+#    an application will create these and store them in the database
 #
 #   Known Issues:
-#   Something is wrong with the imports, and I'm not sure what. Needs fixing
 #
 #   Workarounds:
 #
 ###############################################################################
 
-
-__all__ = ["dark_current", "leak", "swage","tension", "tube"]
-
+import os
 import sys
-sys.path.append('\sMDT\tube')
-from swage import Swage
-from tension import Tension
-from leak import Leak
-from dark_current import Dark_Current
+path = os.path.realpath(__file__)
+sys.path.append(path[:-len(os.path.basename(__file__))])
+
+from data.swage import Swage
+from data.tension import Tension
+from data.leak import Leak
+from data.dark_current import Dark_Current
 
 
 class Tube():
@@ -28,6 +28,8 @@ class Tube():
         self.m_tube_id = None
         self.m_comments = []
         self.swage = Swage()
+        self.swage.test()
+        print("test")
         self.tension = Tension()
         self.leak = Leak()
         self.dark_current = Dark_Current()
@@ -41,5 +43,5 @@ class Tube():
     def fail(self) -> bool:
         return True
 
-if __name__ == 'main':
+if __name__ == '__main__':
     a = Tube()

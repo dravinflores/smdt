@@ -12,6 +12,11 @@
 #
 ###############################################################################
 
+import os
+import sys
+path = os.path.realpath(__file__)
+sys.path.append(path[:-len(os.path.basename(__file__))])
+
 class Station:
     modes = [
         'first',
@@ -26,6 +31,9 @@ class Station:
 
     def __str__(self):
         raise NotImplementedError
+
+    def test(self):
+        print("test")
 
     def __repr__(self):
         return self.__str__()
