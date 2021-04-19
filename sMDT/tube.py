@@ -28,8 +28,6 @@ class Tube():
         self.m_tube_id = None
         self.m_comments = []
         self.swage = Swage()
-        self.swage.test()
-        print("test")
         self.tension = Tension()
         self.leak = Leak()
         self.dark_current = Dark_Current()
@@ -45,3 +43,4 @@ class Tube():
 
 if __name__ == '__main__':
     a = Tube()
+    a.swage.test()

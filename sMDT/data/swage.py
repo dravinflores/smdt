@@ -32,4 +32,3 @@ class Swage(Station):
 
 if __name__ == "__main__":
     test = Swage()
-    test.test()
