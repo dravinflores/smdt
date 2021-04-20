@@ -12,10 +12,12 @@
 #
 ###############################################################################
 
-import os
-import sys
-path = os.path.realpath(__file__)
-sys.path.append(path[:-len(os.path.basename(__file__))])
+#Import Preparation block. 
+#Currently only needed so the tests in the mains work with the current imports.
+import os #This might cause problems on non-windows computers. #WorksOnMyMachine
+import sys #This can eventually be removed once this code will only be executed with CWD outside the package itself.
+path = os.path.realpath(__file__) #gets the path of the current file being executed
+sys.path.append(path[:-len(os.path.basename(__file__))]) #adds the folder that file is in to the system path
 
 from data.swage import Swage
 from data.tension import Tension
