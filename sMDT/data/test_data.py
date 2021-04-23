@@ -11,15 +11,24 @@
 #
 ###############################################################################
 
+# Import Preparation block.
+# Currently only needed so the tests in the mains work with the current imports.
 import os
 import sys
+
+# Gets the path of the current file being executed.
 path = os.path.realpath(__file__)
+
+# Adds the folder that file is in to the system path
 sys.path.append(path[:-len(os.path.basename(__file__))])
 
-class Test_data():
+
+class TestData:
     def __init__(self):
         pass
-    def fail():
+
+    def fail(self):
         raise NotImplementedError
-    def __str__():
+
+    def __str__(self):
         raise NotImplementedError

@@ -3,56 +3,89 @@
 #   Author(s): Dravin Flores, Paul Johnecheck
 #   Date Created: 02 April, 2021
 #
-#   Purpose: This file houses the swager station class. This class stores the
-#       data collected from the swager station into an object.
+#   Purpose: This file houses the swage station class. This class stores the
+#       data collected from the swage station into an object.
 #
 #   Known Issues:
 #
 #   Workarounds:
 #
 ###############################################################################
-
-#Import Preparation block. 
-#Currently only needed so the tests in the mains work with the current imports.
-import os #This might cause problems on non-windows computers. #WorksOnMyMachine
-import sys #This can eventually be removed once this code will only be executed with CWD outside the package itself.
-path = os.path.realpath(__file__) #gets the path of the current file being executed
-sys.path.append(path[:-len(os.path.basename(__file__))]) #adds the folder that file is in to the system path
+from abc import ABC
 
 
-from station import Station
-from test_data import Test_data
+# Import Preparation block.
+# Currently only needed so the tests in the mains work with the current imports.
+import os
+import sys
+
+# Gets the path of the current file being executed.
+path = os.path.realpath(__file__)
 
 
-class SwageTest(Test_data):
-    '''
+# Adds the folder that file is in to the system path
+sys.path.append(path[:-len(os.path.basename(__file__))])
+
+from station import *
+from test_data import TestData
+
+
+class SwageTest(TestData):
+    """
     Class for objects representing individual tests from the Swage station.
-    '''
-    def __init__(self, raw_length=None, swage_length=None, clean_code=None, error_code=None):
+    """
+
+    # These are the fail limits for any tube.
+    max_raw_length = 2000   # cm
+    min_raw_length = 0      # cm
+    max_swage_length = 2000   # cm
+    min_swage_length = 0      # cm
+
+    # Does this format for a long list of parameters look cleaner?
+    def __init__(self, raw_length=None, swage_length=None,
+                 clean_code=None, error_code=None):
+
+        # Call the super class init to construct the object.
         super().__init__()
         self.raw_length = raw_length
         self.swage_length = swage_length
         self.clean_code = clean_code
         self.error_code = error_code
 
-    def fail():
-        #TODO
-        pass
+    def fail(self):
+        if self.raw_length < SwageTest.min_raw_length               \
+                or self.raw_length > SwageTest.max_raw_length       \
+                or self.swage_length < SwageTest.min_swage_length   \
+                or self.swage_length > SwageTest.max_swage_length:
+            return True
+        else:
+            return False
+
     def __str__(self):
-        return "Raw Length: {}\nSwage Length: {}\n{}\n{}".format(self.raw_length, self.swage_length, self.clean_code, self.error_code)
+        # Using string concatenation here.
+        a = f"Raw Length: {self.raw_length}\n"
+        b = f"Swage Length: {self.swage_length}\n"
+        c = f"Clean Code: {self.clean_code}\n"
+        d = f"Error Code: {self.error_code}\n"
+        return_str = a + b + c + d
+        return return_str
 
 
-class Swage(Station):
+class Swage(Station, ABC):
     '''
     The Swage station class, manages the relevant tests for a particular tube.
     '''
-    def __init__(self, users=[], tests=[]): 
-            super().__init__(users, tests)
+    def __init__(self): 
+            super().__init__()
 
 
 if __name__ == "__main__":
     swage = Swage()
     swage.set_test(SwageTest(raw_length=3.4, swage_length=3.2, clean_code=None, error_code=None))
     swage.set_test(SwageTest(raw_length=5.2, swage_length=8., clean_code=None, error_code=None))
+    swage.set_test(SwageTest(raw_length=1.03, swage_length=5, clean_code=None, error_code=None))
     print(swage.get_test())
     print(swage.get_test("first"))
+    add_mode("lengthiest", lambda x: sorted(x.m_tests, key=lambda y: y.raw_length)[-1])
+    print(swage.get_test("lengthiest"))
+    

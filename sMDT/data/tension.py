@@ -11,42 +11,61 @@
 #   Workarounds:
 #
 ###############################################################################
+from abc import ABC
 
-#Import Preparation block. 
-#Currently only needed so the tests in the mains work with the current imports.
-import os #This might cause problems on non-windows computers. #WorksOnMyMachine
-import sys #This can eventually be removed once this code will only be executed with CWD outside the package itself.
-path = os.path.realpath(__file__) #gets the path of the current file being executed
-sys.path.append(path[:-len(os.path.basename(__file__))]) #adds the folder that file is in to the system path
+
+
+# Import Preparation block.
+# Currently only needed so the tests in the mains work with the current imports.
+import os
+import sys
+
+# Gets the path of the current file being executed.
+path = os.path.realpath(__file__)
+
+# Adds the folder that file is in to the system path
+sys.path.append(path[:-len(os.path.basename(__file__))])
 
 from station import Station
+from test_data import TestData
 from datetime import datetime
-from test_data import Test_data
 
 
-class TensionTest(Test_data):
-    '''
+class TensionTest(TestData):
+    """
     Class for objects representing individual tests from the Tension station.
-    '''
-    def __init__(self, tension=None, frequency=None, timedate=datetime.now()):
+    """
+
+    # Here are the project defined limits.
+    max_tension = 350 + 15
+    min_tension = 350 - 15
+
+    def __init__(self, tension=None, frequency=None, date=datetime.now()):
         super().__init__()
         self.tension = tension
         self.frequency = frequency
-        self.timedate = timedate
+        self.date = date
 
-    def fail():
-        #TODO
-        pass
+    def fail(self):
+        if self.tension < TensionTest.min_tension \
+                or self.tension > TensionTest.max_tension:
+            return True
+        else:
+            return False
+
     def __str__(self):
-        return "Tension: {}\nFrequency: {}\nRecorded on {}\n".format(self.tension, self.frequency, self.timedate)
+        a = f"Tension: {self.tension}\n"
+        b = f"Frequency: {self.frequency}\n"
+        c = f"Recorded on {self.date}\n"
+        return a + b + c
 
 
-class Tension(Station):
+class Tension(Station, ABC):
     '''
     Class for objects representing individual tests from the Tension station.
     '''
-    def __init__(self, users=[], tests=[]):
-        super().__init__(users, tests)
+    def __init__(self):
+        super().__init__()
 
     def __str__(self):
         pass
@@ -54,7 +73,7 @@ class Tension(Station):
 
 if __name__ == "__main__":
     tension = Tension()
-    tension.set_test(TensionTest(15, 0.0005, timedate=datetime.now()))
-    tension.set_test(TensionTest(3, 134.56, timedate=datetime.now()))
+    tension.set_test(TensionTest(15, 0.0005, datetime.now()))
+    tension.set_test(TensionTest(3, 134.56, datetime.now()))
     print(tension.get_test())
     print(tension.get_test("first"))
