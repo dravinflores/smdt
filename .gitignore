@@ -5,3 +5,4 @@ venv/
 /.vs/VSWorkspaceState.json
 /.vs/ProjectSettings.json
 *.pyc
+/.vs/PythonSettings.json
