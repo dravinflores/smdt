@@ -1,6 +1,6 @@
 ###############################################################################
 #   File: db.py
-#   Author(s): Paul Johnecheck 
+#   Author(s): Paul Johnecheck, Dravin Flores
 #   Date Created: 16 April, 2021
 #
 #   Purpose: This is the class representing a tube.
@@ -11,8 +11,6 @@
 #   Workarounds:
 #
 ###############################################################################
-
-
 
 # Import Preparation block.
 # Currently only needed so the tests in the mains work with the current imports.
@@ -42,8 +40,10 @@ class Tube:
 
     def dict(self) -> dict():
         return dict()
+
     def getID(self):
         return self.m_tube_id
+
     def get_comments(self):
         return self.m_comments
 

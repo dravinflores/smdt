@@ -11,3 +11,6 @@ venv/
 /database.s.bak
 /database.s.dat
 /.vs/PythonSettings.json
+
+# Just in case there is the additon of the database.s.* stuff.
+database.s.*
