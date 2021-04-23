@@ -4,4 +4,5 @@ venv/
 /.vs/slnx.sqlite~Stashed changes
 /.vs/VSWorkspaceState.json
 /.vs/ProjectSettings.json
+/.vs/slnx.sqlite
 *.pyc
