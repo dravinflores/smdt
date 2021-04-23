@@ -44,16 +44,21 @@ class DarkCurrent(Station):
     '''
     Class for objects representing individual tests from the Dark Current station.
     '''
-    def __init__(self, users=[], tests=[]):
-        super().__init__(users, tests)
+    def __init__(self):
+        super().__init__()
 
     def __str__(self):
         pass
 
 
 if __name__ == "__main__":
-    dark_current = DarkCurrent()
-    dark_current.set_test(DarkCurrentTest(15,  timedate=datetime.now()))
-    dark_current.set_test(DarkCurrentTest(3,  timedate=datetime.now()))
-    print(dark_current.get_test())
-    print(dark_current.get_test("first"))
+    dark_current1 = DarkCurrent()
+    dark_current1.test = "test"
+    dark_current1.set_test(DarkCurrentTest(15,  timedate=datetime.now()))
+    dark_current2 = DarkCurrent()
+    dark_current2.test = "test2"
+    dark_current2.set_test(DarkCurrentTest(3,  timedate=datetime.now()))
+    print(dark_current1.get_test())
+    print(dark_current1.m_tests)
+    print(dark_current2.get_test())
+    print(dark_current2.m_tests)

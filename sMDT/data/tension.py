@@ -45,8 +45,8 @@ class Tension(Station):
     '''
     Class for objects representing individual tests from the Tension station.
     '''
-    def __init__(self, users=[], tests=[]):
-        super().__init__(users, tests)
+    def __init__(self):
+        super().__init__()
 
     def __str__(self):
         pass

@@ -47,8 +47,8 @@ class Leak(Station):
     '''
     The Leak station class, manages the relevant tests for a particular tube.
     '''
-    def __init__(self, users=[], tests=[]):
-        super().__init__(users, tests)
+    def __init__(self):
+        super().__init__()
 
     def __str__(self):
         pass

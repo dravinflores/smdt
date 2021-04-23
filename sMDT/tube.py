@@ -19,10 +19,10 @@ import sys #This can eventually be removed once this code will only be executed 
 path = os.path.realpath(__file__) #gets the path of the current file being executed
 sys.path.append(path[:-len(os.path.basename(__file__))]) #adds the folder that file is in to the system path
 
-from data.swage import Swage
-from data.tension import Tension
-from data.leak import Leak
-from data.dark_current import Dark_Current
+from data.swage import Swage, SwageTest
+from data.tension import Tension, TensionTest
+from data.leak import Leak, LeakTest
+from data.dark_current import DarkCurrent, DarkCurrentTest
 
 
 class Tube():
@@ -32,17 +32,27 @@ class Tube():
         self.swage = Swage()
         self.tension = Tension()
         self.leak = Leak()
-        self.dark_current = Dark_Current()
+        self.dark_current = DarkCurrent()
         pass
     def dict(self) -> dict():
         return dict()
+    def getID(self):
+        return self.m_tube_id
     def get_comments(self):
         return self.m_comments
     def new_comment(self, comment: str):
         self.m_comments.append(comment)
     def fail(self) -> bool:
         return True
+    def __add__(self, other):
+        ret = Tube()
+        ret.m_tube_id = self.m_tube_id
+        ret.m_comments = self.m_comments + other.m_comments
+        ret.swage = self.swage + other.swage
+        ret.tension = self.tension + other.tension
+        ret.leak = self.leak + other.leak
+        ret.dark_current = self.dark_current + other.dark_current
+        return ret
 
 if __name__ == '__main__':
     a = Tube()
-    a.swage.test()

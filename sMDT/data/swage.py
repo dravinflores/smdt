@@ -20,7 +20,7 @@ path = os.path.realpath(__file__) #gets the path of the current file being execu
 sys.path.append(path[:-len(os.path.basename(__file__))]) #adds the folder that file is in to the system path
 
 
-from station import Station
+from station import *
 from test_data import Test_data
 
 
@@ -46,13 +46,17 @@ class Swage(Station):
     '''
     The Swage station class, manages the relevant tests for a particular tube.
     '''
-    def __init__(self, users=[], tests=[]): 
-            super().__init__(users, tests)
+    def __init__(self): 
+            super().__init__()
 
 
 if __name__ == "__main__":
     swage = Swage()
     swage.set_test(SwageTest(raw_length=3.4, swage_length=3.2, clean_code=None, error_code=None))
     swage.set_test(SwageTest(raw_length=5.2, swage_length=8., clean_code=None, error_code=None))
+    swage.set_test(SwageTest(raw_length=1.03, swage_length=5, clean_code=None, error_code=None))
     print(swage.get_test())
     print(swage.get_test("first"))
+    add_mode("lengthiest", lambda x: sorted(x.m_tests, key=lambda y: y.raw_length)[-1])
+    print(swage.get_test("lengthiest"))
+    
