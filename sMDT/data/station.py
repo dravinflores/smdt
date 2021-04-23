@@ -87,6 +87,10 @@ class Station:
         """Adds a test to the station's records"""
         self.m_tests.append(test)
 
+    def fail(self, mode='last'):
+        return modes[mode](self).fail()
+
+
 
 if __name__ == "__main__":
     from dark_current import DarkCurrentTest

@@ -13,7 +13,6 @@
 ###############################################################################
 from abc import ABC
 
-
 # Import Preparation block.
 # Currently only needed so the tests in the mains work with the current imports.
 import os
@@ -22,11 +21,10 @@ import sys
 # Gets the path of the current file being executed.
 path = os.path.realpath(__file__)
 
-
 # Adds the folder that file is in to the system path
 sys.path.append(path[:-len(os.path.basename(__file__))])
 
-from station import *
+import station
 from test_data import TestData
 
 
@@ -71,7 +69,7 @@ class SwageTest(TestData):
         return return_str
 
 
-class Swage(Station, ABC):
+class Swage(station.Station, ABC):
     '''
     The Swage station class, manages the relevant tests for a particular tube.
     '''
@@ -84,8 +82,15 @@ if __name__ == "__main__":
     swage.set_test(SwageTest(raw_length=3.4, swage_length=3.2, clean_code=None, error_code=None))
     swage.set_test(SwageTest(raw_length=5.2, swage_length=8., clean_code=None, error_code=None))
     swage.set_test(SwageTest(raw_length=1.03, swage_length=5, clean_code=None, error_code=None))
+
+    print("Created a Swage station object, stored 3 swage tests with raw lengths 3.4, 5.2, 1.03 respectively")
+    print("Printing swage.get_test() (default mode is last, should be 1.03)\n")
     print(swage.get_test())
+
+    print("Printing swage.get_test('first')\n")
     print(swage.get_test("first"))
-    add_mode("lengthiest", lambda x: sorted(x.m_tests, key=lambda y: y.raw_length)[-1])
+
+    print("Adding mode 'lengthiest', which returns the test with the greatest raw_length.\nPrinting swage.get_test('lengthiest')\n")
+    station.add_mode("lengthiest", lambda x: sorted(x.m_tests, key=lambda y: y.raw_length)[-1])
     print(swage.get_test("lengthiest"))
     
