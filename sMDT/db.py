@@ -11,7 +11,7 @@
 #   Workarounds:
 #
 ###############################################################################
-from tube import Tube
+
 
 # Import Preparation block.
 # Currently only needed so the tests in the mains work with the current imports.
@@ -26,14 +26,22 @@ sys.path.append(path[:-len(os.path.basename(__file__))])
 
 from tube import Tube
 from data.dark_current import *
+from station import *
 import shelve
 
 
 
 
 class db():
-    def __init__(self):
-        self.tubes = shelve.open("database.s")
+    def __init__(self, mode='file'):
+        if mode == 'file':
+            self.tubes = shelve.open("database.s")
+            self.shelve = True
+        elif mode== 'mem':
+            self.tubes = dict()
+            self.shelve = False
+        else:
+            raise NotImplementedError
     def addTube(self, tube: Tube()):
         if tube.getID() in self.tubes:
             temp = self.tubes[tube.getID()] + tube
@@ -42,24 +50,61 @@ class db():
             self.tubes[tube.getID()] = tube
     def getTube(self, id):
         return self.tubes[id]
+    def wipe():
+        for key in self.tubes:
+            del self.tubes[key]
     def __del__(self):
-        self.tubes.close()
+        if self.shelve:
+            self.tubes.close()
+
         
 
 
 if __name__ == '__main__':
-    tubes = db()
+
+    print("Database stored in memory, demonstrating tube addition")
+    tubes = db(mode='mem')
+
     tube1 = Tube()
-    tube2 = Tube()
     tube1.m_tube_id = "MSUID1"
-    tube2.m_tube_id = "MSUID1"
-#    tube1.dark_current = DarkCurrent()
-#    tube1.dark_current.set_test(DarkCurrentTest(0.001))
-#    tube1.dark_current.set_test(5)
-#    tube2.dark_current = DarkCurrent()
-#    tube2.dark_current.set_test(DarkCurrentTest(0.002))
+    tube1.dark_current.set_test(DarkCurrentTest(0.001))
+
+    print("Adding first tube, printing last dark current test")
     tubes.addTube(tube1)
     print(tubes.getTube("MSUID1").dark_current.get_test())
-#    tubes.addTube(tube2)
+
+    tube2 = Tube()
+    tube2.m_tube_id = "MSUID1"
+    tube2.dark_current.set_test(DarkCurrentTest(0.002))
+
+    print("Adding second tube, printing last dark current test")
+    tubes.addTube(tube2)
     print(tubes.getTube("MSUID1").dark_current.get_test())
+
+    del tubes
+    print("Database stored in file using shelve")
+    tubes = db(mode='file')
+
+    tube1 = Tube()
+    tube1.m_tube_id = "MSUID1"
+    tube1.dark_current.set_test(DarkCurrentTest(0.001))
+
+    print("Adding first tube, printing last dark current test")
+    tubes.addTube(tube1)
+    print(tubes.getTube("MSUID1").dark_current.get_test())
+
+    tube2 = Tube()
+    tube2.m_tube_id = "MSUID1"
+    tube2.dark_current.set_test(DarkCurrentTest(0.002))
+
+    print("Adding second tube, printing last dark current test")
+    tubes.addTube(tube2)
+    print(tubes.getTube("MSUID1").dark_current.get_test())
+
+    del tubes
+    print("Close file database and reopen, printing the dark current result that was stored")
+    tubes = db(mode='file')
+    print(tubes.getTube("MSUID1").dark_current.get_test())
+
+
     

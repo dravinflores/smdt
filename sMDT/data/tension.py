@@ -13,9 +13,7 @@
 ###############################################################################
 from abc import ABC
 
-from station import Station
-from test_data import TestData
-from datetime import datetime
+
 
 # Import Preparation block.
 # Currently only needed so the tests in the mains work with the current imports.
@@ -27,6 +25,10 @@ path = os.path.realpath(__file__)
 
 # Adds the folder that file is in to the system path
 sys.path.append(path[:-len(os.path.basename(__file__))])
+
+from station import Station
+from test_data import TestData
+from datetime import datetime
 
 
 class TensionTest(TestData):

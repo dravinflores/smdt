@@ -12,16 +12,19 @@
 #
 ###############################################################################
 
-# Import Preparation block.
-# Currently only needed so the tests in the mains work with the current imports.
-import os
-import sys
+
 
 modes = {
            "last"  :  lambda station: station.m_tests[-1],
            "first" :  lambda station: station.m_tests[0]}
 def add_mode(name, lam_expr):
         modes[name] = lam_expr
+
+# Import Preparation block.
+# Currently only needed so the tests in the mains work with the current imports.
+import os
+import sys
+
 # Gets the path of the current file being executed.
 path = os.path.realpath(__file__)
 
@@ -48,12 +51,8 @@ class Station:
         #I'll document it fully later but this code below 
         #is going to allow application custimizable modes in a really nice way. 
 
-        self.modes = {
-           "last"  :  lambda station: station.m_tests[-1],
-           "first" :  lambda station: station.m_tests[0]}
+        
 
-    def add_mode(name, lam_expr):
-        self.modes[name] = lam_expr
 
     def __str__(self):
         raise NotImplementedError

@@ -12,10 +12,7 @@
 #
 ###############################################################################
 
-from data.swage import Swage
-from data.tension import Tension
-from data.leak import Leak
-from data.dark_current import DarkCurrent
+
 
 # Import Preparation block.
 # Currently only needed so the tests in the mains work with the current imports.
@@ -27,6 +24,11 @@ path = os.path.realpath(__file__)
 
 # Adds the folder that file is in to the system path
 sys.path.append(path[:-len(os.path.basename(__file__))])
+
+from data.swage import Swage
+from data.tension import Tension
+from data.leak import Leak
+from data.dark_current import DarkCurrent
 
 
 class Tube:
@@ -56,6 +58,16 @@ class Tube:
             return True
         else:
             return False
+
+    def __add__(self, other):
+        ret = Tube()
+        ret.m_tube_id = self.m_tube_id
+        ret.m_comments = self.m_comments + other.m_comments
+        ret.swage = self.swage + other.swage
+        ret.leak = self.leak + other.leak
+        ret.dark_current = self.dark_current + other.dark_current
+        ret.tension = self.tension + other.tension
+        return ret
 
 
 if __name__ == '__main__':

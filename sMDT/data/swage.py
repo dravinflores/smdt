@@ -27,7 +27,7 @@ path = os.path.realpath(__file__)
 sys.path.append(path[:-len(os.path.basename(__file__))])
 
 from station import *
-from test_data import Test_data
+from test_data import TestData
 
 
 class SwageTest(TestData):
