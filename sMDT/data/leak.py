@@ -11,39 +11,49 @@
 #   Workarounds:
 #
 ###############################################################################
-
-#Import Preparation block. 
-#Currently only needed so the tests in the mains work with the current imports.
-import os #This might cause problems on non-windows computers. #WorksOnMyMachine
-import sys #This can eventually be removed once this code will only be executed with CWD outside the package itself.
-path = os.path.realpath(__file__) #gets the path of the current file being executed
-sys.path.append(path[:-len(os.path.basename(__file__))]) #adds the folder that file is in to the system path
-
+from abc import ABC
 
 from station import Station
+from test_data import TestData
 from datetime import datetime
-from test_data import Test_data
+
+# Import Preparation block.
+# Currently only needed so the tests in the mains work with the current imports.
+import os
+import sys
+
+# Gets the path of the current file being executed.
+path = os.path.realpath(__file__)
+
+# Adds the folder that file is in to the system path
+sys.path.append(path[:-len(os.path.basename(__file__))])
 
 
-
-class LeakTest(Test_data):
-    '''
+class LeakTest(TestData):
+    """
     Class for objects representing individual tests from the Leak station.
-    '''
-    def __init__(self, leak_rate=None, timedate=datetime.now()):
-        self.leak_rate = leak_rate
-        self.timedate = timedate
+    """
 
-    def fail(self):
-        #TODO
-        pass
+    # Here are the project defined limits.
+    threshold_leak = 5.0E-5
+
+    def __init__(self, leak_rate=None, date=datetime.now()):
+        self.leak_rate = leak_rate
+        self.date = date
 
     def __str__(self):
-        return "Leak Rate: {}\nRecorded at {}\n".format(self.leak_rate, self.timedate)
+        a = f"Leak Rate: {self.leak_rate}\n"
+        b = f"Recorded at {self.date}\n"
+        return a + b
+
+    def fail(self):
+        if self.leak_rate > LeakTest.threshold_leak:
+            return True
+        else:
+            return False
 
 
-
-class Leak(Station):
+class Leak(Station, ABC):
     '''
     The Leak station class, manages the relevant tests for a particular tube.
     '''
@@ -54,10 +64,9 @@ class Leak(Station):
         pass
 
 
-
 if __name__ == "__main__":
     leak = Leak()
-    leak.set_test(LeakTest(leak_rate=0.0001, timedate=datetime.now()))
-    leak.set_test(LeakTest(leak_rate=3, timedate=datetime.now()))
+    leak.set_test(LeakTest(0.0001, datetime.now()))
+    leak.set_test(LeakTest(3, datetime.now()))
     print(leak.get_test())
     print(leak.get_test("first"))

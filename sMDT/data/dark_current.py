@@ -12,35 +12,51 @@
 #   Workarounds:
 #
 ###############################################################################
-
-#Import Preparation block. 
-#Currently only needed so the tests in the mains work with the current imports.
-import os #This might cause problems on non-windows computers. #WorksOnMyMachine
-import sys #This can eventually be removed once this code will only be executed with CWD outside the package itself.
-path = os.path.realpath(__file__) #gets the path of the current file being executed
-sys.path.append(path[:-len(os.path.basename(__file__))]) #adds the folder that file is in to the system path
+from abc import ABC
 
 from station import Station
+from test_data import TestData
 from datetime import datetime
-from test_data import Test_data
 
-class DarkCurrentTest(Test_data):
-    '''
+# Import Preparation block.
+# Currently only needed so the tests in the mains work with the current imports.
+import os
+import sys
+
+# Gets the path of the current file being executed.
+path = os.path.realpath(__file__)
+
+# Adds the folder that file is in to the system path
+sys.path.append(path[:-len(os.path.basename(__file__))])
+
+
+class DarkCurrentTest(TestData):
+    """
     Class for objects representing individual tests from the Dark Current station.
-    '''
-    def __init__(self, dark_current=None, timedate=datetime.now()):
+    """
+
+    # Here are the project defined limits.
+    max_individual_current = 1E-9   # 1 nA
+    max_collective_current = 8E-9   # 8 nA
+
+    def __init__(self, dark_current=None, date=datetime.now()):
         super().__init__()
         self.dark_current = dark_current
-        self.timedate = timedate
+        self.date = date
 
-    def fail():
-        #TODO
-        pass
     def __str__(self):
-        return "Dark Current: {}\nRecorded on {}\n".format(self.dark_current, self.timedate)
+        a = f"Dark Current: {self.dark_current}\n"
+        b = f"Recorded on {self.date}\n"
+        return a + b
+
+    def fail(self):
+        if self.dark_current > DarkCurrentTest.max_individual_current:
+            return True
+        else:
+            return False
 
 
-class DarkCurrent(Station):
+class DarkCurrent(Station, ABC):
     '''
     Class for objects representing individual tests from the Dark Current station.
     '''
@@ -52,13 +68,8 @@ class DarkCurrent(Station):
 
 
 if __name__ == "__main__":
-    dark_current1 = DarkCurrent()
-    dark_current1.test = "test"
-    dark_current1.set_test(DarkCurrentTest(15,  timedate=datetime.now()))
-    dark_current2 = DarkCurrent()
-    dark_current2.test = "test2"
-    dark_current2.set_test(DarkCurrentTest(3,  timedate=datetime.now()))
-    print(dark_current1.get_test())
-    print(dark_current1.m_tests)
-    print(dark_current2.get_test())
-    print(dark_current2.m_tests)
+    dark_current = DarkCurrent()
+    dark_current.set_test(DarkCurrentTest(15,  timedate=datetime.now()))
+    dark_current.set_test(DarkCurrentTest(3,  timedate=datetime.now()))
+    print(dark_current.get_test())
+    print(dark_current.get_test("first"))
