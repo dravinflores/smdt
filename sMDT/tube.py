@@ -1,5 +1,5 @@
 ###############################################################################
-#   File: db.py
+#   File: tube.py
 #   Author(s): Paul Johnecheck, Dravin Flores
 #   Date Created: 16 April, 2021
 #
@@ -30,7 +30,7 @@ from data.dark_current import DarkCurrent
 
 
 class Tube:
-    def __init__(self, tubeDict={}):
+    def __init__(self):
         self.m_tube_id = None
         self.m_comments = []
         self.swage = Swage()
@@ -38,8 +38,27 @@ class Tube:
         self.leak = Leak()
         self.dark_current = DarkCurrent()
 
-    def dict(self) -> dict():
-        return dict()
+    def __add__(self, other):
+        ret = Tube()
+        ret.m_tube_id = self.m_tube_id
+        ret.m_comments = self.m_comments + other.m_comments
+        ret.swage = self.swage + other.swage
+        ret.leak = self.leak + other.leak
+        ret.dark_current = self.dark_current + other.dark_current
+        ret.tension = self.tension + other.tension
+        return ret
+
+    def __str__(self):
+        n = self.getID() + '\n'
+        a = self.swage.__str__()
+        b = self.tension.__str__()
+        c = self.leak.__str__()
+        d = self.dark_current.__str__()
+
+        ret_str = n + a + b + c + d
+        ret_str = str(ret_str)
+
+        return ret_str
 
     def getID(self):
         return self.m_tube_id
@@ -59,16 +78,10 @@ class Tube:
         else:
             return False
 
-    def __add__(self, other):
-        ret = Tube()
-        ret.m_tube_id = self.m_tube_id
-        ret.m_comments = self.m_comments + other.m_comments
-        ret.swage = self.swage + other.swage
-        ret.leak = self.leak + other.leak
-        ret.dark_current = self.dark_current + other.dark_current
-        ret.tension = self.tension + other.tension
-        return ret
+    def dict(self) -> dict():
+        return dict()
 
 
 if __name__ == '__main__':
     a = Tube()
+    print(a)

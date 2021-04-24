@@ -29,6 +29,7 @@ sys.path.append(path[:-len(os.path.basename(__file__))])
 from station import Station
 from test_data import TestData
 from datetime import datetime
+import textwrap
 
 
 class TensionTest(TestData):
@@ -40,11 +41,13 @@ class TensionTest(TestData):
     max_tension = 350 + 15
     min_tension = 350 - 15
 
-    def __init__(self, tension=None, frequency=None, date=datetime.now()):
+    def __init__(self, tension=None, frequency=None,
+                 date=datetime.now(), data_file=None):
         super().__init__()
         self.tension = tension
         self.frequency = frequency
         self.date = date
+        self.data_file = data_file
 
     def fail(self):
         if self.tension < TensionTest.min_tension \
@@ -56,8 +59,9 @@ class TensionTest(TestData):
     def __str__(self):
         a = f"Tension: {self.tension}\n"
         b = f"Frequency: {self.frequency}\n"
-        c = f"Recorded on {self.date}\n"
-        return a + b + c
+        c = f"Recorded on: {self.date}\n"
+        d = f"Data File: {self.data_file}"
+        return a + b + c + d
 
 
 class Tension(Station, ABC):
@@ -68,12 +72,24 @@ class Tension(Station, ABC):
         super().__init__()
 
     def __str__(self):
-        pass
+        a = "Tension Data:\n"
+        b = ""
+
+        # We want to print out each test.
+        for test in self.m_tests:
+            b += test.__str__() + '\n\n'
+
+        # We want to get rid of the last '\n' in the string.
+        b = b[0:-1]
+
+        # We want to have the return string indent each test, for viewing ease.
+        return a + textwrap.indent(b, '\t')
 
 
 if __name__ == "__main__":
     tension = Tension()
     tension.set_test(TensionTest(15, 0.0005, datetime.now()))
     tension.set_test(TensionTest(3, 134.56, datetime.now()))
-    print(tension.get_test())
-    print(tension.get_test("first"))
+    # print(tension.get_test())
+    # print(tension.get_test("first"))
+    print(tension)

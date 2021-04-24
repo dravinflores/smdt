@@ -12,13 +12,14 @@
 #
 ###############################################################################
 
-
-
 modes = {
-           "last"  :  lambda station: station.m_tests[-1],
-           "first" :  lambda station: station.m_tests[0]}
+    "last"  :  lambda station: station.m_tests[-1],
+    "first" :  lambda station: station.m_tests[0]
+}
+
+
 def add_mode(name, lam_expr):
-        modes[name] = lam_expr
+    modes[name] = lam_expr
 
 # Import Preparation block.
 # Currently only needed so the tests in the mains work with the current imports.
@@ -33,26 +34,26 @@ sys.path.append(path[:-len(os.path.basename(__file__))])
 
 
 class Station:
-    '''
+    """
     Abstract class representing a station that will record data on a tube
-    '''
+    """
     def __init__(self):
-        #WARNING
-        #Initially, this init function and the inheriting station's functions looked something like
-        #def __init__(self, users=[],tests=[])
+        # WARNING
+        # Initially, this init function and the inheriting station's functions
+        # looked something like
+        # def __init__(self, users=[],tests=[])
         #   self.m_users = users
         #   self.m_tests = tests
-        #I dont know why, but this is apparently a terrible idea 
-        #that somehow makes the lists in every station ojbect be the same object and share their users and tests.
-        #Again, no idea why, I encountered the problem and traced it back here and found that removing it fixed it
+        # I don't know why, but this is apparently a terrible idea
+        # that somehow makes the lists in every station object be the same
+        # object and share their users and tests. Again, no idea why, I
+        # encountered the problem and traced it back here and found that
+        # removing it fixed it
         self.m_users = []
         self.m_tests = []
 
-        #I'll document it fully later but this code below 
-        #is going to allow application custimizable modes in a really nice way. 
-
-        
-
+        # I'll document it fully later but this code below
+        # is going to allow application customizable modes in a really nice way.
 
     def __str__(self):
         raise NotImplementedError
@@ -65,7 +66,8 @@ class Station:
         ret.m_users = self.m_users + other.m_users
         ret.m_tests = self.m_tests + other.m_tests
         return ret
-      #  return type(self)(self.m_users + other.m_users, self.m_tests + other.m_tests)
+        # Return
+        # type(self)(self.m_users + other.m_users, self.m_tests + other.m_tests)
 
     def fail(self, mode="last"):
         raise modes[mode](self).fail()
@@ -80,16 +82,12 @@ class Station:
         self.m_users.append(user)
 
     def get_test(self, mode="last"):
-        '''Given a selected mode, returns the respective test'''
+        """Given a selected mode, returns the respective test"""
         return modes[mode](self)
 
     def set_test(self, test):
         """Adds a test to the station's records"""
         self.m_tests.append(test)
-
-    def fail(self, mode='last'):
-        return modes[mode](self).fail()
-
 
 
 if __name__ == "__main__":

@@ -29,6 +29,7 @@ sys.path.append(path[:-len(os.path.basename(__file__))])
 from station import Station
 from test_data import TestData
 from datetime import datetime
+import textwrap
 
 
 class LeakTest(TestData):
@@ -39,14 +40,16 @@ class LeakTest(TestData):
     # Here are the project defined limits.
     threshold_leak = 5.0E-5
 
-    def __init__(self, leak_rate=None, date=datetime.now()):
+    def __init__(self, leak_rate=None, date=datetime.now(), data_file=None):
         self.leak_rate = leak_rate
         self.date = date
+        self.data_file = data_file
 
     def __str__(self):
         a = f"Leak Rate: {self.leak_rate}\n"
-        b = f"Recorded at {self.date}\n"
-        return a + b
+        b = f"Recorded on: {self.date}\n"
+        c = f"Data File: {self.data_file}"
+        return a + b + c
 
     def fail(self):
         if self.leak_rate > LeakTest.threshold_leak:
@@ -63,12 +66,24 @@ class Leak(Station, ABC):
         super().__init__()
 
     def __str__(self):
-        pass
+        a = "Leak Data:\n"
+        b = ""
+
+        # We want to print out each test.
+        for test in self.m_tests:
+            b += test.__str__() + '\n\n'
+
+        # We want to get rid of the last '\n' in the string.
+        b = b[0:-1]
+
+        # We want to have the return string indent each test, for viewing ease.
+        return a + textwrap.indent(b, '\t')
 
 
 if __name__ == "__main__":
     leak = Leak()
     leak.set_test(LeakTest(0.0001, datetime.now()))
     leak.set_test(LeakTest(3, datetime.now()))
-    print(leak.get_test())
-    print(leak.get_test("first"))
+    # print(leak.get_test())
+    # print(leak.get_test("first"))
+    print(leak)
