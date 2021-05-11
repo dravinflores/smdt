@@ -54,7 +54,4 @@ def test_new_mode():
     s.set_record(10)
     s.set_record(3)
     station.add_mode("lengthiest", lambda x: max(x.m_records))
-    assert s.get_record("first") == 5
-    assert s.get_record("last") == 10
-    s.set_record(6)
-    assert s.get_record("last") == 10
+    assert s.get_record("lengthiest") == 10
