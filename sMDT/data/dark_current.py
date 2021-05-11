@@ -3,8 +3,8 @@
 #   Author(s): Dravin Flores, Paul Johnecheck
 #   Date Created: 06 April, 2021
 #
-#   Purpose: This file houses the dark current test station class. This class
-#       stores the data collected from the dark current test station into
+#   Purpose: This file houses the dark current record station class. This class
+#       stores the data collected from the dark current record station into
 #       an object.
 #
 #   Known Issues:
@@ -17,7 +17,7 @@ from abc import ABC
 
 
 # Import Preparation block.
-# Currently only needed so the tests in the mains work with the current imports.
+# Currently only needed so the records in the mains work with the current imports.
 import os
 import sys
 
@@ -28,14 +28,14 @@ path = os.path.realpath(__file__)
 sys.path.append(path[:-len(os.path.basename(__file__))])
 
 from station import Station
-from test_data import TestData
+from record import Record
 from datetime import datetime
 import textwrap
 
 
-class DarkCurrentTest(TestData):
+class DarkCurrentRecord(Record):
     """
-    Class for objects representing individual tests from the Dark Current station.
+    Class for objects representing individual records from the Dark Current station.
     """
 
     # Here are the project defined limits.
@@ -55,7 +55,7 @@ class DarkCurrentTest(TestData):
         return a + b + c
 
     def fail(self):
-        if self.dark_current > DarkCurrentTest.max_individual_current:
+        if self.dark_current > DarkCurrentRecord.max_individual_current:
             return True
         else:
             return False
@@ -63,7 +63,7 @@ class DarkCurrentTest(TestData):
 
 class DarkCurrent(Station, ABC):
     """
-    Class for objects representing individual tests from the Dark Current station.
+    Class for objects representing individual records from the Dark Current station.
     """
     def __init__(self):
         super().__init__()
@@ -72,21 +72,21 @@ class DarkCurrent(Station, ABC):
         a = "Dark Current Data:\n"
         b = ""
 
-        # We want to print out each test.
-        for test in self.m_tests:
-            b += test.__str__() + '\n\n'
+        # We want to print out each record.
+        for record in self.m_records:
+            b += record.__str__() + '\n\n'
 
         # We want to get rid of the last '\n' in the string.
         b = b[0:-1]
 
-        # We want to have the return string indent each test, for viewing ease.
+        # We want to have the return string indent each record, for viewing ease.
         return a + textwrap.indent(b, '\t')
 
 
 if __name__ == "__main__":
     dark_current = DarkCurrent()
-    dark_current.set_test(DarkCurrentTest(15,  date=datetime.now()))
-    dark_current.set_test(DarkCurrentTest(3,  date=datetime.now()))
-    # print(dark_current.get_test())
-    # print(dark_current.get_test("first"))
+    dark_current.set_record(DarkCurrentRecord(15,  date=datetime.now()))
+    dark_current.set_record(DarkCurrentRecord(3,  date=datetime.now()))
+    # print(dark_current.get_record())
+    # print(dark_current.get_record("first"))
     print(dark_current)

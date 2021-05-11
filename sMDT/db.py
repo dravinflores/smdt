@@ -14,7 +14,7 @@
 
 
 # Import Preparation block.
-# Currently only needed so the tests in the mains work with the current imports.
+# Currently only needed so the records in the mains work with the current imports.
 import os
 import sys
 
@@ -25,7 +25,7 @@ path = os.path.realpath(__file__)
 sys.path.append(path[:-len(os.path.basename(__file__))])
 
 from tube import Tube
-from data.dark_current import *
+from data.dark_current import DarkCurrent, DarkCurrentRecord
 from data.station import *
 import shelve
 
@@ -66,19 +66,19 @@ if __name__ == '__main__':
 
     tube1 = Tube()
     tube1.m_tube_id = "MSUID1"
-    tube1.dark_current.set_test(DarkCurrentTest(0.001))
+    tube1.dark_current.set_record(DarkCurrentRecord(0.001))
 
-    print("Adding first tube, printing last dark current test")
+    print("Adding first tube, printing last dark current record")
     tubes.add_tube(tube1)
-    print(tubes.get_tube("MSUID1").dark_current.get_test())
+    print(tubes.get_tube("MSUID1").dark_current.get_record())
 
     tube2 = Tube()
     tube2.m_tube_id = "MSUID1"
-    tube2.dark_current.set_test(DarkCurrentTest(0.002))
+    tube2.dark_current.set_record(DarkCurrentRecord(0.002))
 
-    print("Adding second tube, printing last dark current test")
+    print("Adding second tube, printing last dark current record")
     tubes.add_tube(tube2)
-    print(tubes.get_tube("MSUID1").dark_current.get_test())
+    print(tubes.get_tube("MSUID1").dark_current.get_record())
 
     del tubes
 
@@ -88,23 +88,23 @@ if __name__ == '__main__':
 
     tube1 = Tube()
     tube1.m_tube_id = "MSUID1"
-    tube1.dark_current.set_test(DarkCurrentTest(0.001))
+    tube1.dark_current.set_record(DarkCurrentRecord(0.001))
 
-    print("Adding first tube, printing last dark current test")
+    print("Adding first tube, printing last dark current record")
     tubes2.add_tube(tube1)
-    print(tubes2.get_tube("MSUID1").dark_current.get_test())
+    print(tubes2.get_tube("MSUID1").dark_current.get_record())
 
     tube2 = Tube()
     tube2.m_tube_id = "MSUID1"
-    tube2.dark_current.set_test(DarkCurrentTest(0.002))
+    tube2.dark_current.set_record(DarkCurrentRecord(0.002))
 
-    print("Adding second tube, printing last dark current test")
+    print("Adding second tube, printing last dark current record")
     tubes2.add_tube(tube2)
-    print(tubes2.get_tube("MSUID1").dark_current.get_test())
+    print(tubes2.get_tube("MSUID1").dark_current.get_record())
 
     del tubes2
 
     print("Close file database and reopen, printing the dark current "
           "result that was stored")
     tubes3 = db(mode='file')
-    print(tubes3.get_tube("MSUID1").dark_current.get_test())
+    print(tubes3.get_tube("MSUID1").dark_current.get_record())

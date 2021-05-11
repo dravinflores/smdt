@@ -1,9 +1,9 @@
 ###############################################################################
-#   File: test_data.py
+#   File: record.py
 #   Author(s): Paul Johnecheck
 #   Date Created: 19 April, 2021
 #
-#   Purpose: This is the parent class of the various station's tests.
+#   Purpose: This is the parent class of the various station's records.
 #
 #   Known Issues:
 #
@@ -23,7 +23,7 @@ path = os.path.realpath(__file__)
 sys.path.append(path[:-len(os.path.basename(__file__))])
 
 
-class TestData:
+class Record:
     def __init__(self):
         pass
 

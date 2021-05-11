@@ -13,8 +13,8 @@
 ###############################################################################
 
 modes = {
-    "last"  :  lambda station: station.m_tests[-1],
-    "first" :  lambda station: station.m_tests[0]
+    "last"  :  lambda station: station.m_records[-1],
+    "first" :  lambda station: station.m_records[0]
 }
 
 
@@ -22,7 +22,7 @@ def add_mode(name, lam_expr):
     modes[name] = lam_expr
 
 # Import Preparation block.
-# Currently only needed so the tests in the mains work with the current imports.
+# Currently only needed so the records in the mains work with the current imports.
 import os
 import sys
 
@@ -41,16 +41,16 @@ class Station:
         # WARNING
         # Initially, this init function and the inheriting station's functions
         # looked something like
-        # def __init__(self, users=[],tests=[])
+        # def __init__(self, users=[],records=[])
         #   self.m_users = users
-        #   self.m_tests = tests
+        #   self.m_records = records
         # I don't know why, but this is apparently a terrible idea
         # that somehow makes the lists in every station object be the same
-        # object and share their users and tests. Again, no idea why, I
+        # object and share their users and records. Again, no idea why, I
         # encountered the problem and traced it back here and found that
         # removing it fixed it
         self.m_users = []
-        self.m_tests = []
+        self.m_records = []
 
         # I'll document it fully later but this code below
         # is going to allow application customizable modes in a really nice way.
@@ -64,10 +64,10 @@ class Station:
     def __add__(self, other):
         ret = type(self)()
         ret.m_users = self.m_users + other.m_users
-        ret.m_tests = self.m_tests + other.m_tests
+        ret.m_records = self.m_records + other.m_records
         return ret
         # Return
-        # type(self)(self.m_users + other.m_users, self.m_tests + other.m_tests)
+        # type(self)(self.m_users + other.m_users, self.m_records + other.m_records)
 
     def fail(self, mode="last"):
         raise modes[mode](self).fail()
@@ -81,25 +81,25 @@ class Station:
         """Adds a user to the station's records"""
         self.m_users.append(user)
 
-    def get_test(self, mode="last"):
-        """Given a selected mode, returns the respective test"""
+    def get_record(self, mode="last"):
+        """Given a selected mode, returns the respective record"""
         return modes[mode](self)
 
-    def set_test(self, test):
-        """Adds a test to the station's records"""
-        self.m_tests.append(test)
+    def set_record(self, record):
+        """Adds a record to the station's records"""
+        self.m_records.append(record)
 
 
 if __name__ == "__main__":
-    from dark_current import DarkCurrentTest
+    from dark_current import DarkCurrentRecord
     from datetime import datetime
     station = Station()
-    station.set_test(5)
-    station.m_tests.append(5)
+    station.set_record(5)
+    station.m_records.append(5)
     station2 = Station()
-    station2.m_tests.append(10)
-    station2.set_test(3)
-    print(station.m_tests)
-    print(station.get_test("first"))
-    print(station2.m_tests)
-    print(station2.get_test("first"))
+    station2.m_records.append(10)
+    station2.set_record(3)
+    print(station.m_records)
+    print(station.get_record("first"))
+    print(station2.m_records)
+    print(station2.get_record("first"))

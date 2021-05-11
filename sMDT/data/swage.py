@@ -14,7 +14,7 @@
 from abc import ABC
 
 # Import Preparation block.
-# Currently only needed so the tests in the mains work with the current imports.
+# Currently only needed so the records in the mains work with the current imports.
 import os
 import sys
 
@@ -26,13 +26,13 @@ sys.path.append(path[:-len(os.path.basename(__file__))])
 
 import textwrap
 import station
-from test_data import TestData
+from record import Record
 from datetime import datetime
 
 
-class SwageTest(TestData):
+class SwageRecord(Record):
     """
-    Class for objects representing individual tests from the Swage station.
+    Class for objects representing individual records from the Swage station.
     """
 
     # These are the fail limits for any tube.
@@ -56,10 +56,10 @@ class SwageTest(TestData):
         self.data_file = data_file
 
     def fail(self):
-        if self.raw_length < SwageTest.min_raw_length               \
-                or self.raw_length > SwageTest.max_raw_length       \
-                or self.swage_length < SwageTest.min_swage_length   \
-                or self.swage_length > SwageTest.max_swage_length:
+        if self.raw_length < SwageRecord.min_raw_length               \
+                or self.raw_length > SwageRecord.max_raw_length       \
+                or self.swage_length < SwageRecord.min_swage_length   \
+                or self.swage_length > SwageRecord.max_swage_length:
             return True
         else:
             return False
@@ -79,7 +79,7 @@ class SwageTest(TestData):
 
 class Swage(station.Station, ABC):
     '''
-    The Swage station class, manages the relevant tests for a particular tube.
+    The Swage station class, manages the relevant records for a particular tube.
     '''
     def __init__(self): 
         super().__init__()
@@ -88,36 +88,36 @@ class Swage(station.Station, ABC):
         a = "Swage Data:\n"
         b = ""
 
-        # We want to print out each test.
-        for test in self.m_tests:
-            b += test.__str__() + '\n\n'
+        # We want to print out each record.
+        for record in self.m_records:
+            b += record.__str__() + '\n\n'
 
         # We want to get rid of the last '\n' in the string.
         b = b[0:-1]
 
-        # We want to have the return string indent each test, for viewing ease.
+        # We want to have the return string indent each record, for viewing ease.
         return a + textwrap.indent(b, '\t')
 
 
 if __name__ == "__main__":
     swage = Swage()
-    swage.set_test(SwageTest(raw_length=3.4, swage_length=3.2,
+    swage.set_record(SwageRecord(raw_length=3.4, swage_length=3.2,
                              clean_code=None, error_code=None))
-    swage.set_test(SwageTest(raw_length=5.2, swage_length=8.,
+    swage.set_record(SwageRecord(raw_length=5.2, swage_length=8.,
                              clean_code=None, error_code=None))
-    swage.set_test(SwageTest(raw_length=1.03, swage_length=5,
+    swage.set_record(SwageRecord(raw_length=1.03, swage_length=5,
                              clean_code=None, error_code=None))
 
-    print("Created a Swage station object, stored 3 swage tests with raw "
+    print("Created a Swage station object, stored 3 swage records with raw "
           "lengths 3.4, 5.2, 1.03 respectively")
-    print("Printing swage.get_test() (default mode is last, should be 1.03)\n")
-    # print(swage.get_test())
+    print("Printing swage.get_record() (default mode is last, should be 1.03)\n")
+    # print(swage.get_record())
     print(swage)
 
-    print("Printing swage.get_test('first')\n")
-    print(swage.get_test("first"))
+    print("Printing swage.get_record('first')\n")
+    print(swage.get_record("first"))
 
-    print("Adding mode 'lengthiest', which returns the test with the "
-          "greatest raw_length.\nPrinting swage.get_test('lengthiest')\n")
-    station.add_mode("lengthiest", lambda x: sorted(x.m_tests, key=lambda y: y.raw_length)[-1])
-    print(swage.get_test("lengthiest"))
+    print("Adding mode 'lengthiest', which returns the record with the "
+          "grearecord raw_length.\nPrinting swage.get_record('lengthiest')\n")
+    station.add_mode("lengthiest", lambda x: sorted(x.m_records, key=lambda y: y.raw_length)[-1])
+    print(swage.get_record("lengthiest"))
