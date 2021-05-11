@@ -25,10 +25,28 @@ Key:
 
 Installation
 ------------
+Visit the following link for the source code.
 
-Install $project by running:
+https://github.com/dravinflores/smdt
 
-    install project
+As of now, this library is not uploaded to PyPi or a similar python package manager for easy installation with like `pip install sMDT`.
+Maybe it will be eventually, but for now you just have to install it manually. 
+
+The easiest way to do it is to just download the sMDT folder from the above github and just put it in the current working directory (same folder) of the code you're executing. A below example will show you how to import it, but it should just work if the sMDT *folder* is in the same folder as your code.
+
+It's also possible to add it to the python path somehow, or move it to a location already on the path. That will be left as an excercise for the reader. 
+
+Examples
+--------
+A very simple use case, such as at the tension station.
+```python
+from sMDT import db,tube                                #import the tube and db modules
+from sMDT.data import tension                           #import the tension module
+tubes = db.db()                                         #instantiate the database
+tube1 = tube.Tube()                                     #make a new tube
+tube1.tension.add_record(tension.TensionRecord(1.5))    #Store our new data in the tube, in the form of a TensionRecord object. 
+tubes.add_tube(tube1) #Store the tube in the database   #Store the tube in the database
+```
 
 Contribute
 ----------
