@@ -12,6 +12,7 @@ The main concept is the idea of a Tube object.
 
 Fig. 1
 ![Fig. 1](https://i.imgur.com/AhDI559.png)
+Key:
 
 -Each box is a class
 
