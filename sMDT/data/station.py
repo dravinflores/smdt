@@ -85,7 +85,7 @@ class Station:
         """Given a selected mode, returns the respective record"""
         return modes[mode](self)
 
-    def set_record(self, record):
+    def add_record(self, record):
         """Adds a record to the station's records"""
         self.m_records.append(record)
 

@@ -32,7 +32,7 @@ from datetime import datetime
 import textwrap
 
 
-class Tensionrecord(Record):
+class TensionRecord(Record):
     """
     Class for objects representing individual records from the Tension station.
     """

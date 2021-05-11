@@ -34,12 +34,12 @@ def test_base_station():
     '''
     from station import Station
     station = Station()
-    station.set_record(5)
-    station.set_record(3)
-    station.set_record(10)
+    station.add_record(5)
+    station.add_record(3)
+    station.add_record(10)
     assert station.get_record("first") == 5
     assert station.get_record("last") == 10
-    station.set_record(6)
+    station.add_record(6)
     assert station.get_record("last") == 6
 
 def test_new_mode():
@@ -49,9 +49,9 @@ def test_new_mode():
     '''
     import station
     s = station.Station()
-    s.set_record(5)
-    s.set_record(3)
-    s.set_record(10)
-    s.set_record(3)
+    s.add_record(5)
+    s.add_record(3)
+    s.add_record(10)
+    s.add_record(3)
     station.add_mode("lengthiest", lambda x: max(x.m_records))
     assert s.get_record("lengthiest") == 10
