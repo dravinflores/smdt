@@ -88,8 +88,8 @@ class Tension(Station, ABC):
 
 if __name__ == "__main__":
     tension = Tension()
-    tension.set_record(Tensionrecord(15, 0.0005, datetime.now()))
-    tension.set_record(Tensionrecord(3, 134.56, datetime.now()))
+    tension.set_record(TensionRecord(15, 0.0005, datetime.now()))
+    tension.set_record(TensionRecord(3, 134.56, datetime.now()))
     # print(tension.get_record())
     # print(tension.get_record("first"))
     print(tension)
