@@ -10,7 +10,7 @@ Structure
 
 The main concept is the idea of a Tube object. 
 
-![](https://imgur.com/a/FtEwVdT)
+![](https://i.imgur.com/94I35Ro.png)
 
 Installation
 ------------
