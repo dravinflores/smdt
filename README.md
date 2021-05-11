@@ -7,9 +7,6 @@ It will also provide a consistent interface for any interactions with the databa
 
 Structure
 --------
-
-The main concept is the idea of a Tube object. 
-
 Fig. 1
 ![Fig. 1](https://i.imgur.com/AhDI559.png)
 Key:
