@@ -10,8 +10,8 @@ Structure
 
 The main concept is the idea of a Tube object. 
 
-![](https://i.imgur.com/94I35Ro.png)
-
+![Fig. 1](https://i.imgur.com/94I35Ro.png)
+Fig. 1
 Installation
 ------------
 
