@@ -40,7 +40,7 @@ def test_base_station():
     assert station.get_record("first") == 5
     assert station.get_record("last") == 10
     station.set_record(6)
-    assert station.get_record("last") == 10
+    assert station.get_record("last") == 6
 
 def test_new_mode():
     '''
