@@ -8,7 +8,7 @@ It will also provide a consistent interface for any interactions with the databa
 Structure
 --------
 Fig. 1
-![Fig. 1](https://i.imgur.com/AhDI559.png)
+![Fig. 1](https://i.imgur.com/g7Dv28C.png)
 Key:
 
 -Each box is a class
@@ -22,6 +22,10 @@ Key:
 -A Tube has 1 LeakStation object
 
 -A Leakstation object has a list of LeakRecords 
+
+-The colored boxes in the background represent the python packages (folders) that the modules are in. 
+
+-Practically, that means you just write `from sMDT import tube` or `from sMDT.data import swage`
 
 Installation
 ------------
