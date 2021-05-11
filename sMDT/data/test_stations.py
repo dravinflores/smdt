@@ -47,14 +47,14 @@ def test_new_mode():
     This test tests the basic functionality of the station class
     Does not use any records or lambdas. 
     '''
-    from station import Station
-    station = Station()
-    station.set_record(5)
-    station.set_record(3)
-    station.set_record(10)
-    station.set_record(3)
+    import station
+    s = station.Station()
+    s.set_record(5)
+    s.set_record(3)
+    s.set_record(10)
+    s.set_record(3)
     station.add_mode("lengthiest", lambda x: max(x.m_records))
-    assert station.get_record("first") == 5
-    assert station.get_record("last") == 10
-    station.set_record(6)
-    assert station.get_record("last") == 10
+    assert s.get_record("first") == 5
+    assert s.get_record("last") == 10
+    s.set_record(6)
+    assert s.get_record("last") == 10
