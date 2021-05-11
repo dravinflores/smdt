@@ -90,16 +90,4 @@ class Station:
         self.m_records.append(record)
 
 
-if __name__ == "__main__":
-    from dark_current import DarkCurrentRecord
-    from datetime import datetime
-    station = Station()
-    station.set_record(5)
-    station.m_records.append(5)
-    station2 = Station()
-    station2.m_records.append(10)
-    station2.set_record(3)
-    print(station.m_records)
-    print(station.get_record("first"))
-    print(station2.m_records)
-    print(station2.get_record("first"))
+
