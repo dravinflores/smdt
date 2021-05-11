@@ -67,4 +67,4 @@ Talk to Paul or Dravin, or write an issue and put it in the issue tracker
 License
 -------
 
-The project is licensed under the GPLv3 license.
+The project is licensed under the MIT License.
