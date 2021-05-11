@@ -11,8 +11,13 @@ Structure
 The main concept is the idea of a Tube object. 
 
 Fig. 1
-![Fig. 1](https://i.imgur.com/94I35Ro.png)
-
+![Fig. 1](https://i.imgur.com/AhDI559.png)
+-Each box is a class
+-Arrows represent an "is a" relationship, inheritance. A LeakStation is a type of *Station*
+-Italic class names represent an abstract class that should be initialized
+-The lines with black diamonds at the end represent a "has a" or an "is made up of" relationship. The numbers represent the multiplicity of the side of the relationship. These are usually member variables.
+-A Tube has 1 LeakStation object
+-A Leakstation object has a list of LeakRecords 
 
 Installation
 ------------
