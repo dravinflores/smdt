@@ -62,7 +62,7 @@ Support
 -------
 
 If you are having issues, please let us know.
-Talk to Paul or Dravin, or write an issue and put it in the issues section
+Talk to Paul or Dravin, or write an issue and put it in the issue tracker
 
 License
 -------
