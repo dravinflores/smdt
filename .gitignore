@@ -15,3 +15,4 @@ venv/
 # Just in case there is the additon of the database.s.* stuff.
 database.s.*
 database.p
+*.xml
