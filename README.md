@@ -29,7 +29,7 @@ Key:
 
 Documentation
 -------------
-Full documentation can be found on [our github wiki](https://github.com/dravinflores/smdt/wiki)
+Full documentation can be found on [our github wiki](documentation/home.md)
 
 Installation
 ------------
