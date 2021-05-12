@@ -24,7 +24,7 @@ def test_user_defined_mode():
     tube1.tension.add_record(tension.TensionRecord(350))
     tube1.tension.add_record(tension.TensionRecord(370))
     tube1.tension.add_record(tension.TensionRecord(330))
-    assert tube1.tension.get_record(highest) == 370
+    assert tube1.tension.get_record(highest).tension == 370
 
 def test_outer_modes():
     from sMDT.data import tension,station
@@ -41,4 +41,4 @@ def test_outer_modes():
     assert t.fail(lambda x: max(x.m_records, key=lambda y: y.tension))
 
 if __name__ == '__main__':
-    test2()
+    test_outer_modes()

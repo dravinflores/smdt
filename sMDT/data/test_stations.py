@@ -53,8 +53,8 @@ def test_new_mode():
     s.add_record(3)
     s.add_record(10)
     s.add_record(3)
-    station.add_mode("lengthiest", lambda x: max(x.m_records))
-    assert s.get_record("lengthiest") == 10
+    lengthiest = lambda x: max(x.m_records)
+    assert s.get_record(lengthiest) == 10
 
 def test_modes_derived_station():
     import tension
@@ -69,10 +69,8 @@ def test_modes_derived_station():
     assert not first.fail()
     assert not t.fail(mode='first')
     import station
-    #station.add_mode('highest', lambda x: max(x.m_records, key=lambda y: y.tension))
-    #station.add_mode("lengthiest", lambda x: sorted(x.m_records, key=lambda y: y.raw_length)[-1])
-    assert t.fail('highest')
-    station.add_mode('all', lambda x: x.m_records)
+    assert t.fail(lambda x: max(x.m_records, key=lambda y: y.tension))
+    t.get_record(mode=lambda x: x.m_records)
     print(t.get_record('all'))
 
 

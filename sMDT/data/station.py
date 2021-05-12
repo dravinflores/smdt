@@ -14,8 +14,9 @@
 
 modes = {
     "last"  :  lambda station: station.m_records[-1],
-    "first" :  lambda station: station.m_records[0]
-    #'highest' : lambda x: max(x.m_records, key=lambda y: y.tension)
+    "first" :  lambda station: station.m_records[0],
+    "all"   :  lambda station: station.m_records
+    
 }
 
 
