@@ -8,14 +8,15 @@ This object only directly holds it's ID and the comments associated with it. It 
 Members
 ----------------
 
-Member Variable | type | Description
----|---|---|---
+Member Variable | Type | Description
+---|---|---
 m_tube_id | string | represents the ID number/string of a tube.
 m_comments | list[string] | a list of comments associated with the tube
 swage | SwageStation | Swage Station object
 leak | LeakStation | Leak Station object
 tension | TensionStation | Tension Station Object
 dearkcurrent | DarkCurrentStation | Dark Current Station object
+
 Member Function | Parameters | Return Value | Description
 ---|---|---|---
 Constructor | None | None | Constructs the tube object. Empty with no data or ID, must be set by user. 
