@@ -1,5 +1,6 @@
-MSU sMDT Python Package
-![](https://atlas.cern/sites/atlas-public.web.cern.ch/files/inline-images/ATLAS-Logo-Ref-RGB-H-transparent.png)
+MSU sMDT Documentation
+![](https://atlas.cern/sites/atlas-public.web.cern.ch/files/inline-images/ATLAS-Logo-Ref-RGB-H-transparent.png)\
+![](https://brand.msu.edu/_files/images/spartan-helmet-og.png)
 ========
 
 smdt is the Python package built to provide an organized object oriented data structure for applications used in the MSU ATLAS sMDT lab. 
