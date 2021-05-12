@@ -12,10 +12,10 @@ Member Variable | Type | Description
 ---|---|---
 m_tube_id | string | represents the ID number/string of a tube.
 m_comments | list[string] | a list of comments associated with the tube
-swage | SwageStation | Swage Station object
-leak | LeakStation | Leak Station object
-tension | TensionStation | Tension Station Object
-darkcurrent | DarkCurrentStation | Dark Current Station object
+swage | [SwageStation](swage.md) | Swage Station object
+leak | [LeakStation](leak.md) | Leak Station object
+tension | [TensionStation](tension.md) | Tension Station Object
+darkcurrent | [DarkCurrentStation](darkcurrent.md) | Dark Current Station object
 
 Member Function | Parameters | Return Value | Description
 ---|---|---|---
