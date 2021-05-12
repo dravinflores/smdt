@@ -31,9 +31,12 @@ import shelve
 
 
 class db:
-    def __init__(self, mode='file'):
+    def __init__(self, mode='file', path=None):
         if mode == 'file':
-            self.tubes = shelve.open("database.s")
+            if path:
+                self.tubes = shelve.open(path)
+            else:
+                self.tubes = shelve.open("database.s")
             self.shelve = True
         elif mode == 'mem':
             self.tubes = dict()
