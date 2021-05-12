@@ -1,29 +1,29 @@
 sMDT Package Documentation
 ==========================
 
-sMDT is the base Python package that the library is built around. All interaction with the library and the database will be through the sMDT package, likely starting with `from sMDT import *`
+sMDT is the base Python package that the library is built around. All interaction with the library and the database will be through the sMDT package.
 
-sMDT is a Python packae, which is really just a folder for organizing pieces of Python code called Modules. sMDT contains several modules and one sub-package, as detailed and documented below
+sMDT is a Python package, which is really just a folder for organizing pieces of Python code called modules. sMDT contains several modules and one sub-package, as detailed and documented below
 
-* [db](documentation/db.md)
+* [db](db.md) -Database module
 
-* [tube](documentation/tube.md)
+* [tube](tube.md) -Tube object representation
 
-* [data](documentation/data.md)
+* [data](data.md) -Package
 
-  * [station](documentation/station.md)
+  * [station](station.md) -Abstract base class for a station
 
-  * [swage](documentation/swage.md)
+  * [swage](swage.md) -Swage station and swage record
 
-  * [tension](documentation/tension.md)
+  * [tension](tension.md) -Tension station and tension record
 
-  * [leak](documentation/leak.md)
+  * [leak](leak.md) -Leak station and leak record
 
-  * [darkcurrent](documentation/darkcurrent.md)
+  * [darkcurrent](darkcurrent.md) -Dark current station and dark current record
  
-  * [record](documentation/record.md)
+  * [record](record.md) -Abstract base class for a record
 
-* [legacy support](documentation/legacy.md)
+* [legacy support](legacy.md)
 
 Usage
 -----
