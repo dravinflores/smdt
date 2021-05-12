@@ -7,25 +7,23 @@ It will also provide a consistent interface for any interactions with the databa
 
 Structure
 --------
-Fig. 1
-![Fig. 1](https://i.imgur.com/g7Dv28C.png)
-Key:
+[sMDT](https://github.com/dravinflores/smdt/wiki/sMDT-package)
 
--Each box is a class
+----[db](https://github.com/dravinflores/smdt/wiki/db)
 
--Arrows represent an "is a" relationship, inheritance. A LeakStation is a type of *Station*
+----[tube](https://github.com/dravinflores/smdt/wiki/tube)
 
--Italic class names represent an abstract class that should be initialized
+----[data](https://github.com/dravinflores/smdt/wiki/data-package)
 
--The lines with black diamonds at the end represent a "has a" or an "is made up of" relationship. The numbers represent the multiplicity of the side of the relationship. These are usually member variables.
+--------[station](https://github.com/dravinflores/smdt/wiki/station)
 
--A Tube has 1 LeakStation object
+--------[swage](https://github.com/dravinflores/smdt/wiki/swage)
 
--A Leakstation object has a list of LeakRecords 
+--------[tension](https://github.com/dravinflores/smdt/wiki/sension)
 
--The colored boxes in the background represent the python packages (folders) that the modules are in. 
+--------[leak](https://github.com/dravinflores/smdt/wiki/leak)
 
--Practically, that means you just write `from sMDT import tube` or `from sMDT.data import swage`
+--------[darkcurrent](https://github.com/dravinflores/smdt/wiki/darkcurrent)
 
 Documentation
 -------------
