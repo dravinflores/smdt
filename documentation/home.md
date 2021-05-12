@@ -7,24 +7,27 @@ It will also provide a consistent interface for any interactions with the databa
 
 Structure
 --------
-[sMDT](https://github.com/dravinflores/smdt/wiki/sMDT-package)
+* [sMDT](https://github.com/dravinflores/smdt/wiki/sMDT-package)
 
-----[db](https://github.com/dravinflores/smdt/wiki/db)
+  * [db](https://github.com/dravinflores/smdt/wiki/db)
 
-----[tube](https://github.com/dravinflores/smdt/wiki/tube)
+  * [tube](https://github.com/dravinflores/smdt/wiki/tube)
 
-----[data](https://github.com/dravinflores/smdt/wiki/data-package)
+  * [data](https://github.com/dravinflores/smdt/wiki/data-package)
 
---------[station](https://github.com/dravinflores/smdt/wiki/station)
+    * [station](https://github.com/dravinflores/smdt/wiki/station)
 
---------[swage](https://github.com/dravinflores/smdt/wiki/swage)
+    * [swage](https://github.com/dravinflores/smdt/wiki/swage)
 
---------[tension](https://github.com/dravinflores/smdt/wiki/sension)
+    * [tension](https://github.com/dravinflores/smdt/wiki/sension)
 
---------[leak](https://github.com/dravinflores/smdt/wiki/leak)
+    * [leak](https://github.com/dravinflores/smdt/wiki/leak)
 
---------[darkcurrent](https://github.com/dravinflores/smdt/wiki/darkcurrent)
+    * [darkcurrent](https://github.com/dravinflores/smdt/wiki/darkcurrent)
+ 
+    * [record](https://github.com/dravinflores/smdt/wiki/record)
 
+  * [legacy support](https://github.com/dravinflores/smdt/wiki/Legacy-Support)
 Documentation
 -------------
 Full documentation can be found on [our github wiki](https://github.com/dravinflores/smdt/wiki)
