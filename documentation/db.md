@@ -18,13 +18,14 @@ wipe() | None | None | Wipes the database by deleting all the data. **EXTREME CA
 
 Usage
 -----
+Below is a simple example of using the db class.
 ```python
-from sMDT import db,tube
-database = db.db()
-tube1 = tube.Tube()
-tube1.m_id = "MSU000001"
-database.add_tube(tube1)
-del database
-database = db.db()
-print(database.get_tube("MSU000001"))
+from sMDT import db,tube				#import the modules
+database = db.db()						#initialize the database object
+tube1 = tube.Tube()						#make a new tube object
+tube1.m_id = "MSU000001"				#set it's ID
+database.add_tube(tube1)				#add the tube to the database
+del database							#delete the database object from memory, does not effect file storage.
+database = db.db()						#make a new database object, it reads from storage
+print(database.get_tube("MSU000001"))	#get the tube we put in before and print it
 ```
