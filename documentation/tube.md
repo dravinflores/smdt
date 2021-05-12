@@ -30,9 +30,9 @@ Usage
 -----
 Below is a simple example of using the tube class.
 ```python
-from sMDT import tube                  #import the tube module
-from sMDT.data import tension		   #import the tension module
-tube1 = tube.Tube()                    #make a new tube object
-tube1.m_id = "MSU000001"               #set it's ID
+from sMDT import tube                                #import the tube module
+from sMDT.data import tension                        #import the tension module
+tube1 = tube.Tube()                                  #make a new tube object
+tube1.m_id = "MSU000001"                             #set it's ID
 tube1.tension.add_record(tension.TensionRecord(1.5)) #see the station and the tension module for explanation of this line
-tube1.new_comment("This tube is an example") #add a comment
+tube1.new_comment("This tube is an example")         #add a comment
