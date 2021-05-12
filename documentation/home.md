@@ -6,17 +6,19 @@ It will also provide a consistent interface for any interactions with the databa
 
 Structure
 --------
-* [sMDT](sMDT.md) -Package
+When building Python libraries, they are made up of Packages and Modules. Packages are folders that can contain modules, and modules are python code files that can contain classes and functions. Both can be imported. 
+The main sMDT package and the data package are the only packages, the rest are modules and the description is about the classes inside them. 
 
-  * [db](db.md) -Database module
+* [sMDT](sMDT.md) -main Package
 
-  * [tube](tube.md) -Tube object representation
+  * [db](db.md) -database interface object
 
-  * [data](data.md) -Package
+  * [tube](tube.md) -Tube object 
+  * [data](data.md) -data Package
 
-    * [station](station.md) -Abstract base class for a station
+    * [station](station.md) -abstract base class for a station
 
-    * [swage](swage.md) -Swage station and swage record
+    * [swage](swage.md) -swage station and swage record
 
     * [tension](tension.md) -Tension station and tension record
 
@@ -24,7 +26,7 @@ Structure
 
     * [darkcurrent](darkcurrent.md) -Dark current station and dark current record
  
-    * [record](record.md) -Abstract base class for a record
+    * [record](record.md) -abstract base class for a record
 
   * [legacy support](legacy.md)
 
