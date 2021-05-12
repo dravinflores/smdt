@@ -15,11 +15,10 @@
 modes = {
     "last"  :  lambda station: station.m_records[-1],
     "first" :  lambda station: station.m_records[0]
+    #'highest' : lambda x: max(x.m_records, key=lambda y: y.tension)
 }
 
 
-def add_mode(name, lam_expr):
-    modes[name] = lam_expr
 
 # Import Preparation block.
 # Currently only needed so the records in the mains work with the current imports.
@@ -69,8 +68,13 @@ class Station:
         # Return
         # type(self)(self.m_users + other.m_users, self.m_records + other.m_records)
 
-    def fail(self, mode="last"):
-        raise modes[mode](self).fail()
+    def fail(self, mode='last'):
+        if type(mode) == str:
+            return modes[mode](self).fail()
+        elif type(mode) == type(lambda x: x): #Annoying but necessary hack to check if it's a lambda.
+            return mode(self).fail()
+        else:
+            raise RuntimeError()
 
     def get_users(self):
         """Returns the list of people who have recorded data for this tube at
@@ -81,9 +85,14 @@ class Station:
         """Adds a user to the station's records"""
         self.m_users.append(user)
 
-    def get_record(self, mode="last"):
+    def get_record(self, mode='last'):
         """Given a selected mode, returns the respective record"""
-        return modes[mode](self)
+        if type(mode) == str:
+            return modes[mode](self)
+        elif type(mode) == type(lambda x: x): #Annoying but necessary hack to check if it's a lambda.
+            return mode(self)
+        else:
+            raise RuntimeError()
 
     def add_record(self, record):
         """Adds a record to the station's records"""
