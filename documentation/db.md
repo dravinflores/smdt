@@ -26,6 +26,6 @@ tube1 = tube.Tube()                    #make a new tube object
 tube1.m_id = "MSU000001"               #set it's ID
 database.add_tube(tube1)               #add the tube to the database
 del database                           #delete the database object from memory, does not effect file storage.
-database = db.db()	                   #make a new database object, it reads from storage
+database = db.db()                     #make a new database object, it reads from storage
 print(database.get_tube("MSU000001"))  #get the tube we put in before and print it
 ```
