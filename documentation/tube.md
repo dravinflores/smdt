@@ -23,8 +23,8 @@ Constructor | None | None | Constructs the tube object. Empty with no data or ID
 new_comment(comment)| comment : string | None | Adds the new comment to the list of comments
 get_comments() | None | list[string] | Returns the list of comments
 fail() | None | boolean | Returns true if the tube is a failure. A tube is considereed a failure if any of it's station's fail() functions return true. The stations fail functions just use the default mode. 
-__str__() | None | string | returns string representation of the tube.
-__add__(tube) | tube : Tube | Tube | operator override for '+' operator. You shouldn't use this, it exists so tube + tube is meaninful when adding to the database. 
+\_\_str\_\_() | None | string | returns string representation of the tube.
+\_\_add\_\_(tube) | tube : Tube | Tube | operator override for '+' operator. You shouldn't use this, it exists so tube + tube is meaninful when adding to the database. 
 
 Usage
 -----
