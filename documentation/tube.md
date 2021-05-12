@@ -3,7 +3,7 @@ Tube Module Documentation
 
 sMDT.tube is the module that contains the Tube class, which is the abstract representation for an tube.
 
-This object only directly holds it's ID and the comments associated with it. It also holds several *Station* objects, one for each station the tube should go through. These station objects are tasked with storing the data associated with that station
+This object only directly holds it's ID and the comments associated with it. It also holds several [Station](station.md) objects, one for each station the tube should go through. These station objects are tasked with storing the data associated with that station
 
 Members
 ----------------
