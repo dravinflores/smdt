@@ -29,17 +29,34 @@ add_user(user)| user : string | None | Adds the new user to the list of users
 get_users() | None | list[string] | Returns the list of users
 add_record(record) | record : Record | None | Adds the specified record to the list of records
 get_record(mode) | mode : string | Record | Returns a single record, as specified by mode. Default mode is 'last',  but see below for documentation on the mode system.
-fail() | None | boolean | Returns true if the tube is a failure. A tube is considereed a failure if any of it's station's fail() functions return true. The stations fail functions just use the default mode. 
+fail(mode) | mode : string | boolean | Returns true if the tube is a failure based on a single record specified by the mode. See below for documentation on the mode system. For the abstract station, this raises NotImplementedError
 \_\_str\_\_() | None | string | Raises NotImplementedError
 \_\_add\_\_(tube) | tube : Tube | Tube | operator override for '+' operator. You shouldn't use this, it exists so station + station is meaningful when adding tubes together. 
 
 Usage
 -----
-Below is a simple example of using the tube class.
+Below is a simple example of using a class by itself. This example uses integers as its records, but they should be a derived record class in practice.
 ```python
-from sMDT import tube                                #import the tube module
-from sMDT.data import tension                        #import the tension module
-tube1 = tube.Tube()                                  #make a new tube object
-tube1.m_id = "MSU000001"                             #set it's ID
-tube1.tension.add_record(tension.TensionRecord(1.5)) #see the station and the tension module for explanation of this line
-tube1.new_comment("This tube is an example")         #add a comment
+from sMDT.data import station        #Import station
+stat = station.Station()             #Create the station object
+stat.add_user("Paul")                #Add the user paul
+print(stat.get_users())              #Prints the users. `[Paul]`
+stat.add_record(1)                   #Adds an integer record 
+stat.add_record(2)
+print(stat.get_record(mode='last'))  #Prints whats returned by the get record function, mode being last. The last record added was 2, so it should just print `2`.
+```
+
+Mode System
+-----------
+The mode system is a powerful and convenient solution to some of the the problems we have with accessing our data. More or less all of our stations can record data on a tube multiple times, and our need to save that data has necessitated keeping lists of everything. Furthermore, when we want descriptions or fail() functions that would want a single authoritative value, it makes our programs opaque, inconsistent, and unclear. The mode system improves this, by keeping a set of mode strings that correspond to a particular method of accessing the data. The built-in modes are in the table below, a usage example is above for 'last'. More modes can be dynamically defined by the user. 
+Mode name|description
+---|---
+last|The default mode, this mode simple returns the most recently added record.
+first|The opposite of last. Bases the funciton on the first record
+Examples:
+
+```python
+from sMDT import tube
+tube1 = tube.Tube()
+```
+
