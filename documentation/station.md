@@ -53,10 +53,26 @@ Mode name|description
 ---|---
 last|The default mode, this mode simple returns the most recently added record.
 first|The opposite of last. Bases the funciton on the first record
-Examples:
+
+
+user defined mode example:
 
 ```python
+def highest(tension_station):
+    max_tension = 0
+    max_record = None
+    for record in tension_station.m_records:
+        if record.tension > max_tension:
+            max_tension = record.tension
+            max_record = record
+    return max_record
+
 from sMDT import tube
+from sMDT.data import station,tension
 tube1 = tube.Tube()
+tube1.tension.add_record(tension.TensionRecord(350))
+tube1.tension.add_record(tension.TensionRecord(370))
+tube1.tension.add_record(tension.TensionRecord(330))
+print(tube1.tension.get_record(highest))
 ```
 
