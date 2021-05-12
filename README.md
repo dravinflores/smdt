@@ -29,7 +29,7 @@ Key:
 
 Documentation
 -------------
-Full documentation can be found on [our github wiki](documentation/home.md)
+Full documentation can be found in [our documentation folder](documentation/home.md)
 
 Installation
 ------------

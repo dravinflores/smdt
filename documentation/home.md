@@ -1,32 +1,32 @@
 MSU sMDT Documentation
 ========
 
-smdt is the Python package built to provide an organized object oriented data structure for applications used in the MSU ATLAS sMDT lab. 
+sMDT is the Python package built to provide an organized object oriented data structure for applications used in the MSU ATLAS sMDT lab. 
 It will also provide a consistent interface for any interactions with the database. 
 
 Structure
 --------
-* [sMDT](https://github.com/dravinflores/smdt/wiki/sMDT-package)
+* [sMDT](documentation/sMDT.md)
 
-  * [db](https://github.com/dravinflores/smdt/wiki/db)
+  * [db](documentation/db.md)
 
-  * [tube](https://github.com/dravinflores/smdt/wiki/tube)
+  * [tube](documentation/tube.md)
 
-  * [data](https://github.com/dravinflores/smdt/wiki/data-package)
+  * [data](documentation/data.md)
 
-    * [station](https://github.com/dravinflores/smdt/wiki/station)
+    * [station](documentation/station.md)
 
-    * [swage](https://github.com/dravinflores/smdt/wiki/swage)
+    * [swage](documentation/swage.md)
 
-    * [tension](https://github.com/dravinflores/smdt/wiki/sension)
+    * [tension](documentation/tension.md)
 
-    * [leak](https://github.com/dravinflores/smdt/wiki/leak)
+    * [leak](documentation/leak.md)
 
-    * [darkcurrent](https://github.com/dravinflores/smdt/wiki/darkcurrent)
+    * [darkcurrent](documentation/darkcurrent.md)
  
-    * [record](https://github.com/dravinflores/smdt/wiki/record)
+    * [record](documentation/record.md)
 
-  * [legacy support](https://github.com/dravinflores/smdt/wiki/Legacy-Support)
+  * [legacy support](documentation/legacy.md)
 
 Installation
 ------------
@@ -43,7 +43,7 @@ It's also possible to add it to the python path somehow, or move it to a locatio
 
 Examples
 --------
-A very simple use case, such as at the tension station.
+A very simple use case, a simplified tension station.
 ```python
 from sMDT import db,tube                                #import the tube and db modules
 from sMDT.data import tension                           #import the tension module
