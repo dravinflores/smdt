@@ -50,8 +50,8 @@ class TensionRecord(Record):
         self.data_file = data_file
 
     def fail(self):
-        if self.tension < Tensionrecord.min_tension \
-                or self.tension > Tensionrecord.max_tension:
+        if self.tension < TensionRecord.min_tension \
+                or self.tension > TensionRecord.max_tension:
             return True
         else:
             return False
