@@ -27,9 +27,6 @@ Structure
     * [record](https://github.com/dravinflores/smdt/wiki/record)
 
   * [legacy support](https://github.com/dravinflores/smdt/wiki/Legacy-Support)
-Documentation
--------------
-Full documentation can be found on [our github wiki](https://github.com/dravinflores/smdt/wiki)
 
 Installation
 ------------
@@ -55,20 +52,3 @@ tube1 = tube.Tube()                                     #make a new tube
 tube1.tension.add_record(tension.TensionRecord(1.5))    #Store our new data in the tube, in the form of a TensionRecord object. 
 tubes.add_tube(tube1)                                   #Store the tube in the database
 ```
-
-Contribute
-----------
-
-- Issue Tracker: https://github.com/dravinflores/smdt/issues
-- Source Code: https://github.com/dravinflores/smdt
-
-Support
--------
-
-If you are having issues, please let us know.
-Talk to Paul or Dravin, or write an issue and put it in the issue tracker
-
-License
--------
-
-The project is licensed under the MIT License.
