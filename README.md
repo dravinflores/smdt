@@ -27,6 +27,10 @@ Key:
 
 -Practically, that means you just write `from sMDT import tube` or `from sMDT.data import swage`
 
+Documentation
+-------------
+Full documentation can be found on [our github wiki](https://github.com/dravinflores/smdt/wiki)
+
 Installation
 ------------
 Visit the following link for the source code.
