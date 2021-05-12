@@ -6,27 +6,27 @@ It will also provide a consistent interface for any interactions with the databa
 
 Structure
 --------
-* [sMDT](documentation/sMDT.md)
+* [sMDT](sMDT.md)
 
-  * [db](documentation/db.md)
+  * [db](db.md)
 
-  * [tube](documentation/tube.md)
+  * [tube](tube.md)
 
-  * [data](documentation/data.md)
+  * [data](data.md)
 
-    * [station](documentation/station.md)
+    * [station](station.md)
 
-    * [swage](documentation/swage.md)
+    * [swage](swage.md)
 
-    * [tension](documentation/tension.md)
+    * [tension](tension.md)
 
-    * [leak](documentation/leak.md)
+    * [leak](leak.md)
 
-    * [darkcurrent](documentation/darkcurrent.md)
+    * [darkcurrent](darkcurrent.md)
  
-    * [record](documentation/record.md)
+    * [record](record.md)
 
-  * [legacy support](documentation/legacy.md)
+  * [legacy support](legacy.md)
 
 Installation
 ------------
