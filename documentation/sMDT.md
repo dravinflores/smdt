@@ -1,7 +1,7 @@
 sMDT Package Documentation
 ==========================
 
-sMDT is the base Python package that the library is built around. All interaction with the library and the database will be through the sMDT package.
+sMDT is the base Python package that the library is built around. All interaction with the library and the database will be inside the sMDT package.
 
 sMDT is a Python package, which is really just a folder for organizing pieces of Python code called modules. sMDT contains several modules and one sub-package, as detailed and documented below
 
@@ -24,6 +24,7 @@ sMDT is a Python package, which is really just a folder for organizing pieces of
   * [record](record.md) -Abstract base class for a record
 
 * [legacy support](legacy.md)
+
 
 Usage
 -----
