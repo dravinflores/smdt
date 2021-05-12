@@ -70,13 +70,7 @@ class Tube:
         self.m_comments.append(comment)
 
     def fail(self):
-        if self.swage.fail()                    \
-                or self.tension.fail()          \
-                or self.leak.fail()             \
-                or self.dark_current.fail():
-            return True
-        else:
-            return False
+        return any([x.fail() for x in [self.swage,self.leak,self.tension,self.dark_current]])
 
     def dict(self) -> dict():
         return dict()
