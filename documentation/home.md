@@ -7,6 +7,7 @@ It will also provide a consistent interface for any interactions with the databa
 Structure
 --------
 * [sMDT](documentation/sMDT.md)
+* [sMDT](documentation/sMDT.md)
 
   * [db](documentation/db.md)
 
