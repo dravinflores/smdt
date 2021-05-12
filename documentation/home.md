@@ -6,25 +6,25 @@ It will also provide a consistent interface for any interactions with the databa
 
 Structure
 --------
-* [sMDT](sMDT.md)
+* [sMDT](sMDT.md) -Package
 
-  * [db](db.md)
+  * [db](db.md) -Database module
 
-  * [tube](tube.md)
+  * [tube](tube.md) -Tube object representation
 
-  * [data](data.md)
+  * [data](data.md) -Package
 
-    * [station](station.md)
+    * [station](station.md) -Abstract base class for a station
 
-    * [swage](swage.md)
+    * [swage](swage.md) -Swage station and swage record
 
-    * [tension](tension.md)
+    * [tension](tension.md) -Tension station and tension record
 
-    * [leak](leak.md)
+    * [leak](leak.md) -Leak station and leak record
 
-    * [darkcurrent](darkcurrent.md)
+    * [darkcurrent](darkcurrent.md) -Dark current station and dark current record
  
-    * [record](record.md)
+    * [record](record.md) -Abstract base class for a record
 
   * [legacy support](legacy.md)
 
