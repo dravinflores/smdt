@@ -35,9 +35,9 @@ fail(mode) | mode : string/function | boolean | Returns true if the tube is a fa
 
 Usage
 -----
-Below is a simple example of using a class by itself. This example uses integers as its records, but they should be a derived record class in practice.
+Below is a simple example of using a class by itself. This example uses integers instead of records since the abstract record class doesn't do anything, but it practice it would be a TensionRecord object or similar. They work the same.
 ```python
-from sMDT.data import station        #Import station
+from sMDT.data import station,record        #Import station and record
 stat = station.Station()             #Create the station object
 stat.add_user("Paul")                #Add the user paul
 print(stat.get_users())              #Prints the users. `[Paul]`
@@ -58,14 +58,14 @@ first|The opposite of last. Bases the funciton on the first record
 user defined mode example:
 
 ```python
-def highest(tension_station):
+def highest(tension_station):                      #Make a function for our mode, we want get_record to return the record with the highest tension
     max_tension = 0
     max_record = None
-    for record in tension_station.m_records:
-        if record.tension > max_tension:
-            max_tension = record.tension
-            max_record = record
-    return max_record
+    for record in tension_station.m_records:       #simple algorithm to loop through, find the one with the highest tension, and return it.
+        if record.tension > max_tension:           #This is just it written out with a real function to simplify it,
+            max_tension = record.tension           #but in practice you can shorten this code significantly with lambdas and built-in python functions
+            max_record = record                    #the following single line is equivalent to the entire 'highest' function definition
+    return max_record                              #highest = lambda tension_station: max(tension_station.m_records, key=lambda tension_record: tension_record.tension)
 
 from sMDT import tube
 from sMDT.data import station,tension
