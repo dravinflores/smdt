@@ -50,5 +50,15 @@ def test_outer_swage():
     print(swage_station.fail("last"))                                            #print wether the tube fails based on the last record.
 
 
+def test_outer_tension():
+    from sMDT.data import tension
+    tension_station = tension.Tension()                                                #instantiate tension station object
+    tension_station.add_record(tension.TensionRecord(tension=350, frequency=3.2)) #add 3 TensionRecords to the tension station, nonsense values for frequency
+    tension_station.add_record(tension.TensionRecord(tension=345, frequency=8))
+    tension_station.add_record(tension.TensionRecord(tension=370, frequency=5))
+    print(tension_station.get_record("first"))
+    print(tension_station.fail("last"))                   #print the first TensionRecord, and whether the tube fails based on the last record.
+
+
 if __name__ == '__main__':
-    test_outer_swage()
+    test_outer_tension()

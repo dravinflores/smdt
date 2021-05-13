@@ -26,10 +26,11 @@ raw_length | cm | The measured length of the tube before it is swaged.
 swage_length | cm| The measured length from endplug to endplug after swaging is done.
 clean_code | N/A| #TODO DOCUMENT ERROR AND CLEAN CODES 
 error_code | N/A| #TODO DOCUMENT ERROR AND CLEAN CODES 
+date | datetime | the datetime object representing when this was recorded. By default, it's datetime.now() at the point of record creation
 
 Member Functions|Parameters|Return|Description
 ---|---|---|---
-Constructor|raw_length : float, swage_length : float,clean_code : string, error_code : string | SwageRecord object | Creates a record object with the specified data
+Constructor|raw_length : float, swage_length : float,clean_code : string, error_code : string, date : datetime | SwageRecord object | Creates a record object with the specified data
 \_\_str\_\_()|None|string|Returns a string representation of the record
 fail()|None|bool|Returns True if this data indicates a failed tube. See above for description of the failure conditions.
 
@@ -38,11 +39,12 @@ Usage
 See the [Station](station.md) documentation for more depth on how to use station objects. 
 ```python
 from sMDT.data import swage
-swage = swage.Swage()                                                #instantiate swage station object
-swage.set_record(swage.SwageRecord(raw_length=3.4, swage_length=3.2))#add 3 SwageRecords to the swage station
-swage.set_record(swage.SwageRecord(raw_length=5.2, swage_length=8))
-swage.set_record(swage.SwageRecord(raw_length=1.03, swage_length=5))
-print(swage.get_record("first"), swage.fail("last"))                 #print the first SwageRecord, and wether the tube fails based on the last record.
+swage_station = swage.Swage()                                                #instantiate swage station object
+swage_station.add_record(swage.SwageRecord(raw_length=3.4, swage_length=3.2))#add 3 SwageRecords to the swage station
+swage_station.add_record(swage.SwageRecord(raw_length=5.2, swage_length=8))
+swage_station.add_record(swage.SwageRecord(raw_length=1.03, swage_length=5))
+print(swage_station.get_record("first"))                                     #print the first SwageRecord
+print(swage_station.fail("last"))                                            #print wether the tube fails based on the last record.
 ```
 should output
 ```
@@ -50,7 +52,7 @@ Raw Length: 3.4
 Swage Length: 3.2
 Clean Code: None
 Error Code: None
-Recorded on: 2021-05-13 13:52:52.602050
+Recorded on: [String representing datetime object of when the record was created]
 Data File: None
 False
 ```
