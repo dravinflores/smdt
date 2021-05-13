@@ -40,5 +40,15 @@ def test_outer_modes():
     assert not t.fail(mode='first')
     assert t.fail(lambda x: max(x.m_records, key=lambda y: y.tension))
 
+def test_outer_swage():
+    from sMDT.data import swage
+    swage_station = swage.Swage()                                                #instantiate swage station object
+    swage_station.add_record(swage.SwageRecord(raw_length=3.4, swage_length=3.2))#add 3 SwageRecords to the swage station
+    swage_station.add_record(swage.SwageRecord(raw_length=5.2, swage_length=8))
+    swage_station.add_record(swage.SwageRecord(raw_length=1.03, swage_length=5))
+    print(swage_station.get_record("first"))                                     #print the first SwageRecord
+    print(swage_station.fail("last"))                                            #print wether the tube fails based on the last record.
+
+
 if __name__ == '__main__':
-    test_outer_modes()
+    test_outer_swage()

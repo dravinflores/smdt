@@ -44,3 +44,14 @@ swage.set_record(swage.SwageRecord(raw_length=5.2, swage_length=8))
 swage.set_record(swage.SwageRecord(raw_length=1.03, swage_length=5))
 print(swage.get_record("first"), swage.fail("last"))                 #print the first SwageRecord, and wether the tube fails based on the last record.
 ```
+should output
+```
+Raw Length: 3.4
+Swage Length: 3.2
+Clean Code: None
+Error Code: None
+Recorded on: 2021-05-13 13:52:52.602050
+Data File: None
+False
+```
+The last false being that a tube with a raw length of 1.03 cm does not fail according to our current failure conditions. They should be looked at.
