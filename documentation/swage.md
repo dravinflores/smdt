@@ -22,10 +22,10 @@ The failure condition may not be accurate, #TODO
 
 Member variables|Description|Units
 ---|---|---
-raw_length | The measured length of the tube before it is swaged. | cm
-swage_length | The measured length from endplug to endplug after swaging is done. | cm
-clean_code | #TODO DOCUMENT ERROR AND CLEAN CODES | N/A
-error_code | #TODO DOCUMENT ERROR AND CLEAN CODES | N/A
+raw_length | cm | The measured length of the tube before it is swaged. 
+swage_length | cm| The measured length from endplug to endplug after swaging is done.
+clean_code | N/A| #TODO DOCUMENT ERROR AND CLEAN CODES 
+error_code | N/A| #TODO DOCUMENT ERROR AND CLEAN CODES 
 
 Member Functions|Parameters|Return|Description
 ---|---|---|---
