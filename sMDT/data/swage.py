@@ -101,12 +101,9 @@ class Swage(station.Station, ABC):
 
 if __name__ == "__main__":
     swage = Swage()
-    swage.set_record(SwageRecord(raw_length=3.4, swage_length=3.2,
-                             clean_code=None, error_code=None))
-    swage.set_record(SwageRecord(raw_length=5.2, swage_length=8.,
-                             clean_code=None, error_code=None))
-    swage.set_record(SwageRecord(raw_length=1.03, swage_length=5,
-                             clean_code=None, error_code=None))
+    swage.set_record(SwageRecord(raw_length=3.4, swage_length=3.2,clean_code=None, error_code=None))
+    swage.set_record(SwageRecord(raw_length=5.2, swage_length=8, clean_code=None, error_code=None))
+    swage.set_record(SwageRecord(raw_length=1.03, swage_length=5, clean_code=None, error_code=None))
 
     print("Created a Swage station object, stored 3 swage records with raw "
           "lengths 3.4, 5.2, 1.03 respectively")

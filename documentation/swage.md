@@ -31,4 +31,16 @@ Member Functions|Parameters|Return|Description
 ---|---|---|---
 Constructor|raw_length : float, swage_length : float,clean_code : string, error_code : string | SwageRecord object | Creates a record object with the specified data
 \_\_str\_\_()|None|string|Returns a string representation of the record
-fail()|None|bool|Returns True if this data indicates a failed tube. See above for description of the failure conditions.  
+fail()|None|bool|Returns True if this data indicates a failed tube. See above for description of the failure conditions.
+
+Usage
+-----
+See the [Station](station.md) documentation for more depth on how to use station objects. 
+```python
+from sMDT.data import swage
+swage = swage.Swage()                                                #instantiate swage station object
+swage.set_record(swage.SwageRecord(raw_length=3.4, swage_length=3.2))#add 3 SwageRecords to the swage station
+swage.set_record(swage.SwageRecord(raw_length=5.2, swage_length=8))
+swage.set_record(swage.SwageRecord(raw_length=1.03, swage_length=5))
+print(swage.get_record("first"), swage.fail("last"))                 #print the first SwageRecord, and wether the tube fails based on the last record.
+```
