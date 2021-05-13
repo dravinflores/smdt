@@ -46,7 +46,6 @@ should output
 ```
 Dark Current: 3
 Recorded on: 2021-05-13 14:37:30.246337
-Data File: None
 False
 ```
 The last false indicates that the last measurement, with a darkcurrent of 0, passes the test.

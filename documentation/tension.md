@@ -46,7 +46,6 @@ should output
 Tension: 350
 Frequency: 3.2
 Recorded on: [String representing datetime object of when the record was created]
-Data File: None
 True
 ```
 The last true indicates that the last measurement, with a tension of 370, is too high and therefore is a fail.

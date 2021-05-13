@@ -43,8 +43,7 @@ class SwageRecord(Record):
 
     # Does this format for a long list of parameters look cleaner?
     def __init__(self, raw_length=None, swage_length=None,
-                 clean_code=None, error_code=None, date=datetime.now(),
-                 data_file=None):
+                 clean_code=None, error_code=None, date=datetime.now()):
 
         # Call the super class init to construct the object.
         super().__init__()
@@ -53,7 +52,6 @@ class SwageRecord(Record):
         self.clean_code = clean_code
         self.error_code = error_code
         self.date = date 
-        self.data_file = data_file
 
     def fail(self):
         if self.raw_length < SwageRecord.min_raw_length               \
@@ -71,9 +69,8 @@ class SwageRecord(Record):
         c = f"Clean Code: {self.clean_code}\n"
         d = f"Error Code: {self.error_code}\n"
         e = f"Recorded on: {self.date}\n"
-        f = f"Data File: {self.data_file}"
 
-        return_str = a + b + c + d + e + f
+        return_str = a + b + c + d + e
         return return_str
 
 

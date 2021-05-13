@@ -40,16 +40,14 @@ class LeakRecord(Record):
     # Here are the project defined limits.
     threshold_leak = 5.0E-5
 
-    def __init__(self, leak_rate=None, date=datetime.now(), data_file=None):
+    def __init__(self, leak_rate=None, date=datetime.now()):
         self.leak_rate = leak_rate
         self.date = date
-        self.data_file = data_file
 
     def __str__(self):
         a = f"Leak Rate: {self.leak_rate}\n"
         b = f"Recorded on: {self.date}\n"
-        c = f"Data File: {self.data_file}"
-        return a + b + c
+        return a + b
 
     def fail(self):
         if self.leak_rate > LeakRecord.threshold_leak:

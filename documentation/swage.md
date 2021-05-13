@@ -53,7 +53,6 @@ Swage Length: 3.2
 Clean Code: None
 Error Code: None
 Recorded on: [String representing datetime object of when the record was created]
-Data File: None
 False
 ```
 The last false being that a tube with a raw length of 1.03 cm does not fail according to our current failure conditions. They should be looked at.

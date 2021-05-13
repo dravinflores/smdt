@@ -42,12 +42,11 @@ class TensionRecord(Record):
     min_tension = 350 - 15
 
     def __init__(self, tension=None, frequency=None,
-                 date=datetime.now(), data_file=None):
+                 date=datetime.now()):
         super().__init__()
         self.tension = tension
         self.frequency = frequency
         self.date = date
-        self.data_file = data_file
 
     def fail(self):
         if self.tension < TensionRecord.min_tension \
@@ -60,8 +59,7 @@ class TensionRecord(Record):
         a = f"Tension: {self.tension}\n"
         b = f"Frequency: {self.frequency}\n"
         c = f"Recorded on: {self.date}\n"
-        d = f"Data File: {self.data_file}"
-        return a + b + c + d
+        return a + b + c
 
 
 class Tension(Station, ABC):

@@ -42,7 +42,7 @@ class DarkCurrentRecord(Record):
     max_individual_current = 1E-9   # 1 nA
     max_collective_current = 8E-9   # 8 nA
 
-    def __init__(self, dark_current=None, date=datetime.now(), data_file=None):
+    def __init__(self, dark_current=None, date=datetime.now()):
         super().__init__()
         self.dark_current = dark_current
         self.date = date
@@ -51,8 +51,7 @@ class DarkCurrentRecord(Record):
     def __str__(self):
         a = f"Dark Current: {self.dark_current}\n"
         b = f"Recorded on: {self.date}\n"
-        c = f"Data File: {self.data_file}"
-        return a + b + c
+        return a + b
 
     def fail(self):
         if self.dark_current > DarkCurrentRecord.max_individual_current:

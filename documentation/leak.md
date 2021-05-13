@@ -45,7 +45,6 @@ should output
 ```
 Leak Rate: 0
 Recorded on: [String representing datetime object of when the record was created]
-Data File: None
 False
 ```
 The last false indicates that the last measurement, with a leak of 0.00000000001, is low enough to be considered a pass.
