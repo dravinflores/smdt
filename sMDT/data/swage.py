@@ -52,7 +52,7 @@ class SwageRecord(Record):
         self.swage_length = swage_length
         self.clean_code = clean_code
         self.error_code = error_code
-        self.date = date
+        self.date = date 
         self.data_file = data_file
 
     def fail(self):
