@@ -67,12 +67,12 @@ def highest(tension_station):                      #Make a function for our mode
             max_record = record                    #the following single line is equivalent to the entire 'highest' function definition
     return max_record                              #highest = lambda tension_station: max(tension_station.m_records, key=lambda tension_record: tension_record.tension)
 
-from sMDT import tube
+from sMDT import tube                              #necessart imports
 from sMDT.data import station,tension
-tube1 = tube.Tube()
+tube1 = tube.Tube()                                #Instantiate tube object and add tension records
 tube1.tension.add_record(tension.TensionRecord(350))
 tube1.tension.add_record(tension.TensionRecord(370))
 tube1.tension.add_record(tension.TensionRecord(330))
-print(tube1.tension.get_record(highest))
+print(tube1.tension.get_record(highest))           #Print that tube's tension, where mode is our function highest. Should print the record with the highest tension, 370
 ```
 
