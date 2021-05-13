@@ -224,8 +224,7 @@ def dict_to_tube_object():
                 swage_length = swage_length[n],
                 clean_code = c_code[n],
                 error_code = e_code[n],
-                date = date_obj,
-                data_file = swager_file[n]
+                date = date_obj
             )
             list_of_swage_tests.append(test)
 

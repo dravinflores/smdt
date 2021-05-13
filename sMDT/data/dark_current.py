@@ -46,7 +46,6 @@ class DarkCurrentRecord(Record):
         super().__init__()
         self.dark_current = dark_current
         self.date = date
-        self.data_file = data_file
 
     def __str__(self):
         a = f"Dark Current: {self.dark_current}\n"
