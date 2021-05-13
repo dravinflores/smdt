@@ -25,6 +25,8 @@ sMDT is a Python package, which is really just a folder for organizing pieces of
 
 * [legacy support](legacy.md)
 
+UML Class Diagram
+![](https://i.imgur.com/g7Dv28C.png)
 
 Usage
 -----
