@@ -3,13 +3,13 @@ Tension Module Documentation
 
 sMDT.data.tension is a module that contains the derived classes of [Station](station.md) and [Record](record.md) for use with the Tension Station. 
 
-This module has two main classes, the Tension object, and the TensionRecord object. The Swage object is a Station that holds a list of TensionRecords.
+This module has two main classes, the Tension object, and the TensionRecord object. The Tension object is a Station that holds a list of TensionRecords.
 
 Tension Station Object
 --------------------
 tension.Tension, the tension station object, does not do much. All it really does is inherit from [Station](station.md), where all the interesting code is. 
 
-It also provides the __str__ function for printing the station and all of it's records.
+It also provides the \_\_str\_\_ function for printing the station and all of it's records.
 
 TensionRecord Object
 ------------------

@@ -9,7 +9,7 @@ Swage Station Object
 --------------------
 swage.Swage, the swage station object, does not do much. All it really does is inherit from [Station](station.md), where all the interesting code is. 
 
-It also provides the __str__ function for printing the station and all of it's records.
+It also provides the \_\_str\_\_ function for printing the station and all of it's records.
 
 SwageRecord Object
 ------------------
