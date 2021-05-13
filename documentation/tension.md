@@ -22,8 +22,6 @@ Member variables|Units|Description
 ---|---|---
 tension | g | The calculated tension of the tube.
 frequency | #TODO | The measured length from endplug to endplug after swaging is done.
-date | datetime | #TODO DOCUMENT ERROR AND CLEAN CODES 
-error_code | N/A| #TODO DOCUMENT ERROR AND CLEAN CODES 
 date | datetime | the datetime object representing when this was recorded. By default, it's datetime.now() at the point of record creation
 
 Member Functions|Parameters|Return|Description
@@ -47,7 +45,7 @@ should output
 ```
 Tension: 350
 Frequency: 3.2
-Recorded on: 2021-05-13 14:10:15.074449
+Recorded on: [String representing datetime object of when the record was created]
 Data File: None
 True
 ```

@@ -59,6 +59,24 @@ def test_outer_tension():
     print(tension_station.get_record("first"))
     print(tension_station.fail("last"))                   #print the first TensionRecord, and whether the tube fails based on the last record.
 
+def test_outer_leak():
+    from sMDT.data import leak
+    leak_station = leak.Leak()                                                #instantiate leak station object
+    leak_station.add_record(leak.LeakRecord(leak_rate=0)) #add 3 LeakRecords to the leak station, nonsense values for frequency
+    leak_station.add_record(leak.LeakRecord(leak_rate=5))
+    leak_station.add_record(leak.LeakRecord(leak_rate=0.00000000001))
+    print(leak_station.get_record("first"))
+    print(leak_station.fail("last"))                   #print the first LeakRecord, and whether the tube fails based on the last record.
+
+def test_outer_darkcurrent():
+    from sMDT.data import dark_current
+    darkcurrent_station = dark_current.DarkCurrent()                                                #instantiate darkcurrent station object
+    darkcurrent_station.add_record(dark_current.DarkCurrentRecord(3)) #add 3 DarkCurrentRecords to the darkcurrent station, nonsense values for frequency
+    darkcurrent_station.add_record(dark_current.DarkCurrentRecord(1e-10))
+    darkcurrent_station.add_record(dark_current.DarkCurrentRecord(0))
+    print(darkcurrent_station.get_record("first"))
+    print(darkcurrent_station.fail("last"))                   #print the first DarkCurrentRecord, and whether the tube fails based on the last record.
+
 
 if __name__ == '__main__':
-    test_outer_tension()
+    test_outer_darkcurrent()
