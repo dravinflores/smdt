@@ -5,7 +5,7 @@ sMDT.data.station is the module that contains the station class, which is the ab
 
 More specifically, it represents a station as seen by the tube. Each station object is associated with a single tube, and each tube has 4 stations.
 
-A station represents any process of data collection that operates on a particular tube. Currently, the four stations are swage, tension, dark current, and leak. However, there's no reason why it couldn't be expanded into more stations and more data in the future.
+A station represents any process of data collection that operates on a particular tube. Currently, the four stations are [swage](swage.md), [tension](tension.md), [dark current](darkcurrent.md), and [leak](leak.md). However, there's no reason why it couldn't be expanded into more stations and more data in the future.
 
 A station's main responsibility is to hold a list of records that correspond to tests that the station ran. A record can be of any form, but the Record class sets a standard design for them. They are really just simple data containers, but might also include code like fail() functions.
 
