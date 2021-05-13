@@ -20,7 +20,7 @@ Failure condition: A SwageRecord is considered a failure if raw_length is outsid
 
 The failure condition may not be accurate, #TODO
 
-Member variables|Description|Units
+Member variables|Units|Description
 ---|---|---
 raw_length | cm | The measured length of the tube before it is swaged. 
 swage_length | cm| The measured length from endplug to endplug after swaging is done.
