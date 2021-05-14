@@ -7,13 +7,13 @@ This module has two main classes, the DarkCurrent object, and the DarkCurrentRec
 
 DarkCurrent Station Object
 --------------------
-darkcurrent.DarkCurrent, the darkcurrent station object, does not do much. All it really does is inherit from [Station](station.md), where all the interesting code is. 
+dark_current.DarkCurrent, the darkcurrent station object, does not do much. All it really does is inherit from [Station](station.md), where all the interesting code is. 
 
 It also provides the \_\_str\_\_ function for printing the station and all of it's records.
 
 DarkCurrentRecord Object
 ------------------
-darkcurrent.DarkCurrentRecord is the [Record](record.md) object that stores a single instance of data from the darkcurrent station. 
+dark_current.DarkCurrentRecord is the [Record](record.md) object that stores a single instance of data from the darkcurrent station. 
 It's mostly a data container, but provides useful functions for printing and fail testing. 
 
 Failure condition: A DarkCurrentRecord is considered a failure if darkcurrent is greater than 1 nA.
