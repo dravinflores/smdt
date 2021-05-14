@@ -44,8 +44,7 @@ def test_base_station():
 
 def test_new_mode():
     '''
-    This test tests the basic functionality of the station class
-    Does not use any records or lambdas. 
+    This test tests the mode system of the station class, and will make a new mode lambda and test it.
     '''
     import station
     s = station.Station()
@@ -57,6 +56,9 @@ def test_new_mode():
     assert s.get_record(lengthiest) == 10
 
 def test_modes_derived_station():
+    '''
+    This test tests a derived station class, with both built-in and new modes tested.
+    '''
     import tension
     t = tension.Tension()
     t.add_record(tension.TensionRecord(350))
@@ -68,13 +70,24 @@ def test_modes_derived_station():
     assert first.tension == 350
     assert not first.fail()
     assert not t.fail(mode='first')
-    import station
     assert t.fail(lambda x: max(x.m_records, key=lambda y: y.tension))
-    t.get_record(mode=lambda x: x.m_records)
-    print(t.get_record('all'))
 
 
+def test_swage_fail_condition():
+    #TODO, not writing these tests until we're confident in our fail conditions.
+    pass
 
+def test_tension_fail_condition():
+    #TODO, not writing these tests until we're confident in our fail conditions.
+    pass
+
+def test_leak_fail_condition():
+    #TODO, not writing these tests until we're confident in our fail conditions.
+    pass
+
+def test_dark_current_fail_condition():
+    #TODO, not writing these tests until we're confident in our fail conditions.
+    pass
 
 
 if __name__ == "__main__":

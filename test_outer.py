@@ -1,6 +1,21 @@
-#testing how the outer library access works.
+###############################################################################
+#   File: test_outer.py
+#   Author(s): Paul Johnecheck
+#   Date Created: 02 April, 2021
+#
+#   Purpose: This file is the home of the test cases 
+#   that will import the library just like a user/application will.
+#
+#   Known Issues:
+#
+#   Workarounds:
+#
+###############################################################################
 
 def test_outer():
+    '''
+    This test is the simplest use case of the library, and is the example in README.md
+    '''
     from sMDT import db,tube
     from sMDT.data import tension
     tubes = db.db()
@@ -18,6 +33,9 @@ def highest(tension_station):
     return max_record
 
 def test_user_defined_mode():
+    '''
+    This test tests the mode system of the station class, and will make a new mode called highest above and test it.
+    '''
     from sMDT import tube
     from sMDT.data import station,tension
     tube1 = tube.Tube()
@@ -27,6 +45,9 @@ def test_user_defined_mode():
     assert tube1.tension.get_record(highest).tension == 370
 
 def test_outer_modes():
+    '''
+    This test tests the mode system of the station class, tests records, built-in modes, and user-defined modes.
+    '''
     from sMDT.data import tension,station
     t = tension.Tension()
     t.add_record(tension.TensionRecord(350))
@@ -41,42 +62,76 @@ def test_outer_modes():
     assert t.fail(lambda x: max(x.m_records, key=lambda y: y.tension))
 
 def test_outer_swage():
+    '''
+    This test tests the outer library-call use of the swage station.
+    '''
     from sMDT.data import swage
     swage_station = swage.Swage()                                                #instantiate swage station object
     swage_station.add_record(swage.SwageRecord(raw_length=3.4, swage_length=3.2))#add 3 SwageRecords to the swage station
     swage_station.add_record(swage.SwageRecord(raw_length=5.2, swage_length=8))
     swage_station.add_record(swage.SwageRecord(raw_length=1.03, swage_length=5))
-    print(swage_station.get_record("first"))                                     #print the first SwageRecord
-    print(swage_station.fail("last"))                                            #print wether the tube fails based on the last record.
+    assert swage_station.get_record("first").raw_length == 3.4                              #print the first SwageRecord
+    assert not swage_station.fail("last")                                         #print wether the tube fails based on the last record.
 
 
 def test_outer_tension():
+    '''
+    This test tests the outer library-call use of the tension station.
+    '''
     from sMDT.data import tension
     tension_station = tension.Tension()                                                #instantiate tension station object
     tension_station.add_record(tension.TensionRecord(tension=350, frequency=3.2)) #add 3 TensionRecords to the tension station, nonsense values for frequency
     tension_station.add_record(tension.TensionRecord(tension=345, frequency=8))
     tension_station.add_record(tension.TensionRecord(tension=370, frequency=5))
-    print(tension_station.get_record("first"))
-    print(tension_station.fail("last"))                   #print the first TensionRecord, and whether the tube fails based on the last record.
+    assert tension_station.get_record("first").tension == 350                              #print the first SwageRecord
+    assert tension_station.fail("last")                   #print the first TensionRecord, and whether the tube fails based on the last record.
 
 def test_outer_leak():
+    '''
+    This test tests the outer library-call use of the leak station.
+    '''
     from sMDT.data import leak
     leak_station = leak.Leak()                                                #instantiate leak station object
     leak_station.add_record(leak.LeakRecord(leak_rate=0)) #add 3 LeakRecords to the leak station, nonsense values for frequency
     leak_station.add_record(leak.LeakRecord(leak_rate=5))
     leak_station.add_record(leak.LeakRecord(leak_rate=0.00000000001))
-    print(leak_station.get_record("first"))
-    print(leak_station.fail("last"))                   #print the first LeakRecord, and whether the tube fails based on the last record.
+    assert leak_station.get_record("first").leak_rate == 0                            #print the first SwageRecord
+    assert not leak_station.fail("last")                   #print the first LeakRecord, and whether the tube fails based on the last record.
 
 def test_outer_darkcurrent():
+    '''
+    This test tests the outer library-call use of the dark current station.
+    '''
     from sMDT.data import dark_current
     darkcurrent_station = dark_current.DarkCurrent()                                                #instantiate darkcurrent station object
     darkcurrent_station.add_record(dark_current.DarkCurrentRecord(3)) #add 3 DarkCurrentRecords to the darkcurrent station, nonsense values for frequency
     darkcurrent_station.add_record(dark_current.DarkCurrentRecord(1e-10))
     darkcurrent_station.add_record(dark_current.DarkCurrentRecord(0))
-    print(darkcurrent_station.get_record("first"))
-    print(darkcurrent_station.fail("last"))                   #print the first DarkCurrentRecord, and whether the tube fails based on the last record.
+    assert darkcurrent_station.get_record("first").dark_current == 3                              #print the first SwageRecord
+    assert not darkcurrent_station.fail("last")                   #print the first DarkCurrentRecord, and whether the tube fails based on the last record.
 
 
-if __name__ == '__main__':
-    test_outer_darkcurrent()
+def test_comprehensive():
+    '''
+    This comprehensive tests tests several things also tested by other tests, but this brings it together and does it with many tubes/records
+    '''
+
+    from sMDT import db,tube
+    from sMDT.data import tension
+    tubes = db.db()
+    tube1 = tube.Tube()
+    id = "MSU00000"
+    tube1.tension.add_record(tension.TensionRecord(1.5))
+    for i in range(200):
+        tube1.tension.add_record(tension.TensionRecord(i))
+    for i in range(50):
+        tube1.m_tube_id = id + str(i)
+        tubes.add_tube(tube1)
+
+    assert tubes.get_tube(id + str(0)).tension.get_record('first').tension == 1.5
+    assert tubes.get_tube(id + str(5)).tension.get_record('last').tension == 199
+
+    del tubes
+    tubes = db.db()
+    assert tubes.get_tube(id + str(0)).tension.get_record('first').tension == 1.5
+    assert tubes.get_tube(id + str(5)).tension.get_record('last').tension == 199
