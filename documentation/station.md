@@ -49,11 +49,14 @@ print(stat.get_record(mode='last'))  #Prints whats returned by the get record fu
 Mode System
 -----------
 The mode system is a powerful and convenient solution to some of the the problems we have with accessing our data. More or less all of our stations can record data on a tube multiple times, and our need to save that data has necessitated keeping lists of everything. Furthermore, when we want descriptions or fail() functions that would want a single authoritative value, we need to manually code it which makes our programs opaque and inconsistent. The mode system improves this, by keeping a set of built-in modes that can be accessed via strings in the get_record() or fail() function. The built-in modes are in the table below, a usage example is above for 'last'. More modes can be dynamically defined by the user, by passing a function as the mode instead of a string. This function can be a lambda, and must take 1 argument, the station it is operating on. The mode 'last''s corresponding function was implemented just by `lambda x: x.m_records[-1]`.
+
+The mode system is very powerful, but as with anything more ways to do more means more ways to do more wrong. Depending on what lambda you provide, get_record() and fail() are capable of raising any exception or error. The default first and last should only ever raise an IndexError if there are no records in the list, and all should never raise an exception. User defined modes are capable of doing anything, so make sure you understand how they work before trying them. As always, contact Paul for support or help.
+
 Mode name|description
 ---|---
 last|The default mode, this mode simple returns the most recently added record.
 first|The opposite of last. Bases the funciton on the first record
-
+all|Instead of returning a single record, this returns a list of all the records. Does not work with fail()
 
 user defined mode example:
 
@@ -65,7 +68,7 @@ def highest(tension_station):                      #Make a function for our mode
         if record.tension > max_tension:           #This is just it written out with a real function to simplify it,
             max_tension = record.tension           #but in practice you can shorten this code significantly with lambdas and built-in python functions
             max_record = record                    #the following single line is equivalent to the entire 'highest' function definition
-    return max_record                              #highest = lambda tension_station: max(tension_station.m_records, key=lambda tension_record: tension_record.tension)
+    return max_record                              #highest = lambda tension_station: max(tension_station.m_records, key=lambda tension_record: tension_record.tension
 
 from sMDT import tube                              #necessart imports
 from sMDT.data import station,tension
