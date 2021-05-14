@@ -19,7 +19,7 @@ sMDT is a Python package, which is really just a folder for organizing pieces of
 
   * [leak](leak.md) -Leak station and leak record
 
-  * [darkcurrent](darkcurrent.md) -Dark current station and dark current record
+  * [dark_current](darkcurrent.md) -Dark current station and dark current record
  
   * [record](record.md) -Abstract base class for a record
 
