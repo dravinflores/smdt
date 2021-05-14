@@ -24,7 +24,7 @@ The main sMDT package and the data package are the only packages, the rest are m
 
     * [leak](leak.md) -Leak station and leak record
 
-    * [darkcurrent](darkcurrent.md) -Dark current station and dark current record
+    * [dark_current](darkcurrent.md) -Dark current station and dark current record
  
     * [record](record.md) -abstract base class for a record
 

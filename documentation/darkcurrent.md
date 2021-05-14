@@ -1,19 +1,19 @@
 DarkCurrent Module Documentation
 ==========================
 
-sMDT.data.darkcurrent is a module that contains the derived classes of [Station](station.md) and [Record](record.md) for use with the DarkCurrent Station. 
+sMDT.data.dark_current is a module that contains the derived classes of [Station](station.md) and [Record](record.md) for use with the DarkCurrent Station. 
 
 This module has two main classes, the DarkCurrent object, and the DarkCurrentRecord object. The DarkCurrent object is a Station that holds a list of DarkCurrentRecords.
 
 DarkCurrent Station Object
 --------------------
-darkcurrent.DarkCurrent, the darkcurrent station object, does not do much. All it really does is inherit from [Station](station.md), where all the interesting code is. 
+dark_current.DarkCurrent, the darkcurrent station object, does not do much. All it really does is inherit from [Station](station.md), where all the interesting code is. 
 
 It also provides the \_\_str\_\_ function for printing the station and all of it's records.
 
 DarkCurrentRecord Object
 ------------------
-darkcurrent.DarkCurrentRecord is the [Record](record.md) object that stores a single instance of data from the darkcurrent station. 
+dark_current.DarkCurrentRecord is the [Record](record.md) object that stores a single instance of data from the darkcurrent station. 
 It's mostly a data container, but provides useful functions for printing and fail testing. 
 
 Failure condition: A DarkCurrentRecord is considered a failure if darkcurrent is greater than 1 nA.

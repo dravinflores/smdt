@@ -16,7 +16,7 @@ Modules:
 
 * [leak](leak.md) -Leak station and leak record
 
-* [darkcurrent](darkcurrent.md) -Dark current station and dark current record
+* [dark_current](darkcurrent.md) -Dark current station and dark current record
  
 
 Usage
