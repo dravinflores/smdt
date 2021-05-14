@@ -1,11 +1,12 @@
 ###############################################################################
-#   File: dict_to_tube_object.py
-#   Author(s): Dravin Flores
+#   File: legacy.py
+#   Author(s): Dravin Flores, Paul Johnecheck
 #   Date Created: 16 April, 2021
 #
-#   Purpose: Currently, the database is stored as a list of dictionaries. This
+#   Purpose: Provides functions for legacy support. Currently, the database is stored as a list of dictionaries. This
 #       file houses all of the necessary information to go from a list of
-#       dictionaries to a list of tube objects.
+#       dictionaries to a list of tube objects, as well as go backwards and do the inverse operation.
+#       
 #
 #   Known Issues:
 #
