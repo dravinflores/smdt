@@ -62,6 +62,7 @@ class TensionRecord(Record):
         return a + b + c
 
 
+
 class Tension(Station, ABC):
     '''
     Class for objects representing individual records from the Tension station.

@@ -12,6 +12,8 @@
 #
 ###############################################################################
 
+import pytest
+
 def test_tube_init():
     '''
     Testing tube initialization and constructor
@@ -49,11 +51,67 @@ def test_tube_add():
     tube2.tension.add_record(tension.TensionRecord(355))
     tube2.leak.add_record(leak.LeakRecord(0))
     tube3 = tube1 + tube2
+    print(tube3.tension.get_record('all'))
     assert len(tube3.tension.get_record('all')) == 2
     assert tube3.leak.get_record('last').leak_rate == 0
 
-def test_db():
+def test_db_persistence():
     '''
     This test is a simple test of the DB, not important since the DB code and this test will need to get rewritten.
     '''
-    pass
+    import tube,db
+    from data import tension,leak
+    tubes = db.db()
+    tubes.wipe()
+    tube1 = tube.Tube()
+    tube2 = tube.Tube()
+    tube1.m_tube_id = "MSU0000001"
+    tube2.m_tube_id = "MSU0000001"
+    tube1.tension.add_record(tension.TensionRecord(350))
+    tube2.tension.add_record(tension.TensionRecord(355))
+    tube2.leak.add_record(leak.LeakRecord(0))
+    tubes.add_tube(tube1)
+    tubes.add_tube(tube2)
+
+    del tubes
+    tubes = db.db()
+
+    tube4 = tubes.get_tube("MSU0000001")
+    assert len(tube4.tension.get_record('all')) == 2
+    assert tube4.leak.get_record('last').leak_rate == 0
+
+    del tubes
+
+    tubes = db.db()
+    tubes.wipe()
+    with pytest.raises(KeyError):
+        tube4 = tubes.get_tube("MSU0000001")
+    assert len(tubes.tubes) == 0
+
+
+
+def test_db_add_tube():
+    '''
+    This test is a simple test of adding tubes to the DB, not important since the DB code and this test will need to get rewritten.
+    '''
+    import tube, db
+    from data import swage,tension,leak,dark_current
+    tubes = db.db()
+    tubes.wipe()
+    tube1 = tube.Tube()
+    tube2 = tube.Tube()
+    tube1.m_tube_id = "MSU0000001"
+    tube2.m_tube_id = "MSU0000001"
+    tube1.tension.add_record(tension.TensionRecord(350))
+    tube2.tension.add_record(tension.TensionRecord(355))
+    tube2.leak.add_record(leak.LeakRecord(0))
+    tubes.add_tube(tube1)
+    tube3 = tubes.get_tube("MSU0000001")
+    assert len(tube3.tension.get_record('all')) == 1
+    with pytest.raises(IndexError):
+        tube3.leak.get_record('last').leak_rate == 0
+    tubes.add_tube(tube2)
+
+    tube4 = tubes.get_tube("MSU0000001")
+    assert len(tube4.tension.get_record('all')) == 2
+    assert tube4.leak.get_record('last').leak_rate == 0
