@@ -1,7 +1,7 @@
 DarkCurrent Module Documentation
 ==========================
 
-sMDT.data.darkcurrent is a module that contains the derived classes of [Station](station.md) and [Record](record.md) for use with the DarkCurrent Station. 
+sMDT.data.dark_current is a module that contains the derived classes of [Station](station.md) and [Record](record.md) for use with the DarkCurrent Station. 
 
 This module has two main classes, the DarkCurrent object, and the DarkCurrentRecord object. The DarkCurrent object is a Station that holds a list of DarkCurrentRecords.
 
