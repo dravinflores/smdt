@@ -52,7 +52,7 @@ from sMDT import db,tube                                #import the tube and db 
 from sMDT.data import tension                           #import the tension module
 tubes = db.db()                                         #instantiate the database
 tube1 = tube.Tube()                                     #make a new tube
-tube1.tension.add_record(tension.TensionRecord(1.5))    #Store our new data in the tube, in the form of a TensionRecord object. 
+tube1.tension.add_record(tension.TensionRecord(350))    #Store our new data in the tube, in the form of a TensionRecord object. 
 tubes.add_tube(tube1)                                   #Store the tube in the database
 ```
 
