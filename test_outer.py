@@ -119,19 +119,43 @@ def test_comprehensive():
     from sMDT import db,tube
     from sMDT.data import tension
     tubes = db.db()
-    tube1 = tube.Tube()
+    dbman = db.db_manager()
+    
     id = "MSU00000"
-    tube1.tension.add_record(tension.TensionRecord(1.5))
-    for i in range(200):
-        tube1.tension.add_record(tension.TensionRecord(i))
     for i in range(50):
+        tube1 = tube.Tube()
+        for j in range(i+1):
+            tube1.tension.add_record(tension.TensionRecord(j))
         tube1.m_tube_id = id + str(i)
         tubes.add_tube(tube1)
 
-    assert tubes.get_tube(id + str(0)).tension.get_record('first').tension == 1.5
-    assert tubes.get_tube(id + str(5)).tension.get_record('last').tension == 199
+    dbman.update()
+
+    assert tubes.get_tube(id + str(0)).tension.get_record('first').tension == 0
+    assert tubes.get_tube(id + str(49)).tension.get_record('last').tension == 49
 
     del tubes
     tubes = db.db()
-    assert tubes.get_tube(id + str(0)).tension.get_record('first').tension == 1.5
-    assert tubes.get_tube(id + str(5)).tension.get_record('last').tension == 199
+    assert tubes.get_tube(id + str(0)).tension.get_record('first').tension == 0
+    assert tubes.get_tube(id + str(49)).tension.get_record('last').tension == 49
+
+def test_db_simple():
+    from sMDT import db,tube
+    from sMDT.data import tension
+    tubes = db.db()
+    dbman = db.db_manager()
+    dbman.wipe()
+    tube1 = tube.Tube()
+    id = "MSU000001"
+    tube1.m_tube_id = id
+    tube1.tension.add_record(tension.TensionRecord(1.5))
+
+    tubes.add_tube(tube1)
+
+    dbman.update()
+
+    assert tubes.get_tube(id).tension.get_record('first').tension == 1.5
+
+if __name__ == "__main__":
+    test_db_simple()
+    test_comprehensive()
