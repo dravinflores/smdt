@@ -34,7 +34,7 @@ class Lock:
         self.lock_path = current_folder + "/locks/" + key + ".lock"
 
     def lock(self):
-        lock = open(self.lock_path, 'w')
+        lock = open(self.lock_path, 'a')
         lock.write(self.key + " locked.")
         lock.close()
 
