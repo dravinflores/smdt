@@ -21,7 +21,7 @@ import sys
 # Gets the path of the current file being executed.
 path = os.path.realpath(__file__)
 current_folder = __file__[:-len(os.path.basename(__file__))] 
-new_data_folder = current_folder + "/new_data/"
+new_data_folder = current_folder + "new_data/"
 # Adds the folder that file is in to the system path
 
 sys.path.append(path[:-len(os.path.basename(__file__))])

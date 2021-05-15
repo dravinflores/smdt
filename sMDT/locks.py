@@ -31,7 +31,7 @@ import time
 class Lock:
     def __init__(self, key=""):
         self.key = key
-        self.lock_path = current_folder + "/locks/" + key + ".lock"
+        self.lock_path = current_folder + "locks/" + key + ".lock"
 
     def lock(self):
         lock = open(self.lock_path, 'a')
