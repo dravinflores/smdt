@@ -21,17 +21,19 @@ import sys
 
 # Gets the path of the current file being executed.
 path = os.path.realpath(__file__)
-current_folder = __file__[:-len(os.path.basename(__file__))] 
+current_folder = os.path.dirname(os.path.abspath(__file__))
 
 # Adds the folder that file is in to the system path
-sys.path.append(path[:-len(os.path.basename(__file__))])
+sys.path.append(current_folder)
 
 import time
+
+new_data_folder = os.path.join(current_folder, "new_data")
 
 class Lock:
     def __init__(self, key=""):
         self.key = key
-        self.lock_path = current_folder + "locks/" + key + ".lock"
+        self.lock_path = os.path.join(current_folder, "locks", key + ".lock")
 
     def lock(self):
         lock = open(self.lock_path, 'a')

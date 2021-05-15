@@ -20,8 +20,8 @@ import sys
 
 # Gets the path of the current file being executed.
 path = os.path.realpath(__file__)
-current_folder = __file__[:-len(os.path.basename(__file__))] 
-new_data_folder = current_folder + "new_data/"
+current_folder = os.path.dirname(os.path.abspath(__file__))
+new_data_folder = os.path.join(current_folder, "new_data")
 # Adds the folder that file is in to the system path
 
 sys.path.append(path[:-len(os.path.basename(__file__))])
@@ -56,7 +56,8 @@ class db:
         timestamp = dt.timestamp()
 
         filename = str(timestamp) + str(random.randrange(0,999)) + ".p"
-        with open(new_data_folder + filename,"wb") as f:
+
+        with open(os.path.join(new_data_folder, filename),"wb") as f:
             pickle.dump(tube, f)
 
     def get_tube(self, id):
@@ -131,7 +132,7 @@ class db_manager():
 
         for filename in os.listdir(new_data_folder):
             if filename.endswith(".p"):
-                new_data_file = open(new_data_folder + filename, 'rb')
+                new_data_file = open(os.path.join(new_data_folder, filename), 'rb')
                 tube = pickle.load(new_data_file)
                 new_data_file.close()
                 if tube.getID() in tubes:
@@ -139,7 +140,7 @@ class db_manager():
                     tubes[tube.getID()] = temp
                 else:
                     tubes[tube.getID()] = tube
-                os.remove(new_data_folder + filename)
+                os.remove(os.path.join(new_data_folder, filename))
 
         tubes.close()
 
