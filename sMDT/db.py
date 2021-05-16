@@ -57,6 +57,9 @@ class db:
 
         filename = str(timestamp) + str(random.randrange(0,999)) + ".p"
 
+        if not os.path.isdir(new_data_folder):
+            os.mkdir(new_data_folder)
+
         with open(os.path.join(new_data_folder, filename),"wb") as f:
             pickle.dump(tube, f)
 

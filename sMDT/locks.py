@@ -28,14 +28,16 @@ sys.path.append(current_folder)
 
 import time
 
-new_data_folder = os.path.join(current_folder, "new_data")
+lock_path = os.path.join(current_folder, "locks")
 
 class Lock:
     def __init__(self, key=""):
         self.key = key
-        self.lock_path = os.path.join(current_folder, "locks", key + ".lock")
+        self.lock_path = os.path.join(lock_path, key + ".lock")
 
     def lock(self):
+        if not os.path.isdir(lock_path):
+            os.mkdir(lock_path)
         lock = open(self.lock_path, 'a')
         lock.write(self.key + " locked.")
         lock.close()
