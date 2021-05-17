@@ -39,9 +39,15 @@ import random
 
 class db:
     def __init__(self, path="database.s"):
+        '''
+        Constructor, builds the database object. Gets the path to the database
+        '''
         self.path = path
         
     def size(self):
+        '''
+        Return the integer size of the database. May wait for the database to be unlocked
+        '''
         db_lock = locks.Lock("database")
         db_lock.wait()
         tubes = shelve.open(self.path)
@@ -51,6 +57,10 @@ class db:
         
        
     def add_tube(self, tube: Tube()):
+        '''
+        Adds tube to the database. It does so by pickling the tube,
+        and adding it to the new_data file for the database manager to add to the database with update()
+        '''
         
         dt = datetime.datetime.now()
         timestamp = dt.timestamp()
@@ -64,6 +74,9 @@ class db:
             pickle.dump(tube, f)
 
     def get_tube(self, id):
+        '''
+        Returns the tube specified by id. May wait for the database to be unlocked.
+        '''
         db_lock = locks.Lock("database")
         db_lock.wait()
         tubes = shelve.open(self.path)
@@ -101,22 +114,35 @@ class station_pickler:
 
 class db_manager():
     def __init__(self, path="database.s"):
+        '''
+        Constructor, builds the database manager object. Gets the path to the database
+        '''
         self.path = path
 
-    def wipe(self):
-        db_lock = locks.Lock("database")
-        db_lock.lock()
+    def wipe(self, confirm=False):
+        '''
+        Wipes the database. confirm must be "confirm" to proceed. 
+        Excercise extreme caution with this, but it is necessary for many test cases.
+        '''
+        if confirm == 'confirm':
+            db_lock = locks.Lock("database")
+            db_lock.lock()
 
-        tubes = shelve.open(self.path)
-        for key in tubes:
-            del tubes[key]
+            tubes = shelve.open(self.path)
+            for key in tubes:
+                del tubes[key]
 
-        tubes.close()
+            tubes.close()
 
-        db_lock.unlock()
+            db_lock.unlock()
 
     def update(self):
-        
+        '''
+        Updates the database by looking for .p files in the new_data directory.
+        They should be pickled tubes, and they will be added to the database
+        Needs to be ran after a db object calls add_tube(), otherwise the database will not contain the data in time for get_tube()
+        '''
+
         
 
         pickler = station_pickler()
@@ -133,20 +159,22 @@ class db_manager():
 
         tubes = shelve.open(self.path)
 
-        for filename in os.listdir(new_data_folder):
+        for filename in os.listdir(new_data_folder): 
             if filename.endswith(".p"):
-                new_data_file = open(os.path.join(new_data_folder, filename), 'rb')
-                tube = pickle.load(new_data_file)
-                new_data_file.close()
-                if tube.getID() in tubes:
-                    temp = tubes[tube.getID()] + tube
-                    tubes[tube.getID()] = temp
+                new_data_file = open(os.path.join(new_data_folder, filename), 'rb') #open the file
+                tube = pickle.load(new_data_file)                                   #load the tube from pickle
+                new_data_file.close()                                               #close the file
+                if tube.getID() in tubes:                                           #add the tubes to the database
+                    temp = tubes[tube.getID()] + tube                           
+                    tubes[tube.getID()] = temp                          
                 else:
                     tubes[tube.getID()] = tube
-                os.remove(os.path.join(new_data_folder, filename))
+                os.remove(os.path.join(new_data_folder, filename))                 #delete the file that we added the tube from
 
+        #close the database
         tubes.close()
 
+        #unlock the database
         db_lock.unlock()
         
 

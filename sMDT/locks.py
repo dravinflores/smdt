@@ -32,10 +32,16 @@ lock_path = os.path.join(current_folder, "locks")
 
 class Lock:
     def __init__(self, key=""):
-        self.key = key
+        '''
+        Constructor, gets the locks key. Builds the lock's path out of the key
+        '''
+        self.key = key 
         self.lock_path = os.path.join(lock_path, key + ".lock")
 
     def lock(self):
+        '''
+        This Lock becomes locked. A file key.lock is written to the lock path
+        '''
         if not os.path.isdir(lock_path):
             os.mkdir(lock_path)
         lock = open(self.lock_path, 'a')
@@ -43,12 +49,21 @@ class Lock:
         lock.close()
 
     def unlock(self):
+        '''
+        This Lock becomes unlocked. The file key.lock is deleted from the lock path
+        '''
         if os.path.exists(self.lock_path):
             os.remove(self.lock_path)
 
     def is_locked(self):
+        '''
+        Returns true if the lock is locked, false otherwise
+        '''
         return os.path.exists(self.lock_path)
 
     def wait(self):
+        '''
+        Causes the program that calls this function to wait until the lock is unlocked.
+        '''
         while self.is_locked():
             time.wait(0.5)
