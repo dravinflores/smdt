@@ -30,6 +30,8 @@ The main sMDT package and the data package are the only packages, the rest are m
   
   * [locks](locks.md) -Mutex locks 
 
+  * [locks](locks.md) -Mutex locks
+
   * [legacy support](legacy.md)
 
 Installation

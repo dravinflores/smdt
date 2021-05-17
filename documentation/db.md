@@ -34,7 +34,8 @@ Usage
 -----
 Below is a simple example of using the db classes.
 ```python
-friom dMDT import tube, db                                     #import the relevant modules
+
+from sMDT import tube, db                                     #import the relevant modules
 from sMDT.data import tension
 tubes = db.db()                                                #make the database object
 dbman = db.db_manager()                                        #make the db manager object. NOT NEEDED IF ON THE REAL LAB SYSTEM OR ANY OUTSIDE THE TEST ENVIRONMENT, WILL BE RAN BY THE DATABASE MANAGER PROGRAM
@@ -50,4 +51,4 @@ print(tubes.get_tube("MSU0000001").tension.get_record())       #print the tube's
 tubes.add_tube(tube2)                                          #add the first tube
 dbman.update()                                                 #update the database. NOT NEEDED ON REAL LAB SYSTEM
 print(tubes.get_tube("MSU0000001").tension.get_record('last')) #print the tube's last tension record, should be 355 now
-    ```
+```

@@ -22,6 +22,8 @@ sMDT is a Python package, which is really just a folder for organizing pieces of
   * [dark_current](darkcurrent.md) -Dark current station and dark current record
  
   * [record](record.md) -Abstract base class for a record
+ 
+* [locks](locks.md) -Mutex locks
 
 * [locks](locks.md) -Mutex locks 
 
