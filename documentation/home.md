@@ -28,7 +28,7 @@ The main sMDT package and the data package are the only packages, the rest are m
  
     * [record](record.md) -abstract base class for a record
 
-  * [locks] -Mutex locks
+  * [locks](locks.md) -Mutex locks
 
   * [legacy support](legacy.md)
 
