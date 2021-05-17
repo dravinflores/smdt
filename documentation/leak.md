@@ -1,7 +1,7 @@
 Leak Module Documentation
 ==========================
 
-sMDT.data.leak is a module that contains the derived classes of [Station](station.md) and [Record](record.md) for use with the Leak Station. 
+[sMDT](sMDT.md).[data](data.md).leak is a module that contains the derived classes of [Station](station.md) and [Record](record.md) for use with the Leak Station. 
 
 This module has two main classes, the Leak object, and the LeakRecord object. The Leak object is a Station that holds a list of LeakRecords.
 
