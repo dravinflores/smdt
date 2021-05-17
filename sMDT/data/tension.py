@@ -16,15 +16,16 @@ from abc import ABC
 
 
 # Import Preparation block.
-# Currently only needed so the records in the mains work with the current imports.
+# Currently only needed so the tests in the mains work with the current imports.
 import os
 import sys
 
 # Gets the path of the current file being executed.
 path = os.path.realpath(__file__)
+current_folder = os.path.dirname(os.path.abspath(__file__))
 
 # Adds the folder that file is in to the system path
-sys.path.append(path[:-len(os.path.basename(__file__))])
+sys.path.append(current_folder)
 
 from station import Station
 from record import Record

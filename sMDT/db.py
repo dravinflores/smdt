@@ -24,7 +24,7 @@ current_folder = os.path.dirname(os.path.abspath(__file__))
 new_data_folder = os.path.join(current_folder, "new_data")
 # Adds the folder that file is in to the system path
 
-sys.path.append(path[:-len(os.path.basename(__file__))])
+sys.path.append(current_folder)
 
 from tube import Tube
 from data.dark_current import DarkCurrent, DarkCurrentRecord
