@@ -1,7 +1,7 @@
 Tension Module Documentation
 ==========================
 
-sMDT.data.tension is a module that contains the derived classes of [Station](station.md) and [Record](record.md) for use with the Tension Station. 
+[sMDT](sMDT.md).[data](data.md).tension is a module that contains the derived classes of [Station](station.md) and [Record](record.md) for use with the Tension Station. 
 
 This module has two main classes, the Tension object, and the TensionRecord object. The Tension object is a Station that holds a list of TensionRecords.
 
