@@ -75,7 +75,7 @@ def test_db_persistence():
     from data import tension,leak
     tubes = db.db()
     dbman = db.db_manager()
-    dbman.wipe()
+    dbman.wipe('confirm')
     tube1 = tube.Tube()
     tube2 = tube.Tube()
     tube1.m_tube_id = "MSU0000001"
@@ -98,7 +98,7 @@ def test_db_persistence():
     del tubes
 
     tubes = db.db()
-    dbman.wipe()
+    dbman.wipe('confirm')
     with pytest.raises(KeyError):
         tube4 = tubes.get_tube("MSU0000001")
     assert tubes.size() == 0
@@ -113,7 +113,7 @@ def test_db_add_tube():
     from data import swage,tension,leak,dark_current
     tubes = db.db()
     dbman = db.db_manager()
-    dbman.wipe()
+    dbman.wipe('confirm')
     tube1 = tube.Tube()
     tube2 = tube.Tube()
     tube1.m_tube_id = "MSU0000001"
@@ -133,6 +133,3 @@ def test_db_add_tube():
     tube4 = tubes.get_tube("MSU0000001")
     assert len(tube4.tension.get_record('all')) == 2
     assert tube4.leak.get_record('last').leak_rate == 0
-
-if __name__ == "__main__":
-    test_db_add_tube()

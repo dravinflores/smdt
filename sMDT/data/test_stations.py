@@ -91,5 +91,3 @@ def test_dark_current_fail_condition():
     pass
 
 
-if __name__ == "__main__":
-    test_modes_derived_station()

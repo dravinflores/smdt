@@ -144,7 +144,7 @@ def test_db_simple():
     from sMDT.data import tension
     tubes = db.db()
     dbman = db.db_manager()
-    dbman.wipe()
+    dbman.wipe('confirm')
     tube1 = tube.Tube()
     id = "MSU000001"
     tube1.m_tube_id = id
@@ -155,7 +155,3 @@ def test_db_simple():
     dbman.update()
 
     assert tubes.get_tube(id).tension.get_record('first').tension == 1.5
-
-if __name__ == "__main__":
-    test_db_simple()
-    test_comprehensive()
