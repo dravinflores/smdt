@@ -31,14 +31,22 @@ wipe(confirm) | confirm : string | None | Wipes the database by deleting all the
 
 Usage
 -----
-Below is a simple example of using the db class.
+Below is a simple example of using the db classes.
 ```python
-from sMDT import db,tube               #import the modules
-database = db.db()                     #initialize the database object
-tube1 = tube.Tube()                    #make a new tube object
-tube1.m_id = "MSU000001"               #set it's ID
-database.add_tube(tube1)               #add the tube to the database
-del database                           #delete the database object from memory, does not effect file storage.
-database = db.db()                     #make a new database object, it reads from storage
-print(database.get_tube("MSU000001"))  #get the tube we put in before and print it
-```
+friom dMDT import tube, db                                     #import the relevant modules
+from sMDT.data import tension
+tubes = db.db()                                                #make the database object
+dbman = db.db_manager()                                        #make the db manager object. NOT NEEDED IF ON THE REAL LAB SYSTEM OR ANY OUTSIDE THE TEST ENVIRONMENT, WILL BE RAN BY THE DATABASE MANAGER PROGRAM
+tube1 = tube.Tube()                                            #instantiate tubes
+tube2 = tube.Tube()
+tube1.m_tube_id = "MSU0000001"                                 #make them both have them same ID
+tube2.m_tube_id = "MSU0000001"
+tube1.tension.add_record(tension.TensionRecord(350))           #add two different tension records
+tube2.tension.add_record(tension.TensionRecord(355))
+tubes.add_tube(tube1)                                          #add the first tube
+dbman.update()                                                 #update the database. NOT NEEDED ON REAL LAB SYSTEM
+print(tubes.get_tube("MSU0000001").tension.get_record())       #print the tube's tension record, should be 350
+tubes.add_tube(tube2)                                          #add the first tube
+dbman.update()                                                 #update the database. NOT NEEDED ON REAL LAB SYSTEM
+print(tubes.get_tube("MSU0000001").tension.get_record('last')) #print the tube's last tension record, should be 355 now
+    ```
