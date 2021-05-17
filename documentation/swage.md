@@ -1,7 +1,7 @@
 Swage Module Documentation
 ==========================
 
-sMDT.data.swage is a module that contains the derived classes of [Station](station.md) and [Record](record.md) for use with the Swage Station. 
+[sMDT](sMDT.md).[data](data.md).swage is a module that contains the derived classes of [Station](station.md) and [Record](record.md) for use with the Swage Station. 
 
 This module has two main classes, the Swage object, and the SwageRecord object. The Swage object is a Station that holds a list of SwageRecords.
 
