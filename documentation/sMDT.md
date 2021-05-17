@@ -23,6 +23,8 @@ sMDT is a Python package, which is really just a folder for organizing pieces of
  
   * [record](record.md) -Abstract base class for a record
 
+* [locks](locks.md) -Mutex locks 
+
 * [legacy support](legacy.md)
 
 UML Class Diagram
