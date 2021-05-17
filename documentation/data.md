@@ -1,7 +1,7 @@
 Data Package Documentation
 ==========================
 
-data is the Python sub-package that holds the pieces of the library that have to do with stations and data recording/management.
+[sMDT](sMDT.md).data is the Python sub-package that holds the pieces of the library that have to do with stations and data recording/management.
 The two main abstractions are the Station and Record class, and the four stations each inherit their own versions of these two classes.
 
 Modules:
