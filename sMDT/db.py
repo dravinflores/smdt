@@ -16,7 +16,6 @@
 # Import Preparation block.
 # Currently only needed so the records in the mains work with the current imports.
 import os
-from sMDT.data.swage import SwageRecord
 import sys
 
 # Gets the path of the current file being executed.
@@ -30,6 +29,7 @@ sys.path.append(current_folder)
 from tube import Tube
 from data.dark_current import DarkCurrent, DarkCurrentRecord
 from data.station import *
+from data.swage import SwageRecord
 import locks
 import shelve
 import pickle
