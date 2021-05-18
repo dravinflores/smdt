@@ -162,11 +162,11 @@ class station_pickler:
 
         db_lock.unlock()
 
-    def pickle_tension(self):
+    def pickle_tension(self, tensionDirectory):
         pass
-    def pickle_leak(self):
+    def pickle_leak(self, leakDirectory):
         pass
-    def pickle_darkcurrent(self):
+    def pickle_darkcurrent(self, darkcurrentDirectory):
         pass
 
 
@@ -206,10 +206,10 @@ class db_manager():
         
 
         pickler = station_pickler()
-        pickler.pickle_swage()
-        pickler.pickle_tension()
-        pickler.pickle_leak()
-        pickler.pickle_darkcurrent()
+        pickler.pickle_swage('SwagerStation/SwagerData')
+        pickler.pickle_tension('TensionStation/output')
+        pickler.pickle_leak('LeakDetector/')
+        pickler.pickle_darkcurrent('DarkCurrent/3015V Dark Current')
 
 
 
