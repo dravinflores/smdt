@@ -16,6 +16,7 @@
 # Import Preparation block.
 # Currently only needed so the records in the mains work with the current imports.
 import os
+from sMDT.data.swage import SwageRecord
 import sys
 
 # Gets the path of the current file being executed.
@@ -35,7 +36,7 @@ import pickle
 import time
 import datetime
 import random
-
+import re
 
 class db:
     def __init__(self, path="database.s"):
@@ -98,10 +99,68 @@ class station_pickler:
     This class will take whatever data is generated in the form of a csv file, and will read it into a sMDT tube object. 
     It will then pickle the object into the standard specified for new data for the db manager.
     '''
-    def __init__(self):
-        pass
-    def pickle_swage(self):
-        pass
+    def __init__(self, path="database.s"):
+        '''
+        Constructor, builds the pickler object. Gets the path to the database
+        '''
+        self.path = path
+
+    '''
+    This will pickle every file that is in the specified directory swagerDirectory
+    '''
+    def pickle_swage(self, swagerDirectory):
+        db_lock = locks.Lock("database")
+        db_lock.lock()
+
+        for filename in os.listdir(swagerDirectory):
+            with open(filename) as file:
+                for line in file.readlines():
+                    line = line.split(',')
+                    # Here are the different csv types, there have been 3 versions
+                    # The currently used version that includes endplug type 'Protvino' or 'Munich'
+                    if len(line) == 9:
+                        barcode = line[0].replace('\r\n', '')
+                        rawLength = line[1]
+                        swageLength = line[2]
+                        sDate = line[3]
+                        cCode = line[4]
+                        eCode = line[5]
+                        comment = line[6]
+                        user    = line[7].replace('\r\n', '')
+                        endplug_type = line[8]  # Not stored currently
+                    # An earlier version when endplug type wasn't recorded
+                    elif len(line) == 8:
+                        barcode = line[0].replace('\r\n', '')
+                        rawLength = line[1]
+                        swageLength = line[2]
+                        sDate = line[3]
+                        cCode = line[4]
+                        eCode = line[5]
+                        comment = line[6]
+                        user    = line[7].replace('\r\n', '')
+                    # This was the very first iteration where there were only 3 things recorded
+                    else:
+                        barcode = line[0].replace('\r\n', '')
+                        comment = line[1]
+                        user    = line[2].replace('\r\n', '')
+                        rawLength = "Unknown"
+                        swageLength = "Unknown"                        
+                        eCode = "Unknown"
+                        cCode = "Unknown"
+                        # Swager date was stored in the filename in this version
+                        sDate = datetime.string_to_datetime(filename, '%m.%d.%Y_%H_%M_%S.csv')
+
+                    tube = Tube()
+                    tube.m_tube_id = barcode
+                    tube.swage.m_user.append(user)
+                    tube.new_comment(comment)
+                    tube.swage.add_record(SwageRecord(raw_length=rawLength, swage_length=swageLength,
+                                                          clean_code=cCode, error_code=eCode, date=sDate))
+                    with open(os.path.join(new_data_folder, filename),"wb") as f: #FIXME
+                        pickle.dump(tube, f)
+
+        db_lock.unlock()
+
     def pickle_tension(self):
         pass
     def pickle_leak(self):
