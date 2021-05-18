@@ -99,9 +99,9 @@ class station_pickler:
     This class will take whatever data is generated in the form of a csv file, and will read it into a sMDT tube object. 
     It will then pickle the object into the standard specified for new data for the db manager.
     '''
-    def __init__(self, path="database.s"):
+    def __init__(self, path=os.path.join(current_folder, "new_data")):
         '''
-        Constructor, builds the pickler object. Gets the path to the database
+        Constructor, builds the pickler object. Gets the path new data folder
         '''
         self.path = path
 
@@ -157,7 +157,7 @@ class station_pickler:
                     tube.new_comment(comment)
                     tube.swage.add_record(SwageRecord(raw_length=rawLength, swage_length=swageLength,
                                                           clean_code=cCode, error_code=eCode, date=sDate))
-                    with open(os.path.join(new_data_folder, filename),"wb") as f: #FIXME
+                    with open(os.path.join(self.path, filename),"wb") as f: 
                         pickle.dump(tube, f)
 
         db_lock.unlock()
@@ -220,7 +220,7 @@ class db_manager():
         tubes = shelve.open(self.path)
 
         for filename in os.listdir(new_data_folder): 
-            if filename.endswith(".p"):
+            if filename.endswith(".tube"):
                 new_data_file = open(os.path.join(new_data_folder, filename), 'rb') #open the file
                 tube = pickle.load(new_data_file)                                   #load the tube from pickle
                 new_data_file.close()                                               #close the file
