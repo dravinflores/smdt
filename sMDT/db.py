@@ -66,13 +66,16 @@ class db:
         dt = datetime.datetime.now()
         timestamp = dt.timestamp()
 
-        filename = str(timestamp) + str(random.randrange(0,999)) + ".p"
+        filename = str(timestamp) + str(random.randrange(0,999)) + ".tube"
 
         if not os.path.isdir(new_data_folder):
             os.mkdir(new_data_folder)
 
+        file_lock = locks.Lock(filename)
+        file_lock.lock()
         with open(os.path.join(new_data_folder, filename),"wb") as f:
             pickle.dump(tube, f)
+        file_lock.unlock()
 
     def get_tube(self, id):
         '''
@@ -110,8 +113,7 @@ class station_pickler:
     '''
     def pickle_swage(self, swagerDirectory):
         return 0 # for now so tests don't fail
-        db_lock = locks.Lock("database")
-        db_lock.lock()
+        
 
         for filename in os.listdir(swagerDirectory):
             with open(filename) as file:
@@ -144,10 +146,10 @@ class station_pickler:
                         barcode = line[0].replace('\r\n', '')
                         comment = line[1]
                         user    = line[2].replace('\r\n', '')
-                        rawLength = "Unknown"
-                        swageLength = "Unknown"                        
-                        eCode = "Unknown"
-                        cCode = "Unknown"
+                        rawLength = None
+                        swageLength = None                       
+                        eCode = None
+                        cCode = None
                         # Swager date was stored in the filename in this version
                         sDate = datetime.string_to_datetime(filename, '%m.%d.%Y_%H_%M_%S.csv')
 
@@ -157,10 +159,15 @@ class station_pickler:
                     tube.new_comment(comment)
                     tube.swage.add_record(SwageRecord(raw_length=rawLength, swage_length=swageLength,
                                                           clean_code=cCode, error_code=eCode, date=sDate))
-                    with open(os.path.join(self.path, filename),"wb") as f: 
-                        pickle.dump(tube, f)
 
-        db_lock.unlock()
+                    pickled_filename = str(datetime.now().timestamp()) + 'swage.tube'
+
+                    file_lock = locks.Lock(pickled_filename)
+                    file_lock.lock()
+                    with open(os.path.join(self.path, pickled_filename),"wb") as f: 
+                        pickle.dump(tube, f)
+                    file_lock.unlock()
+        
 
     def pickle_tension(self, tensionDirectory):
         pass
@@ -221,6 +228,8 @@ class db_manager():
 
         for filename in os.listdir(new_data_folder): 
             if filename.endswith(".tube"):
+                file_lock = locks.Lock(filename)
+                file_lock.wait()
                 new_data_file = open(os.path.join(new_data_folder, filename), 'rb') #open the file
                 tube = pickle.load(new_data_file)                                   #load the tube from pickle
                 new_data_file.close()                                               #close the file
