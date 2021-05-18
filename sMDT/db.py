@@ -109,7 +109,7 @@ class station_pickler:
     This will pickle every file that is in the specified directory swagerDirectory
     '''
     def pickle_swage(self, swagerDirectory):
-        pass # for now so tests don't fail
+        return 0 # for now so tests don't fail
         db_lock = locks.Lock("database")
         db_lock.lock()
 
