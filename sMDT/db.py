@@ -27,9 +27,12 @@ new_data_folder = os.path.join(current_folder, "new_data")
 sys.path.append(current_folder)
 
 from tube import Tube
-from data.dark_current import DarkCurrent, DarkCurrentRecord
+#from data.dark_current import DarkCurrent, DarkCurrentRecord # Needed?
 from data.station import *
 from data.swage import SwageRecord
+from data.tension import TensionRecord
+from data.leak import LeakRecord
+from data.dark_current import DarkCurrentRecord
 import locks
 import shelve
 import pickle
@@ -109,7 +112,8 @@ class station_pickler:
         self.path = path
 
     '''
-    This will pickle every file that is in the specified directory swagerDirectory
+    This is the swage pickler function that will pickle every 
+    swage csv file that is in the specified directory swagerDirectory
     '''
     def pickle_swage(self, swagerDirectory):
         return 0 # for now so tests don't fail
@@ -122,34 +126,34 @@ class station_pickler:
                     # Here are the different csv types, there have been 3 versions
                     # The currently used version that includes endplug type 'Protvino' or 'Munich'
                     if len(line) == 9:
-                        barcode = line[0].replace('\r\n', '')
-                        rawLength = line[1]
-                        swageLength = line[2]
-                        sDate = line[3]
-                        cCode = line[4]
-                        eCode = line[5]
-                        comment = line[6]
-                        user    = line[7].replace('\r\n', '')
+                        barcode      = line[0].replace('\r\n', '')
+                        rawLength    = line[1]
+                        swageLength  = line[2]
+                        sDate        = line[3]
+                        cCode        = line[4]
+                        eCode        = line[5]
+                        comment      = line[6]
+                        user         = line[7].replace('\r\n', '')
                         endplug_type = line[8]  # Not stored currently
                     # An earlier version when endplug type wasn't recorded
                     elif len(line) == 8:
-                        barcode = line[0].replace('\r\n', '')
-                        rawLength = line[1]
+                        barcode     = line[0].replace('\r\n', '')
+                        rawLength   = line[1]
                         swageLength = line[2]
-                        sDate = line[3]
-                        cCode = line[4]
-                        eCode = line[5]
-                        comment = line[6]
-                        user    = line[7].replace('\r\n', '')
+                        sDate       = line[3]
+                        cCode       = line[4]
+                        eCode       = line[5]
+                        comment     = line[6]
+                        user        = line[7].replace('\r\n', '')
                     # This was the very first iteration where there were only 3 things recorded
                     else:
-                        barcode = line[0].replace('\r\n', '')
-                        comment = line[1]
-                        user    = line[2].replace('\r\n', '')
-                        rawLength = None
+                        barcode     = line[0].replace('\r\n', '')
+                        comment     = line[1]
+                        user        = line[2].replace('\r\n', '')
+                        rawLength   = None
                         swageLength = None                       
-                        eCode = None
-                        cCode = None
+                        eCode       = None
+                        cCode       = None
                         # Swager date was stored in the filename in this version
                         sDate = datetime.string_to_datetime(filename, '%m.%d.%Y_%H_%M_%S.csv')
 
@@ -157,10 +161,14 @@ class station_pickler:
                     tube.m_tube_id = barcode
                     tube.swage.m_user.append(user)
                     tube.new_comment(comment)
-                    tube.swage.add_record(SwageRecord(raw_length=rawLength, swage_length=swageLength,
-                                                          clean_code=cCode, error_code=eCode, date=sDate))
+                    tube.swage.add_record(SwageRecord(raw_length=rawLength,
+                                                      swage_length=swageLength,
+                                                      clean_code=cCode,
+                                                      error_code=eCode,
+                                                      date=sDate))
 
-                    pickled_filename = str(datetime.now().timestamp()) + 'swage.tube'
+                    pickled_filename = str(random.randrange(0,999)) + \
+                                        str(datetime.now().timestamp()) + 'swage.tube'
 
                     file_lock = locks.Lock(pickled_filename)
                     file_lock.lock()
@@ -168,9 +176,50 @@ class station_pickler:
                         pickle.dump(tube, f)
                     file_lock.unlock()
         
-
+    '''
+    This is the tension pickler function that will pickle every tension csv file 
+    that is in the specified directory tensionDirectory
+    '''
     def pickle_tension(self, tensionDirectory):
-        pass
+        #return 0 # for now to pass tests
+        for filename in os.listdir(tensionDirectory):
+            with open(filename) as file:
+                for line in file.readlines():
+                    line = line.split(',')
+                    # Check there are 8 columns, else report to terminal
+                    if len(line) == 8:
+                        user        = line[0]
+                        date        = line[1]
+                        barcode     = line[2]
+                        #not_used   = line[3]
+                        #not_used   = line[4]
+                        frequency   = line[5]
+                        tension     = line[6]
+                        #not_used   = line[7]
+                    # Report to terminal unknown formats
+                    else:
+                        print("File " + filename + " has unknown format")
+                        continue
+                    sDate = datetime.string_to_datetime(date, '%d.%m.%Y_%H_%M_%S.csv')
+
+                    # Create tube instance
+                    tube = Tube()
+                    tube.m_tube_id = barcode
+                    tube.tension.m_user.append(user)
+                    tube.tension.add_record(TensionRecord(tension=tension,
+                                                          frequency=frequency,
+                                                          date=sDate))
+
+                    pickled_filename = str(random.randrange(0,999)) + \
+                                        str(datetime.now().timestamp()) + 'tension.tube'
+
+                    # Lock and write tube instance to pickle file
+                    file_lock = locks.Lock(pickled_filename)
+                    file_lock.lock()
+                    with open(os.path.join(self.path, pickled_filename),"wb") as f: 
+                        pickle.dump(tube, f)
+                    file_lock.unlock()
+
     def pickle_leak(self, leakDirectory):
         pass
     def pickle_darkcurrent(self, darkcurrentDirectory):
