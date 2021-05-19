@@ -60,7 +60,6 @@ class Station:
 
     def __add__(self, other):
         ret = type(self)()
-        ret.m_users = self.m_users + other.m_users
         ret.m_records = self.m_records + other.m_records
         return ret
 
