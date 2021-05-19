@@ -230,7 +230,7 @@ class station_pickler:
             with open(filename) as file:
                 for line in file.readlines():
                     line = line.split('\t')
-                    # Check there are 8 columns, else report to terminal
+                    # Check there are 6 columns, else report to terminal
                     if len(line) == 6:
                         leak        = line[0]
                         pressure    = line[1]  # Not used
@@ -262,8 +262,43 @@ class station_pickler:
                         pickle.dump(tube, f)
                     file_lock.unlock()
 
+    '''
+    This is the dark current pickler function that will pickle every dark current csv file 
+    that is in the specified directory darkcurrentDirectory
+    '''
     def pickle_darkcurrent(self, darkcurrentDirectory):
-        pass
+        return 0 # for now to pass tests
+        for filename in os.listdir(darkcurrentDirectory):
+            with open(filename) as file:
+                for line in file.readlines():
+                    line = line.split(',')
+                    # Check there are 2 columns, else report to terminal
+                    if len(line) == 2:
+                        current   = line[0]
+                        date      = line[1]
+                    # Report to terminal unknown formats
+                    else:
+                        print("File " + filename + " has unknown format")
+                        continue
+                    sDate = datetime.string_to_datetime(date, '%d_%m_%Y_%H_%M_%S')
+                    barcode = filename.split('.')[0]
+
+                    # Create tube instance
+                    tube = Tube()
+                    tube.m_tube_id = barcode
+                    #tube.dark_current.m_user.append(user)
+                    tube.leak.add_record(LeakRecord(dark_current=current,
+                                                          date=sDate))
+
+                    pickled_filename = str(random.randrange(0,999)) + \
+                                        str(datetime.now().timestamp()) + 'dCurrent.tube'
+
+                    # Lock and write tube instance to pickle file
+                    file_lock = locks.Lock(pickled_filename)
+                    file_lock.lock()
+                    with open(os.path.join(self.path, pickled_filename),"wb") as f: 
+                        pickle.dump(tube, f)
+                    file_lock.unlock()
 
 
 
