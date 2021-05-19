@@ -43,8 +43,8 @@ class TensionRecord(Record):
     min_tension = 350 - 15
 
     def __init__(self, tension=None, frequency=None,
-                 date=datetime.now()):
-        super().__init__()
+                 date=datetime.now(), user=None):
+        super().__init__(user)
         self.tension = tension
         self.frequency = frequency
         self.date = date

@@ -16,6 +16,7 @@ swage | [SwageStation](swage.md) | Swage Station object
 leak | [LeakStation](leak.md) | Leak Station object
 tension | [TensionStation](tension.md) | Tension Station Object
 darkcurrent | [DarkCurrentStation](darkcurrent.md) | Dark Current Station object
+legacy_data | dict() | A generic dictionary for arbitrary data associated with legacy operations. Most likely empty. Only current key is "is_munich", a true or false value representing whether the munich type of endplug was used for this tube. 
 
 Member Function | Parameters | Return Value | Description
 ---|---|---|---

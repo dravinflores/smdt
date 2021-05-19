@@ -44,10 +44,10 @@ class SwageRecord(Record):
 
     # Does this format for a long list of parameters look cleaner?
     def __init__(self, raw_length=None, swage_length=None,
-                 clean_code=None, error_code=None, date=datetime.now()):
+                 clean_code=None, error_code=None, date=datetime.now(), user=None):
 
         # Call the super class init to construct the object.
-        super().__init__()
+        super().__init__(user)
         self.raw_length = raw_length
         self.swage_length = swage_length
         self.clean_code = clean_code

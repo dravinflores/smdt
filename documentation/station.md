@@ -9,7 +9,7 @@ A station represents any process of data collection that operates on a particula
 
 A station's main responsibility is to hold a list of records that correspond to tests that the station ran. A record can be of any form, but the Record class sets a standard design for them. They are really just simple data containers, but might also include code like fail() functions.
 
-A station object's job is to keep track of the users that have used the station with that tube, as well as a list of records.
+A station object's job is to keep track o a list of records associated with the station.
 
 The station *module* also has the ability to define custom modes for the get_record() function and the fail() function.
 
@@ -19,14 +19,11 @@ The Station Class
 
 Member Variable | Type | Description
 ---|---|---
-m_users | list[string] | A list of every user to use this station with the associated tube. 
 m_records | list[Record] | a list of records recorded by the station.
 
 Member Function | Parameters | Return Value | Description
 ---|---|---|---
 Constructor | None | None | Constructs the station object. Empty with no data.
-add_user(user)| user : string | None | Adds the new user to the list of users
-get_users() | None | list[string] | Returns the list of users
 add_record(record) | record : Record | None | Adds the specified record to the list of records
 get_record(mode) | mode : string | Record | Returns a single record, as specified by mode. Default mode is 'last', see below for documentation on the mode system.
 fail(mode) | mode : string/function | boolean | Returns true if the tube is a failure based on a single record specified by the mode. Default mode is 'last'. See below for documentation on the mode system. For the abstract station, this raises NotImplementedError
@@ -39,8 +36,6 @@ Below is a simple example of using a class by itself. This example uses integers
 ```python
 from sMDT.data import station,record        #Import station and record
 stat = station.Station()             #Create the station object
-stat.add_user("Paul")                #Add the user paul
-print(stat.get_users())              #Prints the users. `[Paul]`
 stat.add_record(1)                   #Adds an integer record 
 stat.add_record(2)
 print(stat.get_record(mode='last'))  #Prints whats returned by the get record function, mode being last. The last record added was 2, so it should just print `2`.

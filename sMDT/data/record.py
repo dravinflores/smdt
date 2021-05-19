@@ -25,8 +25,8 @@ sys.path.append(current_folder)
 
 
 class Record:
-    def __init__(self):
-        pass
+    def __init__(self, user=None):
+        self.user = user
 
     def fail(self):
         raise NotImplementedError

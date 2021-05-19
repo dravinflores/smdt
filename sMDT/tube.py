@@ -38,6 +38,7 @@ class Tube:
         self.tension = Tension()
         self.leak = Leak()
         self.dark_current = DarkCurrent()
+        self.legacy_data = dict()
 
     def __add__(self, other):
         ret = Tube()
@@ -47,6 +48,7 @@ class Tube:
         ret.leak = self.leak + other.leak
         ret.dark_current = self.dark_current + other.dark_current
         ret.tension = self.tension + other.tension
+        ret.legacy_data = dict(self.legacy_data, **other.legacy_data)
         return ret
 
     def __str__(self):

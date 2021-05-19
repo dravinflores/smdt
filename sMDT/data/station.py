@@ -42,19 +42,15 @@ class Station:
         # WARNING
         # Initially, this init function and the inheriting station's functions
         # looked something like
-        # def __init__(self, users=[],records=[])
-        #   self.m_users = users
+        # def __init__(self, records=[])
         #   self.m_records = records
         # I don't know why, but this is apparently a terrible idea
         # that somehow makes the lists in every station object be the same
         # object and share their users and records. Again, no idea why, I
         # encountered the problem and traced it back here and found that
         # removing it fixed it
-        self.m_users = []
         self.m_records = []
 
-        # I'll document it fully later but this code below
-        # is going to allow application customizable modes in a really nice way.
 
     def __str__(self):
         raise NotImplementedError
@@ -64,11 +60,8 @@ class Station:
 
     def __add__(self, other):
         ret = type(self)()
-        ret.m_users = self.m_users + other.m_users
         ret.m_records = self.m_records + other.m_records
         return ret
-        # Return
-        # type(self)(self.m_users + other.m_users, self.m_records + other.m_records)
 
     def fail(self, mode='last'):
         if type(mode) == str:
@@ -77,15 +70,6 @@ class Station:
             return mode(self).fail()
         else:
             raise RuntimeError()
-
-    def get_users(self):
-        """Returns the list of people who have recorded data for this tube at
-        this station"""
-        return self.m_users
-
-    def add_user(self, user):
-        """Adds a user to the station's records"""
-        self.m_users.append(user)
 
     def get_record(self, mode='last'):
         """Given a selected mode, returns the respective record"""
