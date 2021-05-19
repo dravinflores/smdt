@@ -18,13 +18,14 @@
 import os
 import sys
 
-# Gets the path of the current file being executed.
-path = os.path.realpath(__file__)
-current_folder = os.path.dirname(os.path.abspath(__file__))
-new_data_folder = os.path.join(current_folder, "new_data")
 # Adds the folder that file is in to the system path
+sMDT_folder_path = os.path.dirname(os.path.abspath(__file__))
+new_data_path = os.path.join(sMDT_folder_path, 'new_data')
+sys.path.append(sMDT_folder_path)
 
-sys.path.append(current_folder)
+
+
+
 
 from tube import Tube
 from data.dark_current import DarkCurrent, DarkCurrentRecord
@@ -68,12 +69,12 @@ class db:
 
         filename = str(timestamp) + str(random.randrange(0,999)) + ".tube"
 
-        if not os.path.isdir(new_data_folder):
-            os.mkdir(new_data_folder)
+        if not os.path.isdir(new_data_path):
+            os.mkdir(new_data_path)
 
         file_lock = locks.Lock(filename)
         file_lock.lock()
-        with open(os.path.join(new_data_folder, filename),"wb") as f:
+        with open(os.path.join(new_data_path, filename),"wb") as f:
             pickle.dump(tube, f)
         file_lock.unlock()
 
@@ -102,7 +103,7 @@ class station_pickler:
     This class will take whatever data is generated in the form of a csv file, and will read it into a sMDT tube object. 
     It will then pickle the object into the standard specified for new data for the db manager.
     '''
-    def __init__(self, path=os.path.join(current_folder, "new_data")):
+    def __init__(self, path=os.path.join(sMDT_folder_path, "new_data")):
         '''
         Constructor, builds the pickler object. Gets the path new data folder
         '''
@@ -112,19 +113,19 @@ class station_pickler:
     This will pickle every file that is in the specified directory swagerDirectory
     '''
     def pickle_swage(self, swagerDirectory):
-        return 0 # for now so tests don't fail
+        #return 0 # for now so tests don't fail
         
 
         for filename in os.listdir(swagerDirectory):
-            with open(filename) as file:
+            with open(os.path.join(swagerDirectory, filename)) as file:
                 for line in file.readlines():
                     line = line.split(',')
                     # Here are the different csv types, there have been 3 versions
                     # The currently used version that includes endplug type 'Protvino' or 'Munich'
                     if len(line) == 9:
                         barcode = line[0].replace('\r\n', '')
-                        rawLength = line[1]
-                        swageLength = line[2]
+                        rawLength = float(line[1])
+                        swageLength = float(line[2])
                         sDate = line[3]
                         cCode = line[4]
                         eCode = line[5]
@@ -134,8 +135,8 @@ class station_pickler:
                     # An earlier version when endplug type wasn't recorded
                     elif len(line) == 8:
                         barcode = line[0].replace('\r\n', '')
-                        rawLength = line[1]
-                        swageLength = line[2]
+                        rawLength = float(line[1])
+                        swageLength = float(line[2])
                         sDate = line[3]
                         cCode = line[4]
                         eCode = line[5]
@@ -155,12 +156,12 @@ class station_pickler:
 
                     tube = Tube()
                     tube.m_tube_id = barcode
-                    tube.swage.m_user.append(user)
+
                     tube.new_comment(comment)
                     tube.swage.add_record(SwageRecord(raw_length=rawLength, swage_length=swageLength,
                                                           clean_code=cCode, error_code=eCode, date=sDate))
 
-                    pickled_filename = str(datetime.now().timestamp()) + 'swage.tube'
+                    pickled_filename = str(datetime.datetime.now().timestamp()) + 'swage.tube'
 
                     file_lock = locks.Lock(pickled_filename)
                     file_lock.lock()
@@ -211,14 +212,13 @@ class db_manager():
         '''
 
         
-
         pickler = station_pickler()
-        pickler.pickle_swage('SwagerStation/SwagerData')
-        pickler.pickle_tension('TensionStation/output')
-        pickler.pickle_leak('LeakDetector/')
-        pickler.pickle_darkcurrent('DarkCurrent/3015V Dark Current')
+        pickler.pickle_swage(os.path.join(sMDT_folder_path,'SwagerStation','SwagerData'))
+        #pickler.pickle_tension('TensionStation/output')
+        #pickler.pickle_leak('LeakDetector/')
+        #pickler.pickle_darkcurrent('DarkCurrent/3015V Dark Current')
 
-
+        
 
         #Lock the database
         db_lock = locks.Lock("database")
@@ -226,11 +226,11 @@ class db_manager():
 
         tubes = shelve.open(self.path)
 
-        for filename in os.listdir(new_data_folder): 
+        for filename in os.listdir(new_data_path): 
             if filename.endswith(".tube"):
                 file_lock = locks.Lock(filename)
                 file_lock.wait()
-                new_data_file = open(os.path.join(new_data_folder, filename), 'rb') #open the file
+                new_data_file = open(os.path.join(new_data_path, filename), 'rb') #open the file
                 tube = pickle.load(new_data_file)                                   #load the tube from pickle
                 new_data_file.close()                                               #close the file
                 if tube.getID() in tubes:                                           #add the tubes to the database
@@ -238,7 +238,7 @@ class db_manager():
                     tubes[tube.getID()] = temp                          
                 else:
                     tubes[tube.getID()] = tube
-                os.remove(os.path.join(new_data_folder, filename))                 #delete the file that we added the tube from
+                os.remove(os.path.join(new_data_path, filename))                 #delete the file that we added the tube from
 
         #close the database
         tubes.close()
@@ -247,9 +247,5 @@ class db_manager():
         db_lock.unlock()
         
 
-if __name__ == "__main__":
-    new_data_folder = current_folder + "/new_data/"
-    for filename in os.listdir(new_data_folder):
-        new_data_file = open(new_data_folder + filename, 'r')
-        new_data_file.close()
+
         
