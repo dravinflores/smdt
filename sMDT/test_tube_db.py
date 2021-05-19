@@ -59,13 +59,15 @@ def test_tube_add():
     tube2 = tube.Tube()
     tube1.m_tube_id = "MSU0000001"
     tube2.m_tube_id = "MSU0000001"
-    tube1.tension.add_record(tension.TensionRecord(350))
-    tube2.tension.add_record(tension.TensionRecord(355))
+    tube1.tension.add_record(tension.TensionRecord(350, user='Paul'))
+    tube2.tension.add_record(tension.TensionRecord(355, user='Reinhard'))
     tube2.leak.add_record(leak.LeakRecord(0))
     tube3 = tube1 + tube2
     print(tube3.tension.get_record('all'))
     assert len(tube3.tension.get_record('all')) == 2
     assert tube3.leak.get_record('last').leak_rate == 0
+    assert tube3.tension.get_record('last').user == 'Reinhard'
+    assert tube3.tension.get_record('first').user == 'Paul'
 
 def test_db_persistence():
     '''
