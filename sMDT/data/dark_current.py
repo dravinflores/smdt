@@ -43,8 +43,8 @@ class DarkCurrentRecord(Record):
     max_individual_current = 1E-9   # 1 nA
     max_collective_current = 8E-9   # 8 nA
 
-    def __init__(self, dark_current=None, date=datetime.now()):
-        super().__init__()
+    def __init__(self, dark_current=None, date=datetime.now(), user=None):
+        super().__init__(user)
         self.dark_current = dark_current
         self.date = date
 

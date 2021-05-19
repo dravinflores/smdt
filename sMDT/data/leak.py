@@ -41,7 +41,8 @@ class LeakRecord(Record):
     # Here are the project defined limits.
     threshold_leak = 5.0E-5
 
-    def __init__(self, leak_rate=None, date=datetime.now()):
+    def __init__(self, leak_rate=None, date=datetime.now(), user=None):
+        super().__init__(user)
         self.leak_rate = leak_rate
         self.date = date
 

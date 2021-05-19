@@ -25,7 +25,7 @@ date | datetime | the datetime object representing when this was recorded. By de
 
 Member Functions|Parameters|Return|Description
 ---|---|---|---
-Constructor|darkcurrent : float, date : datetime | DarkCurrentRecord object | Creates a record object with the specified data
+Constructor|darkcurrent : float, date : datetime, user : string | DarkCurrentRecord object | Creates a record object with the specified data
 \_\_str\_\_()|None|string|Returns a string representation of the record
 fail()|None|bool|Returns True if this data indicates a failed tube. See above for description of the failure conditions.
 
