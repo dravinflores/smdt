@@ -1,4 +1,4 @@
-    ###############################################################################
+###############################################################################
 #   File: db.py
 #   Author(s): Paul Johnecheck
 #   Date Created: 11 April, 2021
@@ -24,13 +24,13 @@ new_data_path = os.path.join(sMDT_folder_path, 'new_data')
 sys.path.append(sMDT_folder_path)
 
 
-
-
-
 from tube import Tube
-from data.dark_current import DarkCurrent, DarkCurrentRecord
+#from data.dark_current import DarkCurrent, DarkCurrentRecord # Needed?
 from data.station import *
 from data.swage import SwageRecord
+from data.tension import TensionRecord
+from data.leak import LeakRecord
+from data.dark_current import DarkCurrentRecord
 import locks
 import shelve
 import pickle
@@ -110,11 +110,14 @@ class station_pickler:
         self.path = path
 
     '''
-    This will pickle every file that is in the specified directory swagerDirectory
+    This is the swage pickler function that will pickle every 
+    swage csv file that is in the specified directory swagerDirectory
     '''
     def pickle_swage(self, swagerDirectory):
         #return 0 # for now so tests don't fail
         
+        if not os.path.isdir(self.path):
+            os.mkdir(self.path)
 
         for filename in os.listdir(swagerDirectory):
             with open(os.path.join(swagerDirectory, filename)) as file:
@@ -122,46 +125,56 @@ class station_pickler:
                     line = line.split(',')
                     # Here are the different csv types, there have been 3 versions
                     # The currently used version that includes endplug type 'Protvino' or 'Munich'
+                    if len(line) not in [9,8,3]:
+                        continue
                     if len(line) == 9:
-                        barcode = line[0].replace('\r\n', '')
-                        rawLength = float(line[1])
-                        swageLength = float(line[2])
-                        sDate = line[3]
-                        cCode = line[4]
-                        eCode = line[5]
-                        comment = line[6]
-                        user    = line[7].replace('\r\n', '')
+                        barcode      = line[0].replace('\r\n', '')
+                        rawLength    = float(line[1]) if line[1] != "" else None
+                        swageLength  = float(line[2]) if line[2] != "" else None
+                        sDate        = datetime.datetime.strptime(line[3], '%m.%d.%Y_%H_%M_%S')
+                        cCode        = line[4]
+                        eCode        = line[5]
+                        comment      = line[6]
+                        user         = line[7].replace('\r\n', '')
                         endplug_type = line[8]  # Not stored currently
                     # An earlier version when endplug type wasn't recorded
                     elif len(line) == 8:
-                        barcode = line[0].replace('\r\n', '')
-                        rawLength = float(line[1])
-                        swageLength = float(line[2])
-                        sDate = line[3]
-                        cCode = line[4]
-                        eCode = line[5]
-                        comment = line[6]
-                        user    = line[7].replace('\r\n', '')
+                        barcode     = line[0].replace('\r\n', '')
+                        rawLength   = float(line[1]) if line[1] != "" else None
+                        swageLength = float(line[2]) if line[2] != "" else None
+                        sDate       = datetime.datetime.strptime(line[3], '%m.%d.%Y_%H_%M_%S')
+                        cCode       = line[4]
+                        eCode       = line[5]
+                        comment     = line[6]
+                        user        = line[7].replace('\r\n', '')
                     # This was the very first iteration where there were only 3 things recorded
                     else:
-                        barcode = line[0].replace('\r\n', '')
-                        comment = line[1]
-                        user    = line[2].replace('\r\n', '')
-                        rawLength = None
+                        barcode     = line[0].replace('\r\n', '')
+                        comment     = line[1]
+                        user        = line[2].replace('\r\n', '')
+                        rawLength   = None
                         swageLength = None                       
-                        eCode = None
-                        cCode = None
+                        eCode       = None
+                        cCode       = None
                         # Swager date was stored in the filename in this version
-                        sDate = datetime.string_to_datetime(filename, '%m.%d.%Y_%H_%M_%S.csv')
+                        try:
+                            sDate = datetime.datetime.strptime(filename, '%m.%d.%Y_%H_%M_%S.csv')
+                        except ValueError:
+                            sDate = None
 
                     tube = Tube()
                     tube.m_tube_id = barcode
-
                     tube.new_comment(comment)
-                    tube.swage.add_record(SwageRecord(raw_length=rawLength, swage_length=swageLength,
-                                                          clean_code=cCode, error_code=eCode, date=sDate))
+                    tube.swage.add_record(SwageRecord(raw_length=rawLength,
+                                                      swage_length=swageLength,
+                                                      clean_code=cCode,
+                                                      error_code=eCode,
+                                                      date=sDate,
+                                                      user=user))
 
                     pickled_filename = str(datetime.datetime.now().timestamp()) + 'swage.tube'
+
+                    print("Pickling tube with id", tube.m_tube_id)
 
                     file_lock = locks.Lock(pickled_filename)
                     file_lock.lock()
@@ -169,13 +182,129 @@ class station_pickler:
                         pickle.dump(tube, f)
                     file_lock.unlock()
         
-
+    '''
+    This is the tension pickler function that will pickle every tension csv file 
+    that is in the specified directory tensionDirectory
+    '''
     def pickle_tension(self, tensionDirectory):
-        pass
+        return 0 # for now to pass tests
+        for filename in os.listdir(tensionDirectory):
+            with open(filename) as file:
+                for line in file.readlines():
+                    line = line.split(',')
+                    # Check there are 8 columns, else report to terminal
+                    if len(line) == 8:
+                        user        = line[0]
+                        date        = line[1]
+                        barcode     = line[2]
+                        #not_used   = line[3]
+                        #not_used   = line[4]
+                        frequency   = line[5]
+                        tension     = line[6]
+                        #not_used   = line[7]
+                    # Report to terminal unknown formats
+                    else:
+                        print("File " + filename + " has unknown format")
+                        continue
+                    sDate = datetime.string_to_datetime(date, '%d.%m.%Y_%H_%M_%S')
+
+                    # Create tube instance
+                    tube = Tube()
+                    tube.m_tube_id = barcode
+                    tube.tension.m_user.append(user)
+                    tube.tension.add_record(TensionRecord(tension=tension,
+                                                          frequency=frequency,
+                                                          date=sDate))
+
+                    pickled_filename = str(random.randrange(0,999)) + \
+                                        str(datetime.now().timestamp()) + 'tension.tube'
+
+                    # Lock and write tube instance to pickle file
+                    file_lock = locks.Lock(pickled_filename)
+                    file_lock.lock()
+                    with open(os.path.join(self.path, pickled_filename),"wb") as f: 
+                        pickle.dump(tube, f)
+                    file_lock.unlock()
+
+    '''
+    This is the leak rate pickler function that will pickle every leak rate csv file 
+    that is in the specified directory leakDirectory
+    '''
     def pickle_leak(self, leakDirectory):
-        pass
+        return 0 # for now to pass tests
+        for filename in os.listdir(leakDirectory):
+            with open(filename) as file:
+                for line in file.readlines():
+                    line = line.split('\t')
+                    # Check there are 6 columns, else report to terminal
+                    if len(line) == 6:
+                        leak        = line[0]
+                        pressure    = line[1]  # Not used
+                        pass_fail   = line[2]  # Useless
+                        date        = line[3]
+                        time        = line[4]
+                        user        = line[5]
+                    # Report to terminal unknown formats
+                    else:
+                        print("File " + filename + " has unknown format")
+                        continue
+                    sDate = datetime.string_to_datetime(date + time, '%m/%d/%Y%H:%M')
+                    barcode = filename.split('_')[0]
+
+                    # Create tube instance
+                    tube = Tube()
+                    tube.m_tube_id = barcode
+                    tube.leak.m_user.append(user)
+                    tube.leak.add_record(LeakRecord(leak_rate=leak,
+                                                          date=sDate))
+
+                    pickled_filename = str(random.randrange(0,999)) + \
+                                        str(datetime.now().timestamp()) + 'leak.tube'
+
+                    # Lock and write tube instance to pickle file
+                    file_lock = locks.Lock(pickled_filename)
+                    file_lock.lock()
+                    with open(os.path.join(self.path, pickled_filename),"wb") as f: 
+                        pickle.dump(tube, f)
+                    file_lock.unlock()
+
+    '''
+    This is the dark current pickler function that will pickle every dark current csv file 
+    that is in the specified directory darkcurrentDirectory
+    '''
     def pickle_darkcurrent(self, darkcurrentDirectory):
-        pass
+        return 0 # for now to pass tests
+        for filename in os.listdir(darkcurrentDirectory):
+            with open(filename) as file:
+                for line in file.readlines():
+                    line = line.split(',')
+                    # Check there are 2 columns, else report to terminal
+                    if len(line) == 2:
+                        current   = line[0]
+                        date      = line[1]
+                    # Report to terminal unknown formats
+                    else:
+                        print("File " + filename + " has unknown format")
+                        continue
+                    sDate = datetime.string_to_datetime(date, '%d_%m_%Y_%H_%M_%S')
+                    barcode = filename.split('.')[0]
+
+                    # Create tube instance
+                    tube = Tube()
+                    tube.m_tube_id = barcode
+                    #tube.dark_current.m_user.append(user)
+                    tube.leak.add_record(LeakRecord(dark_current=current,
+                                                          date=sDate))
+
+                    pickled_filename = str(random.randrange(0,999)) + \
+                                        str(datetime.now().timestamp()) + 'dCurrent.tube'
+
+                    # Lock and write tube instance to pickle file
+                    file_lock = locks.Lock(pickled_filename)
+                    file_lock.lock()
+                    with open(os.path.join(self.path, pickled_filename),"wb") as f: 
+                        pickle.dump(tube, f)
+                    file_lock.unlock()
 
 
 
@@ -212,40 +341,38 @@ class db_manager():
         '''
 
         
+
         pickler = station_pickler()
-        pickler.pickle_swage(os.path.join(sMDT_folder_path,'SwagerStation','SwagerData'))
+        pickler.pickle_swage(os.path.join(sMDT_folder_path, 'SwagerStation', 'SwagerData'))
         #pickler.pickle_tension('TensionStation/output')
         #pickler.pickle_leak('LeakDetector/')
         #pickler.pickle_darkcurrent('DarkCurrent/3015V Dark Current')
 
-        
+
 
         #Lock the database
         db_lock = locks.Lock("database")
         db_lock.lock()
 
-        tubes = shelve.open(self.path)
+        with shelve.open(self.path) as tubes:
 
-        for filename in os.listdir(new_data_path): 
-            if filename.endswith(".tube"):
-                file_lock = locks.Lock(filename)
-                file_lock.wait()
-                new_data_file = open(os.path.join(new_data_path, filename), 'rb') #open the file
-                tube = pickle.load(new_data_file)                                   #load the tube from pickle
-                new_data_file.close()                                               #close the file
-                if tube.getID() in tubes:                                           #add the tubes to the database
-                    temp = tubes[tube.getID()] + tube                           
-                    tubes[tube.getID()] = temp                          
-                else:
-                    tubes[tube.getID()] = tube
-                os.remove(os.path.join(new_data_path, filename))                 #delete the file that we added the tube from
-
-        #close the database
-        tubes.close()
+            for filename in os.listdir(new_data_path): 
+                if filename.endswith(".tube"):
+                    file_lock = locks.Lock(filename)
+                    file_lock.wait()
+                    new_data_file = open(os.path.join(new_data_path, filename), 'rb')   #open the file
+                    tube = pickle.load(new_data_file)                                   #load the tube from pickle
+                    new_data_file.close()                                               #close the file
+                    print("Loading tube",tube.m_tube_id,"into the database")
+                    if tube.getID() == "MSU01461":
+                        print("Dis one")
+                    if tube.getID() in tubes:                                           #add the tubes to the database
+                        temp = tubes[tube.getID()] + tube                           
+                        tubes[tube.getID()] = temp                          
+                    else:
+                        tubes[tube.getID()] = tube
+                    os.remove(os.path.join(new_data_path, filename))                 #delete the file that we added the tube from
 
         #unlock the database
         db_lock.unlock()
-        
-
-
         
