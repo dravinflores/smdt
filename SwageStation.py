@@ -35,10 +35,10 @@ def write(code, lengths, cleanCode, errorCode, name, endplugcode):
     database = db.db()
     tube1 = tube.Tube()
     tube1.m_tube_id = code
-    tube1.swage.add_record(swage.SwageRecord(raw_length=lengths[0], swage_length=lengths[1], clea_code=cleanCode, error_code=errorCode, user=name))
+    tube1.swage.add_record(swage.SwageRecord(raw_length=lengths[0], swage_length=lengths[1], clean_code=cleanCode, error_code=errorCode, user=name))
     if endplugcode == "Munich":
         tube1.legacy_data['is_munich'] = True
-    db.add_tube(tube1)
+    database.add_tube(tube1)
                         
 #######################################
 #####        Search Code       ########

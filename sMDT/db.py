@@ -25,8 +25,6 @@ sys.path.append(sMDT_folder_path)
 
 
 from tube import Tube
-#from data.dark_current import DarkCurrent, DarkCurrentRecord # Needed?
-from data.station import *
 from data.swage import SwageRecord
 from data.tension import TensionRecord
 from data.leak import LeakRecord
@@ -40,7 +38,7 @@ import random
 import re
 
 class db:
-    def __init__(self, path="database.s"):
+    def __init__(self, path=os.path.join(sMDT_folder_path, "database.s")):
         '''
         Constructor, builds the database object. Gets the path to the database
         '''
@@ -119,9 +117,15 @@ class station_pickler:
         if not os.path.isdir(self.path):
             os.mkdir(self.path)
 
+        archive_directory = os.path.join(sMDT_folder_path, "archive", "swage")
+
+        if not os.path.isdir(archive_directory):
+            os.mkdir(archive_directory)
+
         for filename in os.listdir(swagerDirectory):
-            with open(os.path.join(swagerDirectory, filename)) as file:
-                for line in file.readlines():
+            with open(os.path.join(swagerDirectory, filename)) as swagedata, open(os.path.join(archive_directory, filename), 'a') as archive_file:
+                for line in swagedata.readlines():
+                    archive_file.write(line)
                     line = line.split(',')
                     # Here are the different csv types, there have been 3 versions
                     # The currently used version that includes endplug type 'Protvino' or 'Munich'
@@ -166,21 +170,22 @@ class station_pickler:
                     tube.m_tube_id = barcode
                     tube.new_comment(comment)
                     tube.swage.add_record(SwageRecord(raw_length=rawLength,
-                                                      swage_length=swageLength,
-                                                      clean_code=cCode,
-                                                      error_code=eCode,
-                                                      date=sDate,
-                                                      user=user))
+                                                        swage_length=swageLength,
+                                                        clean_code=cCode,
+                                                        error_code=eCode,
+                                                        date=sDate,
+                                                        user=user))
 
                     pickled_filename = str(datetime.datetime.now().timestamp()) + 'swage.tube'
-
-                    print("Pickling tube with id", tube.m_tube_id)
 
                     file_lock = locks.Lock(pickled_filename)
                     file_lock.lock()
                     with open(os.path.join(self.path, pickled_filename),"wb") as f: 
                         pickle.dump(tube, f)
                     file_lock.unlock()
+
+            os.remove(os.path.join(swagerDirectory, filename))   
+
         
     '''
     This is the tension pickler function that will pickle every tension csv file 
@@ -310,7 +315,7 @@ class station_pickler:
 
 
 class db_manager():
-    def __init__(self, path="database.s"):
+    def __init__(self, path=os.path.join(sMDT_folder_path, "database.s")):
         '''
         Constructor, builds the database manager object. Gets the path to the database
         '''
@@ -325,9 +330,7 @@ class db_manager():
             db_lock = locks.Lock("database")
             db_lock.lock()
 
-            tubes = shelve.open(self.path)
-            for key in tubes:
-                del tubes[key]
+            tubes = shelve.open(self.path, flag='n')
 
             tubes.close()
 
@@ -363,9 +366,6 @@ class db_manager():
                     new_data_file = open(os.path.join(new_data_path, filename), 'rb')   #open the file
                     tube = pickle.load(new_data_file)                                   #load the tube from pickle
                     new_data_file.close()                                               #close the file
-                    print("Loading tube",tube.m_tube_id,"into the database")
-                    if tube.getID() == "MSU01461":
-                        print("Dis one")
                     if tube.getID() in tubes:                                           #add the tubes to the database
                         temp = tubes[tube.getID()] + tube                           
                         tubes[tube.getID()] = temp                          
