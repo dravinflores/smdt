@@ -23,7 +23,6 @@ sMDT_folder_path = os.path.dirname(os.path.abspath(__file__))
 new_data_path = os.path.join(sMDT_folder_path, 'new_data')
 sys.path.append(sMDT_folder_path)
 
-sys.path.append(current_folder)
 
 from tube import Tube
 #from data.dark_current import DarkCurrent, DarkCurrentRecord # Needed?
@@ -75,7 +74,7 @@ class db:
 
         file_lock = locks.Lock(filename)
         file_lock.lock()
-        with open(os.path.join(new_data_folder, filename),"wb") as f:
+        with open(os.path.join(new_data_path, filename),"wb") as f:
             pickle.dump(tube, f)
         file_lock.unlock()
 
@@ -354,7 +353,7 @@ class db_manager():
                 file_lock = locks.Lock(filename)
                 file_lock.wait()
                 new_data_file = open(os.path.join(new_data_path, filename), 'rb') #open the file
-                tube = pickle.load(new_data_path)                                   #load the tube from pickle
+                tube = pickle.load(new_data_file)                                   #load the tube from pickle
                 new_data_file.close()                                               #close the file
                 if tube.getID() in tubes:                                           #add the tubes to the database
                     temp = tubes[tube.getID()] + tube                           
