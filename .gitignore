@@ -16,3 +16,5 @@ venv/
 database.s.*
 database.p
 *.xml
+*.tube
+*.lock
