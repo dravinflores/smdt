@@ -38,6 +38,7 @@ import random
 import re
 
 class db:
+
     def __init__(self, db_path=os.path.join(containing_dir, "database.s")):
         '''
         Constructor, builds the database object. Gets the path to the database
@@ -67,8 +68,9 @@ class db:
 
         filename = str(timestamp) + str(random.randrange(0,999)) + ".tube"
 
-        new_data_path = os.path.join(sMDT_DIR, "new_data")
 
+        new_data_path = os.path.join(sMDT_DIR, "new_data")
+        
         if not os.path.isdir(new_data_path):
             os.mkdir(new_data_path)
 
@@ -130,6 +132,7 @@ class station_pickler:
         for filename in os.listdir(CSV_directory):
             with open(os.path.join(CSV_directory, filename)) as CSV_file, open(os.path.join(archive_directory, filename), 'a') as archive_file:
                 for line in CSV_file.readlines():
+
                     archive_file.write(line)
                     line = line.split(',')
                     # Here are the different csv types, there have been 3 versions
@@ -145,7 +148,9 @@ class station_pickler:
                         eCode        = line[5]
                         comment      = line[6]
                         user         = line[7].replace('\r\n', '')
+
                         endplug_type = line[8]
+                        
                     # An earlier version when endplug type wasn't recorded
                     elif len(line) == 8:
                         barcode     = line[0].replace('\r\n', '')
@@ -181,6 +186,7 @@ class station_pickler:
                                                         date=sDate,
                                                         user=user))
 
+
                     if endplug_type:
                         tube.legacy_data['is_munich'] = endplug_type == "Munich"
 
@@ -194,7 +200,9 @@ class station_pickler:
                         pickle.dump(tube, f)
                     file_lock.unlock()
 
+
             os.remove(os.path.join(CSV_directory, filename))   
+
 
         
     '''
@@ -355,6 +363,7 @@ class db_manager():
 
         dropbox_folder = os.path.dirname(sMDT_DIR)
 
+
         pickler = station_pickler(dropbox_folder)
         pickler.pickle_swage()
         #pickler.pickle_tension('TensionStation/output')
@@ -367,6 +376,7 @@ class db_manager():
         db_lock = locks.Lock("database")
         db_lock.lock()
 
+
         new_data_path = os.path.join(sMDT_DIR, "new_data")
 
         with shelve.open(self.path) as tubes:
@@ -378,7 +388,9 @@ class db_manager():
                     new_data_file = open(os.path.join(new_data_path, filename), 'rb')   #open the file
                     tube = pickle.load(new_data_file)                                   #load the tube from pickle
                     new_data_file.close()                                               #close the file
+
                     print("Loading tube", tube.getID(), "into database.")
+
                     if tube.getID() in tubes:                                           #add the tubes to the database
                         temp = tubes[tube.getID()] + tube                           
                         tubes[tube.getID()] = temp                          
@@ -388,4 +400,3 @@ class db_manager():
 
         #unlock the database
         db_lock.unlock()
-        
