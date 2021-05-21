@@ -19,9 +19,9 @@ import os
 import sys
 
 # Adds the folder that file is in to the system path
-sMDT_folder_path = os.path.dirname(os.path.abspath(__file__))
-new_data_path = os.path.join(sMDT_folder_path, 'new_data')
-sys.path.append(sMDT_folder_path)
+sMDT_DIR = os.path.dirname(os.path.abspath(__file__))
+containing_dir = os.path.dirname(sMDT_DIR)
+sys.path.append(sMDT_DIR)
 
 
 from tube import Tube
@@ -38,11 +38,12 @@ import random
 import re
 
 class db:
-    def __init__(self, path=os.path.join(sMDT_folder_path, "database.s")):
+
+    def __init__(self, db_path=os.path.join(containing_dir, "database.s")):
         '''
         Constructor, builds the database object. Gets the path to the database
         '''
-        self.path = path
+        self.path = db_path
         
     def size(self):
         '''
@@ -67,6 +68,9 @@ class db:
 
         filename = str(timestamp) + str(random.randrange(0,999)) + ".tube"
 
+
+        new_data_path = os.path.join(sMDT_DIR, "new_data")
+        
         if not os.path.isdir(new_data_path):
             os.mkdir(new_data_path)
 
@@ -101,30 +105,34 @@ class station_pickler:
     This class will take whatever data is generated in the form of a csv file, and will read it into a sMDT tube object. 
     It will then pickle the object into the standard specified for new data for the db manager.
     '''
-    def __init__(self, path=os.path.join(sMDT_folder_path, "new_data")):
+    def __init__(self, path):
         '''
-        Constructor, builds the pickler object. Gets the path new data folder
+        Constructor, builds the pickler object. Gets the path to the directory it should look for/create the relevant files in
         '''
-        self.path = path
+        self.path = path  
 
     '''
     This is the swage pickler function that will pickle every 
     swage csv file that is in the specified directory swagerDirectory
     '''
-    def pickle_swage(self, swagerDirectory):
+    def pickle_swage(self):
         #return 0 # for now so tests don't fail
         
         if not os.path.isdir(self.path):
             os.mkdir(self.path)
 
-        archive_directory = os.path.join(sMDT_folder_path, "archive", "swage")
+        swage_directory = os.path.join(self.path, "SwagerStation")
+        archive_directory = os.path.join(swage_directory, "archive")
+        CSV_directory = os.path.join(swage_directory, "SwagerData")
+        new_data_directory = os.path.join(sMDT_DIR, "new_data")
 
         if not os.path.isdir(archive_directory):
             os.mkdir(archive_directory)
 
-        for filename in os.listdir(swagerDirectory):
-            with open(os.path.join(swagerDirectory, filename)) as swagedata, open(os.path.join(archive_directory, filename), 'a') as archive_file:
-                for line in swagedata.readlines():
+        for filename in os.listdir(CSV_directory):
+            with open(os.path.join(CSV_directory, filename)) as CSV_file, open(os.path.join(archive_directory, filename), 'a') as archive_file:
+                for line in CSV_file.readlines():
+
                     archive_file.write(line)
                     line = line.split(',')
                     # Here are the different csv types, there have been 3 versions
@@ -140,7 +148,9 @@ class station_pickler:
                         eCode        = line[5]
                         comment      = line[6]
                         user         = line[7].replace('\r\n', '')
-                        endplug_type = line[8]  # Not stored currently
+
+                        endplug_type = line[8]
+                        
                     # An earlier version when endplug type wasn't recorded
                     elif len(line) == 8:
                         barcode     = line[0].replace('\r\n', '')
@@ -176,15 +186,23 @@ class station_pickler:
                                                         date=sDate,
                                                         user=user))
 
+
+                    if endplug_type:
+                        tube.legacy_data['is_munich'] = endplug_type == "Munich"
+
                     pickled_filename = str(datetime.datetime.now().timestamp()) + 'swage.tube'
+
+                    print("Pickling tube", barcode)
 
                     file_lock = locks.Lock(pickled_filename)
                     file_lock.lock()
-                    with open(os.path.join(self.path, pickled_filename),"wb") as f: 
+                    with open(os.path.join(new_data_directory, pickled_filename),"wb") as f: 
                         pickle.dump(tube, f)
                     file_lock.unlock()
 
-            os.remove(os.path.join(swagerDirectory, filename))   
+
+            os.remove(os.path.join(CSV_directory, filename))   
+
 
         
     '''
@@ -315,11 +333,11 @@ class station_pickler:
 
 
 class db_manager():
-    def __init__(self, path=os.path.join(sMDT_folder_path, "database.s")):
+    def __init__(self, db_path=os.path.join(os.path.dirname(sMDT_DIR), "database.s")):
         '''
         Constructor, builds the database manager object. Gets the path to the database
         '''
-        self.path = path
+        self.path = db_path
 
     def wipe(self, confirm=False):
         '''
@@ -343,10 +361,11 @@ class db_manager():
         Needs to be ran after a db object calls add_tube(), otherwise the database will not contain the data in time for get_tube()
         '''
 
-        
+        dropbox_folder = os.path.dirname(sMDT_DIR)
 
-        pickler = station_pickler()
-        pickler.pickle_swage(os.path.join(sMDT_folder_path, 'SwagerStation', 'SwagerData'))
+
+        pickler = station_pickler(dropbox_folder)
+        pickler.pickle_swage()
         #pickler.pickle_tension('TensionStation/output')
         #pickler.pickle_leak('LeakDetector/')
         #pickler.pickle_darkcurrent('DarkCurrent/3015V Dark Current')
@@ -357,6 +376,9 @@ class db_manager():
         db_lock = locks.Lock("database")
         db_lock.lock()
 
+
+        new_data_path = os.path.join(sMDT_DIR, "new_data")
+
         with shelve.open(self.path) as tubes:
 
             for filename in os.listdir(new_data_path): 
@@ -366,6 +388,9 @@ class db_manager():
                     new_data_file = open(os.path.join(new_data_path, filename), 'rb')   #open the file
                     tube = pickle.load(new_data_file)                                   #load the tube from pickle
                     new_data_file.close()                                               #close the file
+
+                    print("Loading tube", tube.getID(), "into database.")
+
                     if tube.getID() in tubes:                                           #add the tubes to the database
                         temp = tubes[tube.getID()] + tube                           
                         tubes[tube.getID()] = temp                          
