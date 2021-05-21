@@ -9,7 +9,7 @@ if __name__ == "__main__":
 	database = db.db()
 	while True:
 		db_man.update()
-		print('updated, new size is', database.size())
-		print(database.get_tube('MSU01665'))
-		time.sleep(0.05)
+		print('Database updated, new size is', database.size())
+		time.sleep(5)
+
 	

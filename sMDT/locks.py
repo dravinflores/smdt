@@ -20,15 +20,14 @@ import os
 import sys
 
 # Gets the path of the current file being executed.
-path = os.path.realpath(__file__)
-current_folder = os.path.dirname(os.path.abspath(__file__))
+sMDT_DIR = os.path.dirname(os.path.abspath(__file__))
+LOCK_DIR = os.path.join(sMDT_DIR, "locks")
 
 # Adds the folder that file is in to the system path
-sys.path.append(current_folder)
+sys.path.append(sMDT_DIR)
 
 import time
 
-lock_path = os.path.join(current_folder, "locks")
 
 class Lock:
     def __init__(self, key=""):
@@ -36,14 +35,15 @@ class Lock:
         Constructor, gets the locks key. Builds the lock's path out of the key
         '''
         self.key = key 
-        self.lock_path = os.path.join(lock_path, key + ".lock")
+        
+        self.lock_path = os.path.join(LOCK_DIR, key + ".lock")
 
     def lock(self):
         '''
         This Lock becomes locked. A file key.lock is written to the lock path
         '''
-        if not os.path.isdir(lock_path):
-            os.mkdir(lock_path)
+        if not os.path.isdir(LOCK_DIR):
+            os.mkdir(LOCK_DIR)
         lock = open(self.lock_path, 'a')
         lock.write(self.key + " locked.")
         lock.close()

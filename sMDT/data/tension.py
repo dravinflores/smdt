@@ -21,11 +21,9 @@ import os
 import sys
 
 # Gets the path of the current file being executed.
-path = os.path.realpath(__file__)
-current_folder = os.path.dirname(os.path.abspath(__file__))
-
+DATA_DIR = os.path.dirname(os.path.abspath(__file__))
 # Adds the folder that file is in to the system path
-sys.path.append(current_folder)
+sys.path.append(DATA_DIR)
 
 from station import Station
 from record import Record

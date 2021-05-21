@@ -19,11 +19,10 @@ import os
 import sys
 
 # Gets the path of the current file being executed.
-path = os.path.realpath(__file__)
-current_folder = os.path.dirname(os.path.abspath(__file__))
+DATA_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # Adds the folder that file is in to the system path
-sys.path.append(current_folder)
+sys.path.append(DATA_DIR)
 
 import textwrap
 import station
@@ -70,8 +69,9 @@ class SwageRecord(Record):
         c = f"Clean Code: {self.clean_code}\n"
         d = f"Error Code: {self.error_code}\n"
         e = f"Recorded on: {self.date}\n"
+        f = f"Recorded by: {self.user}\n"
 
-        return_str = a + b + c + d + e
+        return_str = a + b + c + d + e + f
         return return_str
 
 
