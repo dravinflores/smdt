@@ -137,6 +137,7 @@ class station_pickler:
                     line = line.split(',')
                     # Here are the different csv types, there have been 3 versions
                     # The currently used version that includes endplug type 'Protvino' or 'Munich'
+                    endplug_type = None
                     if len(line) not in [9,8,3]:
                         continue
                     if len(line) == 9:
