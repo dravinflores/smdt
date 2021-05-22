@@ -131,8 +131,9 @@ class station_pickler:
         CSV_directory = os.path.join(swage_directory, "SwagerData")
         new_data_directory = os.path.join(sMDT_DIR, "new_data")
 
-        if not os.path.isdir(archive_directory):
-            os.mkdir(archive_directory)
+        for directory in [swage_directory, CSV_directory, archive_directory, new_data_directory]:
+            if not os.path.isdir(directory):
+                os.mkdir(directory)
 
         for filename in os.listdir(CSV_directory):
             with open(os.path.join(CSV_directory, filename)) as CSV_file, open(os.path.join(archive_directory, filename), 'a') as archive_file:
@@ -221,8 +222,9 @@ class station_pickler:
         CSV_directory = os.path.join(tension_directory, "output")
         new_data_directory = os.path.join(sMDT_DIR, "new_data")
 
-        if not os.path.isdir(archive_directory):
-            os.mkdir(archive_directory)
+        for directory in [tension_directory, CSV_directory, archive_directory, new_data_directory]:
+            if not os.path.isdir(directory):
+                os.mkdir(directory)
 
         for filename in os.listdir(CSV_directory):
             with open(os.path.join(CSV_directory, filename)) as CSV_file, open(os.path.join(archive_directory, filename), 'a') as archive_file:
@@ -293,6 +295,10 @@ class station_pickler:
         
         new_data_directory = os.path.join(sMDT_DIR, "new_data")
 
+        for directory in [leak_directory, CSV_directory, archive_directory, new_data_directory]:
+            if not os.path.isdir(directory):
+                os.mkdir(directory)
+
         for filename in os.listdir(CSV_directory):
             with open(os.path.join(CSV_directory, filename)) as CSV_file, open(os.path.join(archive_directory, filename), 'a') as archive_file:
                 for line in CSV_file.readlines():
@@ -356,6 +362,10 @@ class station_pickler:
         archive_directory = os.path.join(darkcurrent_directory, "archive")
         
         new_data_directory = os.path.join(sMDT_DIR, "new_data")
+
+        for directory in [darkcurrent_directory, CSV_directory, archive_directory, new_data_directory]:
+            if not os.path.isdir(directory):
+                os.mkdir(directory)
 
         for filename in os.listdir(CSV_directory):
             with open(os.path.join(CSV_directory, filename)) as CSV_file, open(os.path.join(archive_directory, filename), 'a') as archive_file:
