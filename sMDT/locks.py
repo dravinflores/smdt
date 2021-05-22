@@ -67,3 +67,6 @@ class Lock:
         '''
         while self.is_locked():
             time.sleep(0.5)
+
+    def __del__(self):
+        self.unlock()

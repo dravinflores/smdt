@@ -37,6 +37,8 @@ def getInfo(code):
         return [record.raw_length,record.swage_length],record.date, record.clean_code, record.error_code, ""
     except KeyError:
         return [],[],[],[],[]
+    except IndexError:
+        return [],[],[],[],[]
 
 def write(code, lengths, cleanCode, errorCode, name, endplugcode):
     database = db.db()
