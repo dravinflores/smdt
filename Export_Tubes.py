@@ -31,18 +31,18 @@ from sMDT.data import swage
 # Returns lengths, date, clean code, error code if avalible
 def getData(code):
     raise NotImplementedError
-    return 1 # for now, this is not implemented correctly
-    try:
-        database = db.db()
-        tube1 = database.get_tube(code)
-        trecord = tube1.tension.get_record()
-        lrecord = tube1.leak.get_record()
-        drecord = tube1.dark_current.get_record()
-        return trecord.get
-    except KeyError:
-        return [],[],[],[],[]
-    except IndexError:
-        return [],[],[],[],[]
+    #return 1 # for now, this is not implemented correctly
+    #try:
+    #    database = db.db()
+    #    tube1 = database.get_tube(code)
+    #    trecord = tube1.tension.get_record()
+    #    lrecord = tube1.leak.get_record()
+    #    drecord = tube1.dark_current.get_record()
+    #    return trecord.get
+    #except KeyError:
+    #    return [],[],[],[],[]
+    #except IndexError:
+    #    return [],[],[],[],[]
 
 # Returns booleans to indicate which tests failed
 def getFailedTests(code):
@@ -96,21 +96,21 @@ def checkCodes(barcodeList):
 # Write data for tubes to disk
 def write(name, barcodeList):
     raise NotImplementedError
-    filename = DROPBOX_DIR + "\\Exported_Tubes\\" + f"{datetime.now().strftime('%m.%d.%Y_%H_%M_%S.csv')}"
+    #filename = DROPBOX_DIR + "\\Exported_Tubes\\" + f"{datetime.now().strftime('%m.%d.%Y_%H_%M_%S.csv')}"
     #filename  = "Exported_Tubes/" + f"{datetime.now().strftime('%m.%d.%Y_%H_%M_%S.csv')}"
-    f = open(filename,'w')
+    #f = open(filename,'w')
 
-    f.write("Logger,Barcode,First Tension,Dark Current,Leak Rate\n")
-    barcodes = textToList(barcodeList)
-    badTubeList = []
-    for code in barcodes:
-        if isTubeBad(code):
-            badTubeList.append(code)
-            f.write(f"{name},{code} ERROR, this tube has not passed a test\n")
-        else:
-            data = getData(database,code)
-            f.write(f"{name},{code},{data[0]},{data[1]},{data[2]}\n")
-    return badTubeList
+    #f.write("Logger,Barcode,First Tension,Dark Current,Leak Rate\n")
+    #barcodes = textToList(barcodeList)
+    #badTubeList = []
+    #for code in barcodes:
+    #    if isTubeBad(code):
+    #        badTubeList.append(code)
+    #        f.write(f"{name},{code} ERROR, this tube has not passed a test\n")
+    #    else:
+    #        data = getData(database,code)
+    #        f.write(f"{name},{code},{data[0]},{data[1]},{data[2]}\n")
+    #return badTubeList
 
 #######################################
 #####   Submit Codes to Export ########
