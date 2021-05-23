@@ -477,7 +477,8 @@ class db_manager():
                         tubes[tube.getID()] = tube
                     os.remove(os.path.join(new_data_path, filename))                 #delete the file that we added the tube from
                     count += 1
-            print("Added", count, "tubes")
+            t = time.localtime()
+            print("Added", count, "tubes at", time.strftime("%H:%M:%S",t))
 
         #unlock the database
         db_lock.unlock()
