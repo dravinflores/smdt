@@ -8,7 +8,12 @@ import os
 
 
 if __name__ == "__main__":
-	db_man = db.db_manager()
+
+	##########
+	#IMPORTANT
+	##########
+	#DO NOT, UNDER ANY CIRCUMSTANCES, ALLOW DELETING THE DATABASE TO BE THIS EASY WHEN THIS IS ON LAB COMPUTERS.
+	#This is here because for testing purposes I need to do this a lot. 
 	WIPE = False
 	wipe = input("Should we wipe the database before this runs? (Y/N), default N\n")
 	if wipe.lower() == 'y':

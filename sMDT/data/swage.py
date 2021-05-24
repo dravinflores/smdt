@@ -95,6 +95,9 @@ class Swage(station.Station, ABC):
 
         # We want to have the return string indent each record, for viewing ease.
         return a + textwrap.indent(b, '\t')
+    
+    def fail(self):
+        return self.get_record(mode='last').fail()
 
 
 if __name__ == "__main__":

@@ -63,13 +63,8 @@ class Station:
         ret.m_records = self.m_records + other.m_records
         return ret
 
-    def fail(self, mode='last'):
-        if type(mode) == str:
-            return modes[mode](self).fail()
-        elif type(mode) == type(lambda x: x): #Annoying but necessary hack to check if it's a lambda.
-            return mode(self).fail()
-        else:
-            raise RuntimeError()
+    def fail(self):
+        raise NotImplementedError
 
     def get_record(self, mode='last'):
         """Given a selected mode, returns the respective record"""

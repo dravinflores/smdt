@@ -83,6 +83,28 @@ class Tension(Station, ABC):
         # We want to have the return string indent each record, for viewing ease.
         return a + textwrap.indent(b, '\t')
 
+    def passed_first_tension(self):
+        return any([not i.fail() for i in self.m_records])
+
+    def passed_second_tension(self):
+        found_first_tension = False
+        two_weeks = datetime.timedelta(days=14)
+        for record in sorted(self.m_records, key=lambda i: i.date):
+            if not record.fail():
+                if found_first_tension:
+                    delta = record.date - first_tension_date
+                    if delta > two_weeks:
+                        return True
+                else:
+                    found_first_tension = True
+                    first_tension_date = record.date
+        return False
+
+
+    def fail(self):
+        return not self.passed_second_tension()
+
+
 
 if __name__ == "__main__":
     tension = Tension()
