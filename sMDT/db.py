@@ -105,11 +105,12 @@ class station_pickler:
     This class will take whatever data is generated in the form of a csv file, and will read it into a sMDT tube object. 
     It will then pickle the object into the standard specified for new data for the db manager.
     '''
-    def __init__(self, path):
+    def __init__(self, path, archive=True):
         '''
         Constructor, builds the pickler object. Gets the path to the directory it should look for/create the relevant files in
         '''
         self.path = path 
+        self.archive = archive
         self.error_files = {'Swage' : set(), 'Tension' : set(), 'Leak' : set(), 'DarkCurrent' : set()}
 
     def write_errors(self):
@@ -136,9 +137,12 @@ class station_pickler:
                 os.mkdir(directory)
 
         for filename in os.listdir(CSV_directory):
-            with open(os.path.join(CSV_directory, filename)) as CSV_file, open(os.path.join(archive_directory, filename), 'a') as archive_file:
+            with open(os.path.join(CSV_directory, filename)) as CSV_file:
+                if self.archive:
+                    archive_file = open(os.path.join(archive_directory, filename), 'a')
                 for line in CSV_file.readlines():
-                    archive_file.write(line)
+                    if self.archive:
+                        archive_file.write(line)
                     line = line.split(',')
                     # Here are the different csv types, there have been 3 versions
                     # The currently used version that includes endplug type 'Protvino' or 'Munich'
@@ -207,8 +211,8 @@ class station_pickler:
                         pickle.dump(tube, f)
                     file_lock.unlock()
 
-
-            os.remove(os.path.join(CSV_directory, filename))   
+            if self.archive:
+                os.remove(os.path.join(CSV_directory, filename))   
 
 
         
@@ -227,11 +231,16 @@ class station_pickler:
                 os.mkdir(directory)
 
         for filename in os.listdir(CSV_directory):
-            with open(os.path.join(CSV_directory, filename)) as CSV_file, open(os.path.join(archive_directory, filename), 'a') as archive_file:
+            with open(os.path.join(CSV_directory, filename)) as CSV_file:
+                if self.archive:
+                    archive_file = open(os.path.join(archive_directory, filename), 'a')
                 for line in CSV_file.readlines():
                     if line in {',\n', ','} or line[0:11] == "Operator ID":
                         continue
-                    archive_file.write(line)
+
+                    if self.archive:
+                        archive_file.write(line)
+                    
 
                     line = line.split(',')
                     # Check there are 8 columns, else report to terminal
@@ -280,7 +289,8 @@ class station_pickler:
                     file_lock.unlock()
 
 
-            os.remove(os.path.join(CSV_directory, filename))   
+            if self.archive:
+                os.remove(os.path.join(CSV_directory, filename))   
     
 
 
@@ -300,9 +310,12 @@ class station_pickler:
                 os.mkdir(directory)
 
         for filename in os.listdir(CSV_directory):
-            with open(os.path.join(CSV_directory, filename)) as CSV_file, open(os.path.join(archive_directory, filename), 'a') as archive_file:
+            with open(os.path.join(CSV_directory, filename)) as CSV_file:
+                if self.archive:
+                    archive_file = open(os.path.join(archive_directory, filename), 'a')
                 for line in CSV_file.readlines():
-                    archive_file.write(line)
+                    if self.archive:
+                        archive_file.write(line)
                     line = line.split('\t')
                     # Check there are 6 columns, else report to terminal
                     if len(line) == 6:
@@ -335,7 +348,7 @@ class station_pickler:
                     tube = Tube()
                     tube.m_tube_id = barcode
                     tube.leak.add_record(LeakRecord(leak_rate=leak,
-                                                          date=sDate, user=user))
+                                                            date=sDate, user=user))
 
                     print("Pickling leak data for tube", barcode)
 
@@ -348,6 +361,7 @@ class station_pickler:
                         pickle.dump(tube, f)
                     file_lock.unlock()
 
+        if self.archive:
             os.remove(os.path.join(CSV_directory, filename))   
 
     '''
@@ -368,9 +382,12 @@ class station_pickler:
                 os.mkdir(directory)
 
         for filename in os.listdir(CSV_directory):
-            with open(os.path.join(CSV_directory, filename)) as CSV_file, open(os.path.join(archive_directory, filename), 'a') as archive_file:
+            with open(os.path.join(CSV_directory, filename)) as CSV_file:
+                if self.archive:
+                    archive_file = open(os.path.join(archive_directory, filename), 'a')
                 for line in CSV_file.readlines():
-                    archive_file.write(line)
+                    if self.archive:
+                        archive_file.write(line)
                     line = line.split(',')
                     # Check there are 2 columns, else report to terminal
                     if len(line) == 2:
@@ -406,7 +423,8 @@ class station_pickler:
                         pickle.dump(tube, f)
                     file_lock.unlock()
 
-            os.remove(os.path.join(CSV_directory, filename))
+            if self.archive:
+                os.remove(os.path.join(CSV_directory, filename))   
 
 
 class db_manager():
@@ -441,7 +459,7 @@ class db_manager():
         dropbox_folder = os.path.dirname(sMDT_DIR)
 
 
-        pickler = station_pickler(dropbox_folder)
+        pickler = station_pickler(dropbox_folder, archive=False)
         pickler.pickle_swage()
         pickler.pickle_tension()
         pickler.pickle_leak()
