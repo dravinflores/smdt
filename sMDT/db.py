@@ -133,7 +133,7 @@ class db_manager():
 
         dropbox_folder = os.path.dirname(sMDT_DIR)
 
-        if not testing:
+        if not self.testing:
             pickler = station_pickler(dropbox_folder, archive=self.archive)
             pickler.pickle_swage()
             pickler.pickle_tension()

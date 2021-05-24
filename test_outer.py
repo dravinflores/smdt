@@ -58,8 +58,8 @@ def test_outer_modes():
     first = t.get_record(mode='first')
     assert first.tension == 350
     assert not first.fail()
-    assert not t.fail(mode='first')
-    assert t.fail(lambda x: max(x.m_records, key=lambda y: y.tension))
+    assert t.fail()
+    assert t.get_record(lambda x: max(x.m_records, key=lambda y: y.tension)).tension == 370
 
 def test_outer_swage():
     '''
@@ -71,7 +71,7 @@ def test_outer_swage():
     swage_station.add_record(swage.SwageRecord(raw_length=5.2, swage_length=8))
     swage_station.add_record(swage.SwageRecord(raw_length=1.03, swage_length=5))
     assert swage_station.get_record("first").raw_length == 3.4                              #print the first SwageRecord
-    assert not swage_station.fail("last")                                         #print wether the tube fails based on the last record.
+    assert not swage_station.fail()                                         #print wether the tube fails based on the last record.
 
 
 def test_outer_tension():
@@ -84,7 +84,7 @@ def test_outer_tension():
     tension_station.add_record(tension.TensionRecord(tension=345, frequency=8))
     tension_station.add_record(tension.TensionRecord(tension=370, frequency=5))
     assert tension_station.get_record("first").tension == 350                              #print the first SwageRecord
-    assert tension_station.fail("last")                   #print the first TensionRecord, and whether the tube fails based on the last record.
+    assert tension_station.fail()                   #print the first TensionRecord, and whether the tube fails based on the last record.
 
 def test_outer_leak():
     '''
@@ -96,7 +96,7 @@ def test_outer_leak():
     leak_station.add_record(leak.LeakRecord(leak_rate=5))
     leak_station.add_record(leak.LeakRecord(leak_rate=0.00000000001))
     assert leak_station.get_record("first").leak_rate == 0                            #print the first SwageRecord
-    assert not leak_station.fail("last")                   #print the first LeakRecord, and whether the tube fails based on the last record.
+    assert not leak_station.fail()                   #print the first LeakRecord, and whether the tube fails based on the last record.
 
 def test_outer_darkcurrent():
     '''
@@ -108,7 +108,7 @@ def test_outer_darkcurrent():
     darkcurrent_station.add_record(dark_current.DarkCurrentRecord(1e-10))
     darkcurrent_station.add_record(dark_current.DarkCurrentRecord(0))
     assert darkcurrent_station.get_record("first").dark_current == 3                              #print the first SwageRecord
-    assert not darkcurrent_station.fail("last")                   #print the first DarkCurrentRecord, and whether the tube fails based on the last record.
+    assert not darkcurrent_station.fail()                   #print the first DarkCurrentRecord, and whether the tube fails based on the last record.
 
 
 def test_comprehensive():
