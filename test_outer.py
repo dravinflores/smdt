@@ -119,7 +119,7 @@ def test_comprehensive():
     from sMDT import db,tube
     from sMDT.data import tension
     tubes = db.db()
-    dbman = db.db_manager()
+    dbman = db.db_manager(testing=True)
     
     id = "MSU00000"
     for i in range(50):
@@ -143,7 +143,7 @@ def test_db_simple():
     from sMDT import db,tube
     from sMDT.data import tension
     tubes = db.db()
-    dbman = db.db_manager()
+    dbman = db.db_manager(testing=True)
     dbman.wipe('confirm')
     tube1 = tube.Tube()
     id = "MSU000001"

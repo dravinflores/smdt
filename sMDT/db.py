@@ -101,12 +101,13 @@ class db:
 
 
 class db_manager():
-    def __init__(self, db_path=os.path.join(os.path.dirname(sMDT_DIR), "database.s"), archive=False):
+    def __init__(self, db_path=os.path.join(os.path.dirname(sMDT_DIR), "database.s"), archive=False, testing=False):
         '''
         Constructor, builds the database manager object. Gets the path to the database
         '''
         self.path = db_path
         self.archive = archive
+        self.testing = testing
 
     def wipe(self, confirm=False):
         '''
@@ -132,13 +133,13 @@ class db_manager():
 
         dropbox_folder = os.path.dirname(sMDT_DIR)
 
-
-        pickler = station_pickler(dropbox_folder, archive=self.archive)
-        pickler.pickle_swage()
-        pickler.pickle_tension()
-        pickler.pickle_leak()
-        pickler.pickle_darkcurrent()
-        pickler.write_errors()
+        if not testing:
+            pickler = station_pickler(dropbox_folder, archive=self.archive)
+            pickler.pickle_swage()
+            pickler.pickle_tension()
+            pickler.pickle_leak()
+            pickler.pickle_darkcurrent()
+            pickler.write_errors()
 
 
 

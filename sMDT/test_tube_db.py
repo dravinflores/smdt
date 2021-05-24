@@ -76,7 +76,7 @@ def test_db_persistence():
     import tube,db
     from data import tension,leak
     tubes = db.db()
-    dbman = db.db_manager()
+    dbman = db.db_manager(testing=True)
     dbman.wipe('confirm')
     tube1 = tube.Tube()
     tube2 = tube.Tube()
@@ -114,7 +114,7 @@ def test_db_add_tube():
     import tube, db
     from data import swage,tension,leak,dark_current
     tubes = db.db()
-    dbman = db.db_manager()
+    dbman = db.db_manager(testing=True)
     dbman.wipe('confirm')
     tube1 = tube.Tube()
     tube2 = tube.Tube()
