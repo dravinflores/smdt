@@ -30,6 +30,8 @@ import time
 
 
 class Lock:
+    
+
     def __init__(self, key=""):
         '''
         Constructor, gets the locks key. Builds the lock's path out of the key
@@ -70,3 +72,8 @@ class Lock:
 
     def __del__(self):
         self.unlock()
+
+    @staticmethod
+    def cleanup():
+        for filename in os.listdir(LOCK_DIR): 
+            os.remove(os.path.join(new_data_path, filename)) 

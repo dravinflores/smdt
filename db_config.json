@@ -1,1 +1,1 @@
-{"wipe": true, "archive": false, "loop": false}
+{"wipe": true, "archive": false, "loop": false, "cleanup":  true}

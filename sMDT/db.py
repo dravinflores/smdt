@@ -124,6 +124,13 @@ class db_manager():
 
             db_lock.unlock()
 
+    def cleanup(self):
+        new_data_path = os.path.join(sMDT_DIR, "new_data")
+        for filename in os.listdir(new_data_path): 
+            os.remove(os.path.join(new_data_path, filename)) 
+        locks.Lock.cleanup()
+
+
     def update(self):
         '''
         Updates the database by looking for .p files in the new_data directory.
@@ -155,8 +162,8 @@ class db_manager():
             count = 0
             for filename in os.listdir(new_data_path): 
                 if filename.endswith(".tube"):
-                    file_lock = locks.Lock(filename)
-                    file_lock.wait()
+                    #file_lock = locks.Lock(filename)
+                    #file_lock.wait()
                     new_data_file = open(os.path.join(new_data_path, filename), 'rb')   #open the file
                     tube = pickle.load(new_data_file)                                   #load the tube from pickle
                     new_data_file.close()                                               #close the file

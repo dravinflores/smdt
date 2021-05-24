@@ -17,10 +17,17 @@ if __name__ == "__main__":
 	WIPE = config['wipe']
 	ARCHIVE = config['archive']
 	LOOP = config['loop']
+	CLEANUP = config['cleanup']
+
+	
+
 
 	db_man = db.db_manager(archive=ARCHIVE)
 	if WIPE:
 		db_man.wipe()
+		db_man.cleanup()
+	if CLEANUP:
+		db_man.cleanup()
 	current_folder = os.path.dirname(os.path.abspath(__file__))
 	database = db.db()
 	while LOOP:

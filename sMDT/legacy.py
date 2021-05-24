@@ -142,11 +142,11 @@ class station_pickler:
 
                     print("Pickling swage data for tube", barcode)
 
-                    file_lock = locks.Lock(pickled_filename)
-                    file_lock.lock()
+                    #file_lock = locks.Lock(pickled_filename)
+                    #file_lock.lock()
                     with open(os.path.join(new_data_directory, pickled_filename),"wb") as f: 
                         pickle.dump(tube, f)
-                    file_lock.unlock()
+                    #file_lock.unlock()
 
             if self.archive:
                 os.remove(os.path.join(CSV_directory, filename))   
@@ -219,11 +219,11 @@ class station_pickler:
                     pickled_filename = str(datetime.datetime.now().timestamp()) + 'tension.tube'
 
                     # Lock and write tube instance to pickle file
-                    file_lock = locks.Lock(pickled_filename)
-                    file_lock.lock()
+                    #file_lock = locks.Lock(pickled_filename)
+                    #file_lock.lock()
                     with open(os.path.join(new_data_directory, pickled_filename),"wb") as f: 
                         pickle.dump(tube, f)
-                    file_lock.unlock()
+                    #file_lock.unlock()
 
 
             if self.archive:
@@ -292,11 +292,11 @@ class station_pickler:
                     pickled_filename = str(datetime.datetime.now().timestamp()) + 'leak.tube'
 
                     # Lock and write tube instance to pickle file
-                    file_lock = locks.Lock(pickled_filename)
-                    file_lock.lock()
+                    #file_lock = locks.Lock(pickled_filename)
+                    #file_lock.lock()
                     with open(os.path.join(new_data_directory, pickled_filename),"wb") as f: 
                         pickle.dump(tube, f)
-                    file_lock.unlock()
+                    #file_lock.unlock()
 
         if self.archive:
             os.remove(os.path.join(CSV_directory, filename))   
@@ -354,11 +354,11 @@ class station_pickler:
                     pickled_filename = str(datetime.datetime.now().timestamp()) + 'darkcurrent.tube'
 
                     # Lock and write tube instance to pickle file
-                    file_lock = locks.Lock(pickled_filename)
-                    file_lock.lock()
+                    #file_lock = locks.Lock(pickled_filename)
+                    #file_lock.lock()
                     with open(os.path.join(new_data_directory, pickled_filename),"wb") as f: 
                         pickle.dump(tube, f)
-                    file_lock.unlock()
+                    #file_lock.unlock()
 
             if self.archive:
                 os.remove(os.path.join(CSV_directory, filename))   
