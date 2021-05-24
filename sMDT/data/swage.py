@@ -36,10 +36,10 @@ class SwageRecord(Record):
     """
 
     # These are the fail limits for any tube.
-    max_raw_length = 2000   # cm
-    min_raw_length = 0      # cm
-    max_swage_length = 2000   # cm
-    min_swage_length = 0      # cm
+    max_raw_length = 1000   # cm
+    min_raw_length = -1000      # cm
+    max_swage_length = 1000   # cm
+    min_swage_length = -1000      # cm
 
     # Does this format for a long list of parameters look cleaner?
     def __init__(self, raw_length=None, swage_length=None,
