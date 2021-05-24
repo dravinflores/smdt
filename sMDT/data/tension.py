@@ -88,6 +88,7 @@ class Tension(Station, ABC):
 
     def passed_second_tension(self):
         found_first_tension = False
+        first_tension_date = None
         two_weeks = datetime.timedelta(days=14)
         for record in sorted(self.m_records, key=lambda i: i.date):
             if not record.fail():
