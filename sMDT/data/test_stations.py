@@ -70,8 +70,8 @@ def test_modes_derived_station():
     first = t.get_record(mode='first')
     assert first.tension == 350
     assert not first.fail()
-    assert not t.fail()
-    assert t.fail(lambda x: max(x.m_records, key=lambda y: y.tension))
+    assert t.fail()
+    assert t.get_record(lambda x: max(x.m_records, key=lambda y: y.tension)).fail()
 
 
 def test_swage_fail_condition():
@@ -91,3 +91,7 @@ def test_dark_current_fail_condition():
     pass
 
 
+if __name__ == "__main__":
+    test_modes_derived_station()
+    test_new_mode()
+    test_base_station()
