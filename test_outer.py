@@ -58,7 +58,7 @@ def test_outer_modes():
     first = t.get_record(mode='first')
     assert first.tension == 350
     assert not first.fail()
-    assert not t.fail()
+    assert t.fail()
     assert t.get_record(lambda x: max(x.m_records, key=lambda y: y.tension)).tension == 370
 
 def test_outer_swage():
