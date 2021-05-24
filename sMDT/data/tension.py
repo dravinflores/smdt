@@ -27,7 +27,7 @@ sys.path.append(DATA_DIR)
 
 from station import Station
 from record import Record
-from datetime import datetime
+import datetime
 import textwrap
 
 
@@ -41,7 +41,7 @@ class TensionRecord(Record):
     min_tension = 350 - 15
 
     def __init__(self, tension=None, frequency=None,
-                 date=datetime.now(), user=None):
+                 date=datetime.datetime.now(), user=None):
         super().__init__(user)
         self.tension = tension
         self.frequency = frequency
@@ -109,8 +109,8 @@ class Tension(Station, ABC):
 
 if __name__ == "__main__":
     tension = Tension()
-    tension.set_record(TensionRecord(15, 0.0005, datetime.now()))
-    tension.set_record(TensionRecord(3, 134.56, datetime.now()))
+    tension.set_record(TensionRecord(15, 0.0005, datetime.datetime.now()))
+    tension.set_record(TensionRecord(3, 134.56, datetime.datetime.now()))
     # print(tension.get_record())
     # print(tension.get_record("first"))
     print(tension)

@@ -70,7 +70,7 @@ def test_modes_derived_station():
     first = t.get_record(mode='first')
     assert first.tension == 350
     assert not first.fail()
-    assert not t.fail(mode='first')
+    assert not t.fail()
     assert t.fail(lambda x: max(x.m_records, key=lambda y: y.tension))
 
 
