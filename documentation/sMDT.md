@@ -1,48 +1,76 @@
-sMDT Package Documentation
+MSU sMDT Package Documentation
 ==========================
 
-sMDT is the base Python package that the library is built around. All interaction with the library and the database will be inside the sMDT package.
+sMDT is the Python package built to provide an organized object oriented data structure for applications used in the MSU ATLAS sMDT lab. 
+It will also provide a consistent interface for any interactions with the database. 
 
-sMDT is a Python package, which is really just a folder for organizing pieces of Python code called modules. sMDT contains several modules and one sub-package, as detailed and documented below
+Structure
+--------
+When building Python libraries, they are made up of Packages and Modules. Packages are folders that can contain modules, and modules are python code files that can contain classes and functions. Both can be imported. 
+The main sMDT package and the data package are the only packages, the rest are modules and the description is about the classes inside them. 
 
-* [db](db.md) -Database module
+* [sMDT](sMDT.md) -main Package
 
-* [tube](tube.md) -Tube object representation
+  * [db](db.md) -database interface object
 
-* [data](data.md) -Package
-
-  * [station](station.md) -Abstract base class for a station
-
-  * [swage](swage.md) -Swage station and swage record
-
-  * [tension](tension.md) -Tension station and tension record
-
-  * [leak](leak.md) -Leak station and leak record
-
-  * [dark_current](darkcurrent.md) -Dark current station and dark current record
+  * [tube](tube.md) -Tube object 
  
-  * [record](record.md) -Abstract base class for a record
+  * [data](data.md) -data Package
+
+    * [station](station.md) -abstract base class for a station
+
+    * [swage](swage.md) -swage station and swage record
+
+    * [tension](tension.md) -Tension station and tension record
+
+    * [leak](leak.md) -Leak station and leak record
+
+    * [dark_current](darkcurrent.md) -Dark current station and dark current record
  
-* [locks](locks.md) -Mutex locks
+    * [record](record.md) -abstract base class for a record
+  
+  * [locks](locks.md) -Mutex locks 
 
-* [legacy support](legacy.md)
+  * [legacy support](legacy.md)
 
-UML Class Diagram
-![](https://i.imgur.com/g7Dv28C.png)
+![Fig. 1](https://i.imgur.com/g7Dv28C.png)
+Key:
 
-Usage
------
-The sMDT package does not have any of its own code, but is a container for other modules. To access those modules, you must import them.
+-Each box is a class
+
+-Arrows represent an "is a" relationship, inheritance. A LeakStation is a type of *Station*
+
+-Italic class names represent an abstract class that should be initialized
+
+-The lines with black diamonds at the end represent a "has a" or an "is made up of" relationship. The numbers represent the multiplicity of the side of the relationship. These are usually member variables.
+
+-A Tube has 1 LeakStation object
+
+-A Leakstation object has a list of LeakRecords 
+
+-The colored boxes in the background represent the python packages (folders) that the modules are in. 
+
+Installation
+------------
+Visit the following link for the source code.
+
+https://github.com/dravinflores/smdt
+
+As of now, this library is not uploaded to PyPi or a similar python package manager for easy installation with like `pip install sMDT`.
+Maybe it will be eventually, but for now you just have to install it manually. 
+
+The easiest way to do it is to just download the sMDT folder from the above github and just put it in the current working directory (same folder) of the code you're executing. A below example will show you how to import it, but it should just work if the sMDT *folder* is in the same folder as your code.
+
+It's also possible to add it to the python path somehow, or move it to a location already on the path. That will be left as an excercise for the reader. 
+
+Examples
+--------
+A very simple use case, a simplified tension station.
 ```python
-import sMDT
-databaseObject = sMDT.db.db()		#see db documentation
-myTube = sMDT.tube.tube()		#see tube documentation
+from sMDT import db,tube                                #import the tube and db modules
+from sMDT.data import tension                           #import the tension module
+tubes = db.db()                                         #instantiate the database
+tube1 = tube.Tube()                                     #make a new tube
+tube1.tension.add_record(tension.TensionRecord(1.5))    #Store our new data in the tube, in the form of a TensionRecord object. 
+tubes.add_tube(tube1)                                   #Store the tube in the database
 ```
-Also acceptable is the this alternative syntax
-```python
-from sMDT import db,tube
-databaseObject = db.db()
-myTube = tube.Tube()
-```
-
-
