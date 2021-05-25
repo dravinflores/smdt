@@ -19,12 +19,12 @@ test_outer.py | A python module containing automated test cases.
 Station folders | For each station, there is one or two folders associated with them. For swage and tension, there is one directory called [station name]Station that holds both data output by the station and archived past output. Due to legacy requirements, leak and dark_current have different folders for their output, but their archive is in their respective [StationName]Station folder.
 Export_tubes.py | This gui allows the user to scan in a set of tubes that will be shipped to UofM, and the program will output particular data we have on them that is of use to UofM.
 
-Key | Description
----|---
-'wipe' |  if true, the database is wiped before DatabaseManager.py is ran. Should be false for real-world lab use.
-'archive'| Used to set the archive parameter of the db_manager class. For more info, see [db.py documentation](documentation/db.md).
-"loop"| if true, the database manager will loop forever running it's update function, at 5s intervals. Otherwise, it only gets ran once.
-"cleanup"| If true, it calls the cleanup function of db_manager and locks before it runs. MUST BE FALSE FOR LAB. **ONLY** make this true if you are developing and understand what it does.
+Key | Description | Correct Lab State
+---|---|---
+'wipe' |  if true, the database is wiped before DatabaseManager.py is ran. | false
+'archive'| Used to set the archive parameter of the db_manager class. For more info, see [db.py documentation](documentation/db.md). | true
+"loop"| if true, the database manager will loop forever running it's update function, at 5s intervals. Otherwise, it only gets ran once. | true
+"cleanup"| If true, it calls the cleanup function of db_manager and locks before it runs. | false
 
 Documentation
 -------------
