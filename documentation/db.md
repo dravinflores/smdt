@@ -5,10 +5,9 @@ Database Module Documentation
 
 The db module is the home of two classes, db and db_manager. An environment with this database consists of one computer/thread that manages the database, and the same computer or any number of additional computers that us the db class to read from the database and interact with the database manager to be able to write.
 
-Without the db_manager running consistently, the database will not be regularly updated and will not work. However, it is extremely important that there is only ever one database manager running at a time. Talk to Paul before touching the db_manager class
+Without the db_manager running consistently, the database will not be regularly updated and will not work. However, it is extremely important that there is only ever one database manager running at a time. Talk to Paul (or his successor) before touching these classes. In the main directory, DatabaseManager.py is the lab's application that uses the db_manager class.
 
-Currently, the classes are configured to work around a shelve database in a file all computers see as local (through dropbox, presumably).
-
+Currently, the data is actually stored a shelve database in a file all computers see as local (through dropbox, presumably). Each db class can access the database to read, but only the db_manager class is ever allowed to write to the database. WRITING TO THE DATABASE IS NEVER YOUR CODE'S RESPONSIBILITY. Use the db class. 
 
 
 db class
@@ -26,8 +25,8 @@ db_manager class
 
 Member Function | Parameters | Return Value | Description
 ---|---|---|---
-Constructor | mode : string, path : string | None | Constructs the database manager object. If a path is provided, it will be used as the path for the shelved database. The default database location is a file named `database.s`, one folder up from the directory containing db.py.
-update() | None | None | Updates the database by collecting new tubes marked for adding by the db class (or the station_pickler legacy class) and adding them to the database. The db and pickler classes mark tubes for adding by pickling them into a file that ends in '.tube' and putting them in the directory sMDT/new_data. Locks the database during the write operation. Deletes the pickle files after it's done with them.
+Constructor | mode : string, path : string, archive : bool, testing : bool| None | Constructs the database manager object. If a path is provided, it will be used as the path for the shelved database. The default database location is a file named `database.s`, one folder up from the directory containing db.py.\n archive and testing both default to false. If testing is true, then the station pickler needed to interfact with the legacy stations is not ran. For cases where you're only using the db class to add tubes to the database, which is common in testing. If testing is false, the tests will take drastically longer to run. If testing is false, the archive parameter is passed directly to the station_pickler class. If it's true, the pickler deletes the files it reads and moves them to an archive directory to prevent duplicate data when update is ran repeatedly. See the [legacy](legacy.md) module for full documentation. 
+update() | None | None | Updates the database by collecting new tubes marked for adding by the db class (or the station_pickler legacy class) and adding them to the database. The db and pickler classes mark tubes for adding by pickling them into a file that ends in '.tube' and putting them in the directory sMDT/new_data. Locks the database during the write operation. Deletes the pickle files after it's done with them. If testing was false, this operation runs the station_pickler to build the .tube files before this function reads them in. 
 wipe(confirm) | confirm : string | None | Wipes the database by deleting all the data. **EXTREME CAUTION ADVISED** confirm must be exactly the string "confirm" for wipe to work. Raises RuntimeError if confirm argument is not properly supplied.
 
 Usage
@@ -38,7 +37,7 @@ Below is a simple example of using the db classes.
 from sMDT import tube, db                                     #import the relevant modules
 from sMDT.data import tension
 tubes = db.db()                                                #make the database object
-dbman = db.db_manager()                                        #make the db manager object. NOT NEEDED IF ON THE REAL LAB SYSTEM OR ANY OUTSIDE THE TEST ENVIRONMENT, WILL BE RAN BY THE DATABASE MANAGER PROGRAM
+dbman = db.db_manager(testing=True)                                        #make the db manager object. NOT NEEDED IF ON THE REAL LAB SYSTEM OR ANY OUTSIDE THE TEST ENVIRONMENT, WILL BE RAN BY THE DATABASE MANAGER PROGRAM
 tube1 = tube.Tube()                                            #instantiate tubes
 tube2 = tube.Tube()
 tube1.m_tube_id = "MSU0000001"                                 #make them both have them same ID
