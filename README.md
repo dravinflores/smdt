@@ -1,6 +1,6 @@
 MSU sMDT Database Systems
-![](https://atlas.cern/sites/atlas-public.web.cern.ch/files/inline-images/ATLAS-Logo-Ref-RGB-H-transparent.png)
 ========
+![](https://atlas.cern/sites/atlas-public.web.cern.ch/files/inline-images/ATLAS-Logo-Ref-RGB-H-transparent.png)
 
 This directory contains all the code, programs, and data used in the MSU ATLAS sMDT lab. 
 It consists of several python and labview applications that act as stations in our lab, which each record data on tubes.
@@ -19,13 +19,6 @@ test_outer.py | A python module containing automated test cases.
 Station folders | For each station, there is one or two folders associated with them. For swage and tension, there is one directory called [station name]Station that holds both data output by the station and archived past output. Due to legacy requirements, leak and dark_current have different folders for their output, but their archive is in their respective [StationName]Station folder.
 Export_tubes.py | This gui allows the user to scan in a set of tubes that will be shipped to UofM, and the program will output particular data we have on them that is of use to UofM.
 errors.txt | This file is a text record of files that the station_pickler had issues with. 
-
-Key | Description | Correct Lab State
----|---|---
-'wipe' |  if true, the database is wiped before DatabaseManager.py is ran. | false
-'archive'| Used to set the archive parameter of the db_manager class. For more info, see [db.py documentation](documentation/db.md). | true
-"loop"| if true, the database manager will loop forever running it's update function, at 5s intervals. Otherwise, it only gets ran once. | true
-"cleanup"| If true, it calls the cleanup function of db_manager and locks before it runs. | false
 
 Documentation
 -------------
