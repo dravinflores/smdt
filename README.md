@@ -22,7 +22,7 @@ errors.txt | This file is a text record of files that the station_pickler had is
 
 Documentation
 -------------
-Full documentation can be found in [our documentation folder](documentation/home.md)
+Be sure to read the [documentation for the sMDT package](documentation/home.md) before working with the sMDT computer systems.
 
 Installation
 ------------
