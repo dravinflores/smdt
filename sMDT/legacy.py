@@ -327,8 +327,13 @@ class station_pickler:
 
         for filename in os.listdir(CSV_directory):
             with open(os.path.join(CSV_directory, filename)) as CSV_file:
+
+                tube = Tube()
+                barcode = filename.split('.')[0]
+                tube.m_tube_id = barcode
                 if self.archive:
                     archive_file = open(os.path.join(archive_directory, filename), 'a')
+
                 for line in CSV_file.readlines():
                     if self.archive:
                         archive_file.write(line)
@@ -348,11 +353,8 @@ class station_pickler:
                     except ValueError:
                         sDate = None
 
-                    barcode = filename.split('.')[0]
 
-                    # Create tube instance
-                    tube = Tube()
-                    tube.m_tube_id = barcode
+
                     tube.dark_current.add_record(DarkCurrentRecord(dark_current=current,
                                                           date=sDate))
 
@@ -360,12 +362,12 @@ class station_pickler:
 
                     pickled_filename = str(datetime.datetime.now().timestamp()) + str(random.randrange(100,999)) + 'darkcurrent.tube'
 
-                    # Lock and write tube instance to pickle file
-                    #file_lock = locks.Lock(pickled_filename)
-                    #file_lock.lock()
-                    with open(os.path.join(new_data_directory, pickled_filename),"wb") as f: 
-                        pickle.dump(tube, f)
-                    #file_lock.unlock()
+                # Lock and write tube instance to pickle file
+                #file_lock = locks.Lock(pickled_filename)
+                #file_lock.lock()
+                with open(os.path.join(new_data_directory, pickled_filename),"wb") as f:
+                    pickle.dump(tube, f)
+                #file_lock.unlock()
 
             if self.archive:
                 os.remove(os.path.join(CSV_directory, filename))   
