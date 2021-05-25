@@ -24,19 +24,6 @@ Documentation
 -------------
 Be sure to read the [documentation for the sMDT package](documentation/home.md) before working with the sMDT computer systems.
 
-Installation
-------------
-Visit the following link for the source code.
-
-https://github.com/dravinflores/smdt
-
-As of now, this library is not uploaded to PyPi or a similar python package manager for easy installation with like `pip install sMDT`.
-Maybe it will be eventually, but for now you just have to install it manually. 
-
-The easiest way to do it is to just download the sMDT folder from the above github and just put it in the current working directory (same folder) of the code you're executing. A below example will show you how to import it, but it should just work if the sMDT *folder* is in the same folder as your code.
-
-It's also possible to add it to the python path somehow, or move it to a location already on the path. That will be left as an excercise for the reader. 
-
 Examples
 --------
 A very simple use case, such as at the tension station.
