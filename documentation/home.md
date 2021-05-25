@@ -1,4 +1,4 @@
-MSU sMDT Documentation
+MSU sMDT Package Documentation
 ========
 
 sMDT is the Python package built to provide an organized object oriented data structure for applications used in the MSU ATLAS sMDT lab. 
