@@ -12,6 +12,13 @@
 #
 ###############################################################################
 
+import os
+import sys
+
+testing_dir = os.path.dirname(os.path.abspath(__file__))
+dropbox_dir = os.path.dirname(testing_dir)
+sys.path.append(dropbox_dir)
+
 def test_outer():
     '''
     This test is the simplest use case of the library, and is the example in README.md
@@ -129,7 +136,7 @@ def test_comprehensive():
         tube1.m_tube_id = id + str(i)
         tubes.add_tube(tube1)
 
-    dbman.update()
+    dbman.update(logging=False)
 
     assert tubes.get_tube(id + str(0)).tension.get_record('first').tension == 0
     assert tubes.get_tube(id + str(49)).tension.get_record('last').tension == 49
@@ -152,6 +159,76 @@ def test_db_simple():
 
     tubes.add_tube(tube1)
 
-    dbman.update()
+    dbman.update(logging=False)
 
     assert tubes.get_tube(id).tension.get_record('first').tension == 1.5
+
+def test_swage_pickler():
+    from sMDT import legacy,db
+    import shelve
+    db_path = os.path.join(testing_dir, "database.s")
+    tubes = db.db(db_path=db_path)
+
+    dbman = db.db_manager(db_path=db_path, testing=False, archive=False)
+    dbman.wipe("confirm")
+    dbman.cleanup()
+    dbman.update(logging=False)
+
+
+    tube1 = tubes.get_tube("MSU01447")
+    assert tube1.m_tube_id == "MSU01447"
+    assert tube1.swage.get_record().swage_length == 0.07
+    assert tube1.swage.get_record().raw_length == -9.71
+
+def test_tension_pickler():
+    from sMDT import legacy,db
+    import shelve
+    db_path = os.path.join(testing_dir, "database.s")
+    tubes = db.db(db_path=db_path)
+
+    dbman = db.db_manager(db_path=db_path, testing=False, archive=False)
+    dbman.wipe("confirm")
+    dbman.cleanup()
+    dbman.update(logging=False)
+
+
+    tube1 = tubes.get_tube("MSU02458")
+    assert tube1.m_tube_id == "MSU02458"
+    assert tube1.tension.get_record().tension == 355.448134
+    assert tube1.tension.get_record().frequency == 95.0
+
+def test_leak_pickler():
+    from sMDT import legacy,db
+    import shelve
+    db_path = os.path.join(testing_dir, "database.s")
+    tubes = db.db(db_path=db_path)
+
+    dbman = db.db_manager(db_path=db_path, testing=False, archive=False)
+    dbman.wipe("confirm")
+    dbman.cleanup()
+    dbman.update(logging=False)
+
+
+    tube1 = tubes.get_tube("MSU03026")
+    assert tube1.m_tube_id == "MSU03026"
+    assert tube1.leak.get_record().leak_rate == 1.33e-06
+    assert not tube1.leak.fail()
+
+def test_darkcurrent_pickler():
+    from sMDT import legacy,db
+    import shelve
+    db_path = os.path.join(testing_dir, "database.s")
+    tubes = db.db(db_path=db_path)
+
+    dbman = db.db_manager(db_path=db_path, testing=False, archive=False)
+    dbman.wipe("confirm")
+    dbman.cleanup()
+    dbman.update(logging=False)
+
+
+    tube1 = tubes.get_tube("MSU02673")
+    assert tube1.m_tube_id == "MSU02673"
+    assert tube1.dark_current.get_record().dark_current == -.15
+
+
+
