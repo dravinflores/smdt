@@ -75,5 +75,7 @@ class Lock:
 
     @staticmethod
     def cleanup():
+        if not os.path.isdir(LOCK_DIR):
+            os.mkdir(LOCK_DIR)
         for filename in os.listdir(LOCK_DIR): 
-            os.remove(os.path.join(new_data_path, filename)) 
+            os.remove(os.path.join(LOCK_DIR, filename))

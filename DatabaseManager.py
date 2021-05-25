@@ -24,7 +24,7 @@ if __name__ == "__main__":
 
 	db_man = db.db_manager(archive=ARCHIVE)
 	if WIPE:
-		db_man.wipe()
+		db_man.wipe('confirm')
 		db_man.cleanup()
 	if CLEANUP:
 		db_man.cleanup()

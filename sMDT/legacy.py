@@ -27,6 +27,7 @@ from tube import Tube
 import pickle
 from pathlib import Path
 import datetime
+import random
 
 import locks
 from data.swage import Swage, SwageRecord
@@ -126,6 +127,8 @@ class station_pickler:
 
                     tube = Tube()
                     tube.m_tube_id = barcode
+                    if barcode == 'MSU02345':
+                        print('break')
                     tube.new_comment(comment)
                     tube.swage.add_record(SwageRecord(raw_length=rawLength,
                                                         swage_length=swageLength,
@@ -138,7 +141,7 @@ class station_pickler:
                     if endplug_type:
                         tube.legacy_data['is_munich'] = endplug_type == "Munich"
 
-                    pickled_filename = str(datetime.datetime.now().timestamp()) + 'swage.tube'
+                    pickled_filename = str(datetime.datetime.now().timestamp()) + str(random.randrange(100,999)) + 'swage.tube'
 
                     print("Pickling swage data for tube", barcode)
 
@@ -208,6 +211,8 @@ class station_pickler:
                     # Create tube instance
                     tube = Tube()
                     tube.m_tube_id = barcode
+                    if barcode == "MSU02345":
+                        print('break')
 
                     print("Pickling tension data for tube", barcode)
                    
@@ -216,7 +221,9 @@ class station_pickler:
                                                           date=sDate,
                                                           user=user))
 
-                    pickled_filename = str(datetime.datetime.now().timestamp()) + 'tension.tube'
+
+                    pickled_filename = str(datetime.datetime.now().timestamp()) + str(random.randrange(100,999)) + 'tension.tube'
+
 
                     # Lock and write tube instance to pickle file
                     #file_lock = locks.Lock(pickled_filename)
@@ -289,7 +296,7 @@ class station_pickler:
 
                     print("Pickling leak data for tube", barcode)
 
-                    pickled_filename = str(datetime.datetime.now().timestamp()) + 'leak.tube'
+                    pickled_filename = str(datetime.datetime.now().timestamp()) + str(random.randrange(100,999)) + 'leak.tube'
 
                     # Lock and write tube instance to pickle file
                     #file_lock = locks.Lock(pickled_filename)
@@ -351,7 +358,7 @@ class station_pickler:
 
                     print("Pickling dark current data for tube", barcode)
 
-                    pickled_filename = str(datetime.datetime.now().timestamp()) + 'darkcurrent.tube'
+                    pickled_filename = str(datetime.datetime.now().timestamp()) + str(random.randrange(100,999)) + 'darkcurrent.tube'
 
                     # Lock and write tube instance to pickle file
                     #file_lock = locks.Lock(pickled_filename)

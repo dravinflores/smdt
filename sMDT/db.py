@@ -123,9 +123,13 @@ class db_manager():
             tubes.close()
 
             db_lock.unlock()
+        else:
+            raise RuntimeError
 
     def cleanup(self):
         new_data_path = os.path.join(sMDT_DIR, "new_data")
+        if not os.path.isdir(new_data_path):
+            os.mkdir(new_data_path)
         for filename in os.listdir(new_data_path): 
             os.remove(os.path.join(new_data_path, filename)) 
         locks.Lock.cleanup()
@@ -170,6 +174,8 @@ class db_manager():
 
                     print("Loading tube", tube.getID(), "into database.")
 
+                    if tube.getID() == "MSU02345":
+                        print('break')
                     if tube.getID() in tubes:                                           #add the tubes to the database
                         temp = tubes[tube.getID()] + tube                           
                         tubes[tube.getID()] = temp                          
