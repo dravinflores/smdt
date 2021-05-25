@@ -26,7 +26,7 @@ Be sure to read the [documentation for the sMDT package](documentation/home.md) 
 
 Examples
 --------
-A very simple use case, such as at the tension station.
+A very simple use case, such as at the tension station. For this code to work without any changes to the system path, the py script containing this snippet needs to be in the same directory the sMDT package (folder) is in.
 ```python
 from sMDT import db,tube                                #import the tube and db modules
 from sMDT.data import tension                           #import the tension module
