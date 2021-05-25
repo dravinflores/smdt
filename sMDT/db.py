@@ -174,8 +174,6 @@ class db_manager():
 
                     print("Loading tube", tube.getID(), "into database.")
 
-                    if tube.getID() == "MSU02345":
-                        print('break')
                     if tube.getID() in tubes:                                           #add the tubes to the database
                         temp = tubes[tube.getID()] + tube                           
                         tubes[tube.getID()] = temp                          

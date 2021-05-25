@@ -127,8 +127,7 @@ class station_pickler:
 
                     tube = Tube()
                     tube.m_tube_id = barcode
-                    if barcode == 'MSU02345':
-                        print('break')
+                    tube.m_tube_id = barcode
                     tube.new_comment(comment)
                     tube.swage.add_record(SwageRecord(raw_length=rawLength,
                                                         swage_length=swageLength,
