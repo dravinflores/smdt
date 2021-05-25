@@ -14,11 +14,17 @@ Component | Description
 ---|---
 [sMDT](documentation/sMDT.md) | This folder is a python packagethat handles all database access. Further documentation can be found on that page.
 DatabaseManager.py | This program is the database manager, and it's designed to loop in the background and keep the database up to date. Probably should be moved to the package directory. 
-db_config.json | This json file represents a dictionary with 4 keys, each corresponding to a boolean. This is the configuration file for DatabaseManager.py.\n 'wipe':  if true, the database is wiped before DatabaseManager.py is ran. Should be false for real-world lab use. \n 'archive': Used to set the archive parameter of the db_manager class. For more info, see [db.py documentation](documentation/db.md). \n "loop": if true, the database manager will loop forever running it's update function, at 5s intervals. Otherwise, it only gets ran once. \n"cleanup": If true, it calls the cleanup function of db_manager and locks before it runs. MUST BE FALSE FOR LAB. **ONLY** make this true if you are developing and understand what it does.
+db_config.json | This json file represents a dictionary with 4 keys, each corresponding to a boolean. This is the configuration file for [DatabaseManager.py](documentation/databasemanager.md). See its documentation for further information. 
 test_outer.py | A python module containing automated test cases. 
 Station folders | For each station, there is one or two folders associated with them. For swage and tension, there is one directory called [station name]Station that holds both data output by the station and archived past output. Due to legacy requirements, leak and dark_current have different folders for their output, but their archive is in their respective [StationName]Station folder.
 Export_tubes.py | This gui allows the user to scan in a set of tubes that will be shipped to UofM, and the program will output particular data we have on them that is of use to UofM.
 
+Key | Description
+---|---
+'wipe' |  if true, the database is wiped before DatabaseManager.py is ran. Should be false for real-world lab use.
+'archive'| Used to set the archive parameter of the db_manager class. For more info, see [db.py documentation](documentation/db.md).
+"loop"| if true, the database manager will loop forever running it's update function, at 5s intervals. Otherwise, it only gets ran once.
+"cleanup"| If true, it calls the cleanup function of db_manager and locks before it runs. MUST BE FALSE FOR LAB. **ONLY** make this true if you are developing and understand what it does.
 
 Documentation
 -------------
