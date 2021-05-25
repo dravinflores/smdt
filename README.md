@@ -1,7 +1,7 @@
 MSU sMDT Database Systems
 ========
-
 ![](https://atlas.cern/sites/atlas-public.web.cern.ch/files/inline-images/ATLAS-Logo-Ref-RGB-H-transparent.png)
+
 This directory contains all the code, programs, and data used in the MSU ATLAS sMDT lab. 
 It consists of several python and labview applications that act as stations in our lab, which each record data on tubes.
 Recording the data and storing it is handled by the sMDT python package. 
