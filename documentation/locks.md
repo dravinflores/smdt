@@ -17,3 +17,4 @@ lock|None|The Lock becomes locked. (a file [key].lock is written to a folder cal
 unlock|None|The lock becomes unlocked. (the file is deleted)
 is_locked|None|Return true if the lock is locked, false otherwise 
 wait|None|Causes current python process to do nothing (via time.wait(0.5)) until the lock becomes unlocked. If the lock is already locked, it will wait no time and do nothing. 
+cleanup | None | Wipes the lock directory, unlocking all locks. This is a static method, you do not have to instantiate a lock to use this. Just locks.Lock.cleanup(). This will cause problems if ran during normal execution, but it's helpful when programs crash during development and leave some files locked. Do not call if you don't know what you're doing. 
