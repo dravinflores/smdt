@@ -1,31 +1,15 @@
-MSU sMDT Python Package
+MSU sMDT Database Systems
 ![](https://atlas.cern/sites/atlas-public.web.cern.ch/files/inline-images/ATLAS-Logo-Ref-RGB-H-transparent.png)
 ========
 
-smdt is the Python package built to provide an organized object oriented data structure for applications used in the MSU ATLAS sMDT lab. 
-It will also provide a consistent interface for any interactions with the database. 
+This directory contains all the code, programs, and data used in the MSU ATLAS sMDT lab. 
+It consists of several python and labview applications that act as station in our lab, which each record data on tubes.
+Recording the data and storing it is handled by the sMDT python package. 
 
 Structure
 --------
-Fig. 1
-![Fig. 1](https://i.imgur.com/g7Dv28C.png)
-Key:
 
--Each box is a class
 
--Arrows represent an "is a" relationship, inheritance. A LeakStation is a type of *Station*
-
--Italic class names represent an abstract class that should be initialized
-
--The lines with black diamonds at the end represent a "has a" or an "is made up of" relationship. The numbers represent the multiplicity of the side of the relationship. These are usually member variables.
-
--A Tube has 1 LeakStation object
-
--A Leakstation object has a list of LeakRecords 
-
--The colored boxes in the background represent the python packages (folders) that the modules are in. 
-
--Practically, that means you just write `from sMDT import tube` or `from sMDT.data import swage`
 
 Documentation
 -------------
