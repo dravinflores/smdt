@@ -14,6 +14,7 @@ The main sMDT package and the data package are the only packages, the rest are m
   * [db](db.md) -database interface object
 
   * [tube](tube.md) -Tube object 
+ 
   * [data](data.md) -data Package
 
     * [station](station.md) -abstract base class for a station
@@ -31,6 +32,23 @@ The main sMDT package and the data package are the only packages, the rest are m
   * [locks](locks.md) -Mutex locks 
 
   * [legacy support](legacy.md)
+
+![Fig. 1](https://i.imgur.com/g7Dv28C.png)
+Key:
+
+-Each box is a class
+
+-Arrows represent an "is a" relationship, inheritance. A LeakStation is a type of *Station*
+
+-Italic class names represent an abstract class that should be initialized
+
+-The lines with black diamonds at the end represent a "has a" or an "is made up of" relationship. The numbers represent the multiplicity of the side of the relationship. These are usually member variables.
+
+-A Tube has 1 LeakStation object
+
+-A Leakstation object has a list of LeakRecords 
+
+-The colored boxes in the background represent the python packages (folders) that the modules are in. 
 
 Installation
 ------------
