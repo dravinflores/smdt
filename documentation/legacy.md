@@ -10,7 +10,7 @@ station_pickler class
 The station pickler class's job is to prepare data into a pickled tube file format from legacy systems that build CSVs.
 There are four functions in station_pickler, one corresponding with swage, leak, darkcurrent, and tension stations. 
 A function in this class pulls data from their respective data folders, and reformats it into a pickled tube.
-It then archives the original csv file
+It then archives the original csv file if it was instructed to.
 
 Member Function | parameter | description
 ---|---|---
