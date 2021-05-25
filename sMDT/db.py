@@ -96,12 +96,20 @@ class db:
         tubes.close()
         return ret_tube
 
+    def get_IDs(self):
+        db_lock = locks.Lock("database")
+        db_lock.wait()
+        tubes = shelve.open(self.path)
+        ret_ids = list(tubes.keys())
+        tubes.close()
+        return ret_ids
+
    
 
 
 
 class db_manager():
-    def __init__(self, db_path=os.path.join(os.path.dirname(sMDT_DIR), "database.s"), archive=False, testing=False):
+    def __init__(self, db_path=os.path.join(os.path.dirname(sMDT_DIR), "database.s"), archive=True, testing=False):
         '''
         Constructor, builds the database manager object. Gets the path to the database
         '''
@@ -135,17 +143,17 @@ class db_manager():
         locks.Lock.cleanup()
 
 
-    def update(self):
+    def update(self, logging=True):
         '''
         Updates the database by looking for .p files in the new_data directory.
         They should be pickled tubes, and they will be added to the database
         Needs to be ran after a db object calls add_tube(), otherwise the database will not contain the data in time for get_tube()
         '''
 
-        dropbox_folder = os.path.dirname(sMDT_DIR)
+        #dropbox_folder = os.path.dirname(sMDT_DIR)
 
         if not self.testing:
-            pickler = station_pickler(dropbox_folder, archive=self.archive)
+            pickler = station_pickler(os.path.dirname(self.path), archive=self.archive, logging=logging)
             pickler.pickle_swage()
             pickler.pickle_tension()
             pickler.pickle_leak()
@@ -172,7 +180,8 @@ class db_manager():
                     tube = pickle.load(new_data_file)                                   #load the tube from pickle
                     new_data_file.close()                                               #close the file
 
-                    print("Loading tube", tube.getID(), "into database.")
+                    if logging:
+                        print("Loading tube", tube.getID(), "into database.")
 
                     if tube.getID() in tubes:                                           #add the tubes to the database
                         temp = tubes[tube.getID()] + tube                           
@@ -182,7 +191,8 @@ class db_manager():
                     os.remove(os.path.join(new_data_path, filename))                 #delete the file that we added the tube from
                     count += 1
             t = time.localtime()
-            print("Added", count, "tubes at", time.strftime("%H:%M:%S",t))
+            if logging:
+                print("Added", count, "tubes at", time.strftime("%H:%M:%S",t))
 
         #unlock the database
         db_lock.unlock()
