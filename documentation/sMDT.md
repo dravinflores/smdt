@@ -28,6 +28,8 @@ The main sMDT package and the data package are the only packages, the rest are m
     * [dark_current](darkcurrent.md) -Dark current station and dark current record
  
     * [record](record.md) -abstract base class for a record
+
+    * [status](status.md) -Simple enumerated status, PASS, FAIL, INCOMPLETE
   
   * [locks](locks.md) -Mutex locks 
 
