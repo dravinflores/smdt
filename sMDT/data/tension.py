@@ -12,24 +12,13 @@
 #
 ###############################################################################
 from abc import ABC
-
-
-
-# Import Preparation block.
-# Currently only needed so the tests in the mains work with the current imports.
-import os
-import sys
-
-# Gets the path of the current file being executed.
-DATA_DIR = os.path.dirname(os.path.abspath(__file__))
-# Adds the folder that file is in to the system path
-sys.path.append(DATA_DIR)
-
-from station import Station
-from status import Status
-from record import Record
 import datetime
 import textwrap
+
+from .station import Station
+from .status import Status
+from .record import Record
+
 
 
 class TensionRecord(Record):
