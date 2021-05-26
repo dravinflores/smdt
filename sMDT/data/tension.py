@@ -26,6 +26,7 @@ DATA_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(DATA_DIR)
 
 from station import Station
+from status import Status
 from record import Record
 import datetime
 import textwrap
@@ -102,8 +103,23 @@ class Tension(Station, ABC):
         return False
 
 
+    def status(self):
+        if self.passed_second_tension():
+            return Status.PASS
+        else:
+            for record in sorted(self.m_records, key=lambda i: i.date):
+                if not record.fail():
+                    two_weeks = datetime.timedelta(days=14)
+                    delta = datetime.datetime.now() - record.date
+                    if delta < two_weeks:
+                        return Status.INCOMPLETE
+                    else:
+                        break
+            return Status.FAIL
+
     def fail(self):
-        return not self.passed_second_tension()
+        return self.status() == Status.FAIL
+
 
 
 

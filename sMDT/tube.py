@@ -27,13 +27,8 @@ from data.swage import Swage
 from data.tension import Tension
 from data.leak import Leak
 from data.dark_current import DarkCurrent
+from data.status import Status
 
-from enum import Enum
-
-class Status(Enum):
-    FAIL = 0
-    PASS = 1
-    INCOMPLETE = 2
 
 class Tube:
     def __init__(self):

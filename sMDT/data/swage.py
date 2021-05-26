@@ -26,6 +26,9 @@ sys.path.append(DATA_DIR)
 
 import textwrap
 import station
+
+from status import Status
+
 from record import Record
 from datetime import datetime
 
@@ -54,7 +57,9 @@ class SwageRecord(Record):
         self.date = date 
 
     def fail(self):
-        if self.raw_length < SwageRecord.min_raw_length               \
+        if self.error_code and self.error_code[0] != '0':
+            return True
+        elif self.raw_length < SwageRecord.min_raw_length               \
                 or self.raw_length > SwageRecord.max_raw_length       \
                 or self.swage_length < SwageRecord.min_swage_length   \
                 or self.swage_length > SwageRecord.max_swage_length:
@@ -73,6 +78,14 @@ class SwageRecord(Record):
 
         return_str = a + b + c + d + e + f
         return return_str
+
+    def status(self):
+        if not self.visited():
+            return Status.INCOMPLETE
+        elif self.fail():
+            return Status.FAIL
+        else:
+            return Status.PASS
 
 
 class Swage(station.Station, ABC):

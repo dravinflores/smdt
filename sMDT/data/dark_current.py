@@ -30,6 +30,7 @@ sys.path.append(current_folder)
 
 from station import Station
 from record import Record
+from status import Status
 from datetime import datetime
 import textwrap
 
@@ -82,7 +83,20 @@ class DarkCurrent(Station, ABC):
         return a + textwrap.indent(b, '\t')
 
     def fail(self):
-        return self.get_record(mode='last').fail()
+        try:
+            return self.get_record(mode='last').fail()
+        except IndexError:
+            return False
+
+    def status(self):
+        if not self.visited():
+            return Status.INCOMPLETE
+        elif self.fail():
+            return Status.FAIL
+        else:
+            return Status.PASS
+
+
 
 
 if __name__ == "__main__":
