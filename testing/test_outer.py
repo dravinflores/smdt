@@ -230,5 +230,9 @@ def test_darkcurrent_pickler():
     assert tube1.m_tube_id == "MSU02673"
     assert tube1.dark_current.get_record().dark_current == -.15
 
-
+def test_tube_INCOMPLETE_status():
+    from sMDT import tube
+    from sMDT.data.status import Status
+    tube1 = tube.Tube()
+    assert tube1.status() == Status.INCOMPLETE
 

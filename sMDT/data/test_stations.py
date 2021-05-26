@@ -21,11 +21,11 @@ import os
 import sys
 
 # Gets the path of the current file being executed.
-path = os.path.realpath(__file__)
-current_folder = os.path.dirname(os.path.abspath(__file__))
+#path = os.path.realpath(__file__)
+#current_folder = os.path.dirname(os.path.abspath(__file__))
 
 # Adds the folder that file is in to the system path
-sys.path.append(current_folder)
+#sys.path.append(current_folder)
 
 
 def test_base_station():
@@ -127,7 +127,13 @@ def test_tension_status():
     t2.add_record(tension.TensionRecord(tension=350, date=today-fifteendays))
     assert t2.status() == Status.FAIL
 
-
+def test_enum():
+    from .swage import Swage
+    from .status import Status
+    swage = Swage()
+    print(swage.status())
+    print(Status.INCOMPLETE)
+    print(swage.status() is Status.INCOMPLETE)
 
 if __name__ == "__main__":
     test_modes_derived_station()
