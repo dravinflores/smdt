@@ -28,6 +28,12 @@ from data.tension import Tension
 from data.leak import Leak
 from data.dark_current import DarkCurrent
 
+from enum import Enum
+
+class Status(Enum):
+    FAIL = 0
+    PASS = 1
+    INCOMPLETE = 2
 
 class Tube:
     def __init__(self):
@@ -74,8 +80,16 @@ class Tube:
     def fail(self):
         return any([x.fail() for x in [self.swage,self.leak,self.tension,self.dark_current]])
 
-    def dict(self) -> dict():
-        return dict()
+    def status(self):
+        stations = [self.swage, self.tension, self.leak, self.dark_current]
+        if any([i.status() == Status.FAIL for i in stations]):
+            return Status.FAIL
+        elif any([i.status() == Status.INCOMPLETE for i in stations]):
+            return Status.INCOMPLETE
+        elif all([i.status() == Status.PASS for i in stations]):
+            return Status.PASS
+        else:
+            raise RuntimeError #this should be impossible if the station status are implemented correctly
 
 
 if __name__ == '__main__':
