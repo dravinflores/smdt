@@ -12,22 +12,12 @@
 #
 ###############################################################################
 
-# Import Preparation block.
-# Currently only needed so the tests in the mains work with the current imports.
-import os
-import sys
 
-# Gets the path of the current file being executed.
-sMDT_DIR = os.path.dirname(os.path.abspath(__file__))
-
-# Adds the folder that file is in to the system path
-sys.path.append(sMDT_DIR)
-
-from data.swage import Swage
-from data.tension import Tension
-from data.leak import Leak
-from data.dark_current import DarkCurrent
-from data.status import Status
+from .data.swage import Swage
+from .data.tension import Tension
+from .data.leak import Leak
+from .data.dark_current import DarkCurrent
+from .data.status import Status
 
 
 class Tube:

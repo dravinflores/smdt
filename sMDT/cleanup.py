@@ -14,8 +14,8 @@
 #
 ###############################################################################
 
-import db
+from .db import db_manager
 
 if __name__ == "__main__":
-    db_man = db.db_manager()
+    db_man = db_manager()
     db_man.cleanup()
