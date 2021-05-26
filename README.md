@@ -13,7 +13,7 @@ Here are the important components of the computer systems at the lab.
 Component | Description
 ---|---
 [sMDT](documentation/sMDT.md) | This folder is a python package that handles all database access. Further documentation can be found on that page.
-DatabaseManager.py | This program is the database manager, and it's designed to loop in the background and keep the database up to date. Probably should be moved to the package directory. 
+[DatabaseManager.py](documentation/DatabaseManager.md) | This program is the database manager, and it's designed to loop in the background and keep the database up to date. Only one may be running at a time. It should automatically stop a second instance from running, but if they start at close to the same time it might not work. Just don't run this program unless you have a good reason for it.
 db_config.json | This json file represents a dictionary with 4 keys, each corresponding to a boolean. This is the configuration file for [DatabaseManager.py](documentation/DatabaseManager.md). See its documentation for further information. 
 testing | This folder contains a python module with automated test cases, as well as the small-scale full lab testing environment it needs.
 Station folders | For each station, there is one or two folders associated with them. For swage and tension, there is one directory called [station name]Station that holds both data output by the station and archived past output. Due to legacy requirements, leak and dark_current have different folders for their output, but their archive is in their respective [StationName]Station folder.
