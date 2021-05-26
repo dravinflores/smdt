@@ -104,6 +104,8 @@ class Tension(Station, ABC):
 
 
     def status(self):
+        if not self.visited():
+            return Status.INCOMPLETE
         if self.passed_second_tension():
             return Status.PASS
         else:
