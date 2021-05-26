@@ -79,5 +79,6 @@ class Station:
         """Adds a record to the station's records"""
         self.m_records.append(record)
 
-
+    def visited(self):
+        return len(self.m_records) != 0
 

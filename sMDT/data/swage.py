@@ -100,6 +100,7 @@ class Swage(station.Station, ABC):
         return self.get_record(mode='last').fail()
 
 
+
 if __name__ == "__main__":
     swage = Swage()
     swage.set_record(SwageRecord(raw_length=3.4, swage_length=3.2,clean_code=None, error_code=None))
