@@ -53,10 +53,7 @@ class LeakRecord(Record):
         return a + b
 
     def fail(self):
-        if self.leak_rate > LeakRecord.threshold_leak:
-            return True
-        else:
-            return False
+        return self.leak_rate > LeakRecord.threshold_leak
 
 
 class Leak(Station, ABC):

@@ -104,6 +104,8 @@ class Swage(station.Station, ABC):
         return a + textwrap.indent(b, '\t')
     
     def fail(self):
+        if not self.visited():
+            return False
         return self.get_record(mode='last').fail()
 
     def status(self):
