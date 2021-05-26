@@ -79,13 +79,7 @@ class SwageRecord(Record):
         return_str = a + b + c + d + e + f
         return return_str
 
-    def status(self):
-        if not self.visited():
-            return Status.INCOMPLETE
-        elif self.fail():
-            return Status.FAIL
-        else:
-            return Status.PASS
+
 
 
 class Swage(station.Station, ABC):
@@ -111,3 +105,11 @@ class Swage(station.Station, ABC):
     
     def fail(self):
         return self.get_record(mode='last').fail()
+
+    def status(self):
+        if not self.visited():
+            return Status.INCOMPLETE
+        elif self.fail():
+            return Status.FAIL
+        else:
+            return Status.PASS
