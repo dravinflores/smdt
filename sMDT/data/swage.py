@@ -76,9 +76,9 @@ class SwageRecord(Record):
 
 
 class Swage(station.Station, ABC):
-    '''
+    """
     The Swage station class, manages the relevant records for a particular tube.
-    '''
+    """
     def __init__(self): 
         super().__init__()
 
@@ -98,25 +98,3 @@ class Swage(station.Station, ABC):
     
     def fail(self):
         return self.get_record(mode='last').fail()
-
-
-
-if __name__ == "__main__":
-    swage = Swage()
-    swage.set_record(SwageRecord(raw_length=3.4, swage_length=3.2,clean_code=None, error_code=None))
-    swage.set_record(SwageRecord(raw_length=5.2, swage_length=8, clean_code=None, error_code=None))
-    swage.set_record(SwageRecord(raw_length=1.03, swage_length=5, clean_code=None, error_code=None))
-
-    print("Created a Swage station object, stored 3 swage records with raw "
-          "lengths 3.4, 5.2, 1.03 respectively")
-    print("Printing swage.get_record() (default mode is last, should be 1.03)\n")
-    # print(swage.get_record())
-    print(swage)
-
-    print("Printing swage.get_record('first')\n")
-    print(swage.get_record("first"))
-
-    print("Adding mode 'lengthiest', which returns the record with the "
-          "grearecord raw_length.\nPrinting swage.get_record('lengthiest')\n")
-    station.add_mode("lengthiest", lambda x: sorted(x.m_records, key=lambda y: y.raw_length)[-1])
-    print(swage.get_record("lengthiest"))
