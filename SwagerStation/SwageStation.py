@@ -48,7 +48,7 @@ def write(code, lengths, cleanCode, errorCode, name, endplugcode):
 
     database = db.db()
     tube1 = tube.Tube()
-    tube1.m_tube_id = code
+    tube1.set_ID(code)
     if comment:
         tube1.new_comment(comment)
     tube1.swage.add_record(swage.SwageRecord(raw_length=float(lengths[0]), swage_length=float(lengths[1]), clean_code=cleanCode, error_code=errorCode, user=name))

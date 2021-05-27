@@ -123,8 +123,8 @@ class station_pickler:
                             sDate = None
 
                     tube = Tube()
-                    tube.m_tube_id = barcode
-                    tube.m_tube_id = barcode
+                    tube.set_ID(barcode)
+                    tube.set_ID(barcode)
                     tube.new_comment(comment)
                     tube.swage.add_record(SwageRecord(raw_length=raw_length,
                                                       swage_length=swage_length,
@@ -206,7 +206,7 @@ class station_pickler:
 
                     # Create tube instance
                     tube = Tube()
-                    tube.m_tube_id = barcode
+                    tube.set_ID(barcode)
                     if barcode == "MSU02345":
                         print('break')
 
@@ -283,7 +283,7 @@ class station_pickler:
 
                     # Create tube instance
                     tube = Tube()
-                    tube.m_tube_id = barcode
+                    tube.set_ID(barcode)
                     tube.leak.add_record(LeakRecord(leak_rate=leak,
                                                     date=sDate, user=user))
 
@@ -326,7 +326,7 @@ class station_pickler:
 
                 tube = Tube()
                 barcode = filename.split('.')[0]
-                tube.m_tube_id = barcode
+                tube.set_ID(barcode)
                 if self.archive:
                     archive_file = open(os.path.join(archive_directory, filename), 'a')
 

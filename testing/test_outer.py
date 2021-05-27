@@ -133,7 +133,7 @@ def test_comprehensive():
         tube1 = tube.Tube()
         for j in range(i+1):
             tube1.tension.add_record(tension.TensionRecord(j))
-        tube1.m_tube_id = id + str(i)
+        tube1.set_ID(id + str(i))
         tubes.add_tube(tube1)
 
     dbman.update(logging=False)
@@ -154,7 +154,7 @@ def test_db_simple():
     dbman.wipe('confirm')
     tube1 = tube.Tube()
     id = "MSU000001"
-    tube1.m_tube_id = id
+    tube1.set_ID(id)
     tube1.tension.add_record(tension.TensionRecord(1.5))
 
     tubes.add_tube(tube1)
@@ -176,7 +176,7 @@ def test_swage_pickler():
 
 
     tube1 = tubes.get_tube("MSU01447")
-    assert tube1.m_tube_id == "MSU01447"
+    assert tube1.get_ID() == "MSU01447"
     assert tube1.swage.get_record().swage_length == 0.07
     assert tube1.swage.get_record().raw_length == -9.71
 
@@ -193,7 +193,7 @@ def test_tension_pickler():
 
 
     tube1 = tubes.get_tube("MSU02458")
-    assert tube1.m_tube_id == "MSU02458"
+    assert tube1.get_ID() == "MSU02458"
     assert tube1.tension.get_record().tension == 355.448134
     assert tube1.tension.get_record().frequency == 95.0
 
@@ -210,7 +210,7 @@ def test_leak_pickler():
 
 
     tube1 = tubes.get_tube("MSU03026")
-    assert tube1.m_tube_id == "MSU03026"
+    assert tube1.get_ID() == "MSU03026"
     assert tube1.leak.get_record().leak_rate == 1.33e-06
     assert not tube1.leak.fail()
 
@@ -225,9 +225,8 @@ def test_darkcurrent_pickler():
     dbman.cleanup()
     dbman.update(logging=False)
 
-
     tube1 = tubes.get_tube("MSU02673")
-    assert tube1.m_tube_id == "MSU02673"
+    assert tube1.get_ID() == "MSU02673"
     assert tube1.dark_current.get_record().dark_current == -.15
 
 def test_tube_INCOMPLETE_status():

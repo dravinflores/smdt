@@ -45,8 +45,8 @@ def test_tube_add():
     from .data import swage,tension,leak,dark_current
     tube1 = tube.Tube()
     tube2 = tube.Tube()
-    tube1.m_tube_id = "MSU0000001"
-    tube2.m_tube_id = "MSU0000001"
+    tube1.set_ID("MSU0000001")
+    tube2.set_ID("MSU0000001")
     tube1.tension.add_record(tension.TensionRecord(350, user='Paul'))
     tube2.tension.add_record(tension.TensionRecord(355, user='Reinhard'))
     tube2.leak.add_record(leak.LeakRecord(0))
@@ -68,8 +68,8 @@ def test_db_persistence():
     dbman.wipe('confirm')
     tube1 = tube.Tube()
     tube2 = tube.Tube()
-    tube1.m_tube_id = "MSU0000001"
-    tube2.m_tube_id = "MSU0000001"
+    tube1.set_ID("MSU0000001")
+    tube2.set_ID("MSU0000001")
     tube1.tension.add_record(tension.TensionRecord(350))
     tube2.tension.add_record(tension.TensionRecord(355))
     tube2.leak.add_record(leak.LeakRecord(0))
@@ -106,8 +106,8 @@ def test_db_add_tube():
     dbman.wipe('confirm')
     tube1 = tube.Tube()
     tube2 = tube.Tube()
-    tube1.m_tube_id = "MSU0000001"
-    tube2.m_tube_id = "MSU0000001"
+    tube1.set_ID("MSU0000001")
+    tube2.set_ID("MSU0000001")
     tube1.tension.add_record(tension.TensionRecord(350))
     tube2.tension.add_record(tension.TensionRecord(355))
     tube2.leak.add_record(leak.LeakRecord(0))
