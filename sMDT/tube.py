@@ -29,6 +29,7 @@ class Tube:
         self.leak = Leak()
         self.dark_current = DarkCurrent()
         self.legacy_data = dict()
+        self.comment_fail = False
 
     def __add__(self, other):
         ret = Tube()
@@ -43,13 +44,15 @@ class Tube:
 
     def __str__(self):
         ret_str = ""
-        ret_str += self.getID() + '\n'
+        ret_str += self.getID() + '-' + self.status().name + '\n'
         if len(self.m_comments) != 0:
             ret_str += "\nComments:\n"
         for comment in self.m_comments:
             ret_str += comment + '\n'
         else:
             ret_str += '\n'
+        if self.comment_fail:
+            ret_str += "MARKED AS FAIL BY COMMENT"
         ret_str += self.swage.__str__()
         ret_str += self.tension.__str__()
         ret_str += self.leak.__str__()
@@ -60,6 +63,9 @@ class Tube:
     def getID(self):
         return self.m_tube_id
 
+    def set_ID(self, ID):
+        self.m_tube_id = ID
+
     def get_comments(self):
         return self.m_comments
 
@@ -67,11 +73,11 @@ class Tube:
         self.m_comments.append(comment)
 
     def fail(self):
-        return any([x.fail() for x in [self.swage,self.leak,self.tension,self.dark_current]])
+        return any([x.fail() for x in [self.swage,self.leak,self.tension,self.dark_current]]) or self.comment_fail
 
     def status(self):
         stations = [self.swage, self.tension, self.leak, self.dark_current]
-        if any([i.status() == Status.FAIL for i in stations]):
+        if any([i.status() == Status.FAIL for i in stations]) or self.comment_fail:
             return Status.FAIL
         elif any([i.status() == Status.INCOMPLETE for i in stations]):
             return Status.INCOMPLETE
