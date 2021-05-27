@@ -121,12 +121,13 @@ def checkCodes(barcodeList):
         if dfail:
             text_derrors.insert(tk.INSERT, tube)
 
-    text_serrors.insert(tk.INSERT, '\nIncomplete:\n')
-    text_terrors.insert(tk.INSERT, '\nIncomplete:\n')
-    text_lerrors.insert(tk.INSERT, '\nIncomplete:\n')
-    text_derrors.insert(tk.INSERT, '\nIncomplete:\n')
+    text_serrors.insert(tk.INSERT, '\n\nIncompl:\n')
+    text_terrors.insert(tk.INSERT, '\n\nIncompl:\n')
+    text_lerrors.insert(tk.INSERT, '\n\nIncompl:\n')
+    text_derrors.insert(tk.INSERT, '\n\nIncompl:\n')
     for tube in barcodes:
         status = getStatus(tube)
+        print(status)
         if status[0] == Status.INCOMPLETE:
             text_serrors.insert(tk.INSERT, tube)
         if status[1] == Status.INCOMPLETE:
