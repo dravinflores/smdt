@@ -84,6 +84,6 @@ class Tube:
         elif all([i.status() == Status.PASS for i in stations]):
             return Status.PASS
         else:
-            raise RuntimeError #this should be impossible if the station status are implemented correctly
+            raise RuntimeError #this should be impossible if the station status are properly mutually exclusive
 
 
