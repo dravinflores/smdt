@@ -23,11 +23,12 @@ if __name__ == "__main__":
 		ARCHIVE = config['archive']
 		LOOP = config['loop']
 		CLEANUP = config['cleanup']
+		NOPICKLER = config['nopickler']
 
 
 
 
-		db_man = db.db_manager(archive=ARCHIVE)
+		db_man = db.db_manager(archive=ARCHIVE, testing=NOPICKLER)
 		if WIPE:
 			db_man.wipe('confirm')
 			db_man.cleanup()
