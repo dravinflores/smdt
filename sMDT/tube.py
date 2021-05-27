@@ -42,14 +42,18 @@ class Tube:
         return ret
 
     def __str__(self):
-        n = self.getID() + '\n'
-        a = self.swage.__str__()
-        b = self.tension.__str__()
-        c = self.leak.__str__()
-        d = self.dark_current.__str__()
-
-        ret_str = n + a + b + c + d
-        ret_str = str(ret_str)
+        ret_str = ""
+        ret_str += self.getID() + '\n'
+        if len(self.m_comments) != 0:
+            ret_str += "\nComments:\n"
+        for comment in self.m_comments:
+            ret_str += comment + '\n'
+        else:
+            ret_str += '\n'
+        ret_str += self.swage.__str__()
+        ret_str += self.tension.__str__()
+        ret_str += self.leak.__str__()
+        ret_str += self.dark_current.__str__()
 
         return ret_str
 
