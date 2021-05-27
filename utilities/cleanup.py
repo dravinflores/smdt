@@ -14,6 +14,11 @@
 #
 ###############################################################################
 
+import os
+import sys
+DROPBOX_DIR = os.path.dirname(os.path.dirname(__file__))
+sys.path.append(DROPBOX_DIR)
+
 from sMDT import db
 
 if __name__ == "__main__":
