@@ -22,5 +22,7 @@ sys.path.append(DROPBOX_DIR)
 from sMDT import db
 
 if __name__ == "__main__":
-    db_man = db.db_manager()
-    db_man.cleanup()
+    test = input("This cleanup utility can cause problems if used incorrectly. If you don't know exactly why this program needs to be ran, dont run it.\nType exactly 'confirm' to continue. ")
+    if test == 'confirm':
+        db_man = db.db_manager()
+        db_man.cleanup()
