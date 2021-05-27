@@ -14,7 +14,7 @@ It also provides the \_\_str\_\_ function for printing the station and all of it
 Member Functions|Parameters|Return|Description
 ---|---|---|---
 Constructor|None|None|Constructs the swage station object
-status()|None|[Status](status.md)|Returns Status.INCOMPLETE if there is no records. If there are records, the last one is checked. If it is a failure based of it's fail() function, then this returns Status.FAIl. Otherwise, returns Status.PASS
+status()|None|[Status](status.md)|Returns Status.INCOMPLETE if there is no records. If there are records, the last one is checked. If it is a failure based of it's fail() function, then this returns Status.FAIL. Otherwise, returns Status.PASS
 \_\_str\_\_()|None|string|Returns a string representation of the station
 
 SwageRecord Object
