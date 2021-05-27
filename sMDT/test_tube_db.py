@@ -51,7 +51,6 @@ def test_tube_add():
     tube2.tension.add_record(tension.TensionRecord(355, user='Reinhard'))
     tube2.leak.add_record(leak.LeakRecord(0))
     tube3 = tube1 + tube2
-    print(tube3.tension.get_record('all'))
     assert len(tube3.tension.get_record('all')) == 2
     assert tube3.leak.get_record('last').leak_rate == 0
     assert tube3.tension.get_record('last').user == 'Reinhard'
@@ -76,7 +75,7 @@ def test_db_persistence():
     tubes.add_tube(tube1)
     tubes.add_tube(tube2)
 
-    dbman.update()
+    dbman.update(logging=False)
 
     del tubes
     tubes = db.db()
@@ -112,13 +111,13 @@ def test_db_add_tube():
     tube2.tension.add_record(tension.TensionRecord(355))
     tube2.leak.add_record(leak.LeakRecord(0))
     tubes.add_tube(tube1)
-    dbman.update()
+    dbman.update(logging=False)
     tube3 = tubes.get_tube("MSU0000001")
     assert len(tube3.tension.get_record('all')) == 1
     with pytest.raises(IndexError):
         tube3.leak.get_record('last').leak_rate == 0
     tubes.add_tube(tube2)
-    dbman.update()
+    dbman.update(logging=False)
 
     tube4 = tubes.get_tube("MSU0000001")
     assert len(tube4.tension.get_record('all')) == 2

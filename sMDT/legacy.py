@@ -207,8 +207,6 @@ class station_pickler:
                     # Create tube instance
                     tube = Tube()
                     tube.set_ID(barcode)
-                    if barcode == "MSU02345":
-                        print('break')
 
                     if self.logging:
                         print("Pickling tension data for tube", barcode)

@@ -87,6 +87,3 @@ class Tube:
             raise RuntimeError #this should be impossible if the station status are implemented correctly
 
 
-if __name__ == '__main__':
-    a = Tube()
-    print(a)
