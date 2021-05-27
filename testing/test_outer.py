@@ -222,8 +222,7 @@ def test_leak_pickler():
     assert tube1.leak.status() == Status.PASS
 
 def test_darkcurrent_pickler():
-    from sMDT import legacy,db
-    import shelve
+    from sMDT import db
     db_path = os.path.join(testing_dir, "database.s")
     tubes = db.db(db_path=db_path)
 
@@ -241,4 +240,19 @@ def test_tube_INCOMPLETE_status():
     from sMDT.data.status import Status
     tube1 = tube.Tube()
     assert tube1.status() == Status.INCOMPLETE
+
+def test_pickled_tube_status():
+    from sMDT import db
+    from sMDT.data.status import Status
+    db_path = os.path.join(testing_dir, "database.s")
+    tubes = db.db(db_path=db_path)
+
+    dbman = db.db_manager(db_path=db_path, testing=False, archive=False)
+    dbman.wipe("confirm")
+    dbman.cleanup()
+    dbman.update(logging=False)
+
+    tube1 = tubes.get_tube("MSU01234")
+    assert tube1.get_ID() == "MSU01234"
+    assert tube1.status() == Status.PASS
 
