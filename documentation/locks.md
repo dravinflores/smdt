@@ -7,6 +7,10 @@ A mutex lock is useful for a lot of things, primarily enabling communication bet
 
 At it's simplest, a mutex lock just tells a program whether a resource is "locked" or not, and then the program should then wait to access that resource until the lock becomes unlocked
 
+**WARNING: ON SOME OPERATING SYSTEMS, LOCK NAMES ARE CASE INSENSITIVE.**
+
+If a lock with key "test" is locked, some operating systems might see a lock with key "TEST" also being locked. Just avoid locks that are different case versions of the same key.
+
 Members
 -------
 
