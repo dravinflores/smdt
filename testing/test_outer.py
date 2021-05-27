@@ -165,6 +165,7 @@ def test_db_simple():
 
 def test_swage_pickler():
     from sMDT import legacy,db
+    from sMDT.data.status import Status
     import shelve
     db_path = os.path.join(testing_dir, "database.s")
     tubes = db.db(db_path=db_path)
@@ -175,14 +176,17 @@ def test_swage_pickler():
     dbman.update(logging=False)
 
 
-    tube1 = tubes.get_tube("MSU01447")
-    assert tube1.get_ID() == "MSU01447"
+    tube1 = tubes.get_tube("MSU01234")
+    assert tube1.get_ID() == "MSU01234"
     assert tube1.swage.get_record().swage_length == 0.07
     assert tube1.swage.get_record().raw_length == -9.71
+    assert tube1.swage.status() == Status.PASS
+
 
 def test_tension_pickler():
-    from sMDT import legacy,db
-    import shelve
+    from sMDT import db
+    from sMDT.data.status import Status
+
     db_path = os.path.join(testing_dir, "database.s")
     tubes = db.db(db_path=db_path)
 
@@ -192,14 +196,16 @@ def test_tension_pickler():
     dbman.update(logging=False)
 
 
-    tube1 = tubes.get_tube("MSU02458")
-    assert tube1.get_ID() == "MSU02458"
+    tube1 = tubes.get_tube("MSU01234")
+    assert tube1.get_ID() == "MSU01234"
     assert tube1.tension.get_record().tension == 355.448134
     assert tube1.tension.get_record().frequency == 95.0
+    assert tube1.tension.status() == Status.PASS
 
 def test_leak_pickler():
     from sMDT import legacy,db
-    import shelve
+    from sMDT.data.status import Status
+
     db_path = os.path.join(testing_dir, "database.s")
     tubes = db.db(db_path=db_path)
 
@@ -209,10 +215,11 @@ def test_leak_pickler():
     dbman.update(logging=False)
 
 
-    tube1 = tubes.get_tube("MSU03026")
-    assert tube1.get_ID() == "MSU03026"
+    tube1 = tubes.get_tube("MSU01234")
+    assert tube1.get_ID() == "MSU01234"
     assert tube1.leak.get_record().leak_rate == 1.33e-06
     assert not tube1.leak.fail()
+    assert tube1.leak.status() == Status.PASS
 
 def test_darkcurrent_pickler():
     from sMDT import legacy,db
@@ -225,9 +232,9 @@ def test_darkcurrent_pickler():
     dbman.cleanup()
     dbman.update(logging=False)
 
-    tube1 = tubes.get_tube("MSU02673")
-    assert tube1.get_ID() == "MSU02673"
-    assert tube1.dark_current.get_record().dark_current == -.15
+    tube1 = tubes.get_tube("MSU01234")
+    assert tube1.get_ID() == "MSU01234"
+    assert tube1.dark_current.get_record().dark_current == 0
 
 def test_tube_INCOMPLETE_status():
     from sMDT import tube
