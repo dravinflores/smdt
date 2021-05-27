@@ -332,10 +332,14 @@ class station_pickler:
                     if self.archive:
                         archive_file.write(line)
                     line = line.split(',')
-                    # Check there are 2 columns, else report to terminal
+                    # Check there are 2 columns
                     if len(line) == 2:
                         current = float(line[0])
                         date = line[1]
+                    elif len(line) == 3:
+                        current = float(line[0])
+                        date = line[1]
+                        voltage = line[2] # Not stored currently
                     # Report to terminal unknown formats
                     else:
                         if self.logging:
