@@ -7,9 +7,14 @@ This module has two main classes, the Tension object, and the TensionRecord obje
 
 Tension Station Object
 --------------------
-tension.Tension, the tension station object, does not do much. All it really does is inherit from [Station](station.md), where all the interesting code is. 
 
-It also provides the \_\_str\_\_ function for printing the station and all of it's records.
+Member Functions|Parameters|Return|Description
+---|---|---|---
+Constructor|None|None|Constructs the swage station object
+passed_first_tension()|None|Bool|Returns true if the tension station has any passing tension records.
+passed_second_tension()|None|Bool|Returns true if the tension station has a pair of passing tension records that were recorded at least a week apart.
+status()|None|Status|Returns Status.PASS if the tube has passed its second tension. If it has no records, or if the first passing record was less than two weeks ago, returns Status.INCOMPLETE. Otherwise, returns Status.FAIL
+fail()|None|bool|Returns True if this data indicates a failed tube. This is equivalent to status() == Status.FAIL.
 
 TensionRecord Object
 ------------------
@@ -27,11 +32,8 @@ date | datetime | the datetime object representing when this was recorded. By de
 Member Functions|Parameters|Return|Description
 ---|---|---|---
 Constructor|tension : float, frequency : float, date : datetime, user : string | TensionRecord object | Creates a record object with the specified data
-passed_first_tension()|None|Bool|Returns true if the tension station has any passing tension records.
-passed_second_tension()|None|Bool|Returns true if the tension station has a pair of passing tension records that were recorded at least a week apart.
-status()|None|Status|Returns Status.PASS if the tube has passed its second tension. If it has no records, or if the first passing record was less than two weeks ago, returns Status.INCOMPLETE. Otherwise, returns Status.FAIL
 \_\_str\_\_()|None|string|Returns a string representation of the record
-fail()|None|bool|Returns True if this data indicates a failed tube. See above for description of the failure conditions.
+fail()|None|bool|Returns True if this data indicates a failed record. See above for the failure condition.
 
 Usage
 -----
