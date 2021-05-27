@@ -16,10 +16,6 @@ SwageRecord Object
 swage.SwageRecord is the [Record](record.md) object that stores a single instance of data from the swage station. 
 It's mostly a data container, but provides useful functions for printing and fail testing. 
 
-Failure condition: A SwageRecord is considered a failure if raw_length is outside the range (0,2000) cm, or if the swage_length is outside the same range.
-
-The failure condition may not be accurate, #TODO
-
 Member variables|Units|Description
 ---|---|---
 raw_length | cm | The measured length of the tube before it is swaged. 
@@ -31,9 +27,9 @@ date | datetime | the datetime object representing when this was recorded. By de
 Member Functions|Parameters|Return|Description
 ---|---|---|---
 Constructor|raw_length : float, swage_length : float,clean_code : string, error_code : string, date : datetime, user : string| SwageRecord object | Creates a record object with the specified data
+status()|None|[Status](status.md)|Returns Status.INCOMPLETE if there is no records. If there is a record with no error codes and within the constraints, returns Status.PASS. Otherwise, returns Status.FAIL
 \_\_str\_\_()|None|string|Returns a string representation of the record
-fail()|None|bool|Returns True if this data indicates a failed tube. See above for description of the failure conditions.
-
+fail()|None|bool|Returns True if this data indicates a failed tube. This is equivalent to status() == Status.FAIL.
 Usage
 -----
 See the [Station](station.md) documentation for more depth on how to use station objects. 
