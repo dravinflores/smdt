@@ -27,22 +27,50 @@ DROPBOX_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(DROPBOX_DIR)
 from sMDT import db, tube
 from sMDT.data import swage
+from sMDT.data.status import Status
 
-# Returns lengths, date, clean code, error code if avalible
-def getData(code):
-    raise NotImplementedError
+# Returns a list of the status of the tube, in this order:
+# swage status, tension status, leak status, dark current status
+def getStatus(code):
+    #raise NotImplementedError
     #return 1 # for now, this is not implemented correctly
-    #try:
-    #    database = db.db()
-    #    tube1 = database.get_tube(code)
-    #    trecord = tube1.tension.get_record()
-    #    lrecord = tube1.leak.get_record()
-    #    drecord = tube1.dark_current.get_record()
-    #    return trecord.get
-    #except KeyError:
-    #    return [],[],[],[],[]
-    #except IndexError:
-    #    return [],[],[],[],[]
+    try:
+        database = db.db()
+        tube1 = database.get_tube(code)
+        sStatus = tube1.swage.status()
+        tStatus = tube1.tension.status()
+        lStatus = tube1.leak.status()
+        dStatus = tube1.dark_current.status()
+        return [sStatus, tStatus, lStatus, dStatus]
+    except KeyError:
+        return [Status.INCOMPLETE,Status.INCOMPLETE,Status.INCOMPLETE,Status.INCOMPLETE]
+
+# Returns a list of the data of the tube, in this order:
+# swage status, tension status, leak status, dark current status
+def getData(code):
+    #raise NotImplementedError
+    #return 1 # for now, this is not implemented correctly
+    data = [None, None, None, None]
+    try:
+        database = db.db()
+        tube1 = database.get_tube(code)
+        try:
+            tRecord_first = tube1.tension.get_record()
+            tRecord_last = tube1.tension.get_record()
+            data[0] = tRecord_first.date
+            data[1] = tRecord_last.tension
+            data[2] = tRecord_last.date
+            data[3] = tRecord_last.frequency
+        except:
+            data[0] = None
+        try:
+            data[4] = tube1.dark_current.get_record().dark_current
+        except:
+            data[4] = None
+        return data
+    except KeyError:
+        return data
+    
 
 # Returns booleans to indicate which tests failed
 def getFailedTests(code):
@@ -77,8 +105,12 @@ def checkCodes(barcodeList):
     text_derrors.config(state=tk.NORMAL)
     text_derrors.delete("1.0", tk.END)
     barcodes = textToList(barcodeList)
+
+    text_serrors.insert(tk.INSERT, 'Failed:\n')
+    text_terrors.insert(tk.INSERT, 'Failed:\n')
+    text_lerrors.insert(tk.INSERT, 'Failed:\n')
+    text_derrors.insert(tk.INSERT, 'Failed:\n')
     for tube in barcodes:
-        print(tube)
         sfail, tfail, lfail, dfail = getFailedTests(tube)
         if sfail:
             text_serrors.insert(tk.INSERT, tube)
@@ -88,6 +120,22 @@ def checkCodes(barcodeList):
             text_lerrors.insert(tk.INSERT, tube)
         if dfail:
             text_derrors.insert(tk.INSERT, tube)
+
+    text_serrors.insert(tk.INSERT, '\nIncomplete:\n')
+    text_terrors.insert(tk.INSERT, '\nIncomplete:\n')
+    text_lerrors.insert(tk.INSERT, '\nIncomplete:\n')
+    text_derrors.insert(tk.INSERT, '\nIncomplete:\n')
+    for tube in barcodes:
+        status = getStatus(tube)
+        if status[0] == Status.INCOMPLETE:
+            text_serrors.insert(tk.INSERT, tube)
+        if status[1] == Status.INCOMPLETE:
+            text_terrors.insert(tk.INSERT, tube)
+        if status[2] == Status.INCOMPLETE:
+            text_lerrors.insert(tk.INSERT, tube)
+        if status[3] == Status.INCOMPLETE:
+            text_derrors.insert(tk.INSERT, tube)
+
     text_serrors.config(state=tk.DISABLED)
     text_terrors.config(state=tk.DISABLED)
     text_lerrors.config(state=tk.DISABLED)
@@ -95,22 +143,18 @@ def checkCodes(barcodeList):
 
 # Write data for tubes to disk
 def write(name, barcodeList):
-    raise NotImplementedError
-    #filename = DROPBOX_DIR + "\\Exported_Tubes\\" + f"{datetime.now().strftime('%m.%d.%Y_%H_%M_%S.csv')}"
-    #filename  = "Exported_Tubes/" + f"{datetime.now().strftime('%m.%d.%Y_%H_%M_%S.csv')}"
-    #f = open(filename,'w')
+    #raise NotImplementedError
+    filename = DROPBOX_DIR + "\\Exported_Tubes\\" + f"{datetime.now().strftime('%m.%d.%Y_%H_%M_%S.csv')}"
+    filename  = "Exported_Tubes/" + f"{datetime.now().strftime('%m.%d.%Y_%H_%M_%S.csv')}"
+    f = open(filename,'w')
 
-    #f.write("Logger,Barcode,First Tension,Dark Current,Leak Rate\n")
-    #barcodes = textToList(barcodeList)
-    #badTubeList = []
-    #for code in barcodes:
-    #    if isTubeBad(code):
-    #        badTubeList.append(code)
-    #        f.write(f"{name},{code} ERROR, this tube has not passed a test\n")
-    #    else:
-    #        data = getData(database,code)
-    #        f.write(f"{name},{code},{data[0]},{data[1]},{data[2]}\n")
-    #return badTubeList
+    f.write("Logger,Barcode,First Tension Date,Final Tension Measurement,Dark Current\n")
+    barcodes = textToList(barcodeList)
+    badTubeList = []
+    for code in barcodes:
+        data = getData(database,code)
+        f.write(f"{name},{code},{data[0]},{data[1]},{data[2]}\n")
+    return badTubeList
 
 #######################################
 #####   Submit Codes to Export ########
