@@ -3,7 +3,7 @@
 #   Author(s): Paul Johnecheck
 #   Date Created: 26 April, 2021
 #
-#   Purpose: This file is the home of the test cases 
+#   Purpose: This file is the home of the test cases
 #   on all stations and record keeping withing the tube
 #
 #   Known Issues:
@@ -107,14 +107,14 @@ def test_tension_status():
     t = Tension()
     assert t.status() == Status.INCOMPLETE
     today = datetime.datetime.now()
-    fifteendays = datetime.timedelta(days=15)
+    days22 = datetime.timedelta(days=22)
     t.add_record(TensionRecord(tension=350, date=today))
     assert t.status() == Status.INCOMPLETE
-    t.add_record(TensionRecord(tension=350, date=today-fifteendays))
+    t.add_record(TensionRecord(tension=350, date=today-days22))
     assert t.status() == Status.PASS
 
     t2 = Tension()
-    t2.add_record(TensionRecord(tension=350, date=today-fifteendays))
+    t2.add_record(TensionRecord(tension=350, date=today-days22))
     assert t2.status() == Status.FAIL
 
 def test_enum():
@@ -122,4 +122,22 @@ def test_enum():
     from .status import Status
     swage = Swage()
     assert swage.status() is Status.INCOMPLETE
+
+def test_first_tension():
+    from .tension import Tension, TensionRecord
+    tStation = Tension()
+    assert not tStation.passed_first_tension()
+    tStation.add_record(TensionRecord(tension=350))
+    assert tStation.passed_first_tension()
+
+def test_second_tension():
+    from .tension import Tension, TensionRecord
+    import datetime
+    tStation = Tension()
+    assert not tStation.passed_second_tension()
+    tStation.add_record(TensionRecord(tension=350))
+    assert not tStation.passed_second_tension()
+    fifteendays = datetime.timedelta(days=15)
+    tStation.add_record(TensionRecord(tension=350, date=datetime.datetime.now()-fifteendays))
+    assert tStation.passed_second_tension()
 
