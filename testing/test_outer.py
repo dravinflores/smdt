@@ -256,3 +256,17 @@ def test_pickled_tube_status():
     assert tube1.get_ID() == "MSU01234"
     assert tube1.status() == Status.PASS
 
+def test_get_IDs():
+    from sMDT import db
+    from sMDT.data.status import Status
+    db_path = os.path.join(testing_dir, "database.s")
+    tubes = db.db(db_path=db_path)
+
+    dbman = db.db_manager(db_path=db_path, testing=False, archive=False)
+    dbman.wipe("confirm")
+    dbman.cleanup()
+    dbman.update(logging=False)
+
+    IDlist = tubes.get_IDs()
+    assert IDlist == ["MSU01234"]
+
