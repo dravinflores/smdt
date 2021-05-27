@@ -44,7 +44,8 @@ class Tube:
 
     def __str__(self):
         ret_str = ""
-        ret_str += self.get_ID() + '-' + self.status().name + '\n'
+        if self.get_ID():
+            ret_str += self.get_ID() + '-' + self.status().name + '\n'
         if len(self.m_comments) != 0:
             ret_str += "\nComments:\n"
         for comment in self.m_comments:
