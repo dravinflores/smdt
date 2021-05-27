@@ -10,7 +10,7 @@ Tension Station Object
 
 Member Functions|Parameters|Return|Description
 ---|---|---|---
-Constructor|None|None|Constructs the swage station object
+Constructor|None|None|Constructs the tension station object
 passed_first_tension()|None|Bool|Returns true if the tension station has any passing tension records.
 passed_second_tension()|None|Bool|Returns true if the tension station has a pair of passing tension records that were recorded at least a week apart.
 status()|None|Status|Returns Status.PASS if the tube has passed its second tension. If it has no records, or if the first passing record was less than two weeks ago, returns Status.INCOMPLETE. Otherwise, returns Status.FAIL
