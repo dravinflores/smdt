@@ -38,17 +38,18 @@ Usage
 See the [Station](station.md) documentation for more depth on how to use station objects. 
 ```python
 from sMDT.data import tension
-tension = tension.Tension()                                                #instantiate tension station object
-tension.set_record(tension.TensionRecord(tension=350, frequency=3.2)) #add 3 TensionRecords to the tension station, nonsense values for frequency
-tension.set_record(tension.TensionRecord(raw_length=345, frequency=8))
-tension.set_record(tension.TensionRecord(raw_length=370, frequency=5))
-print(tension.get_record("first"), tension.fail("last"))                   #print the first TensionRecord, and whether the tube fails based on the last record.
-```
+tStation = tension.Tension()                                                #instantiate tension station object
+tStation.set_record(tension.TensionRecord(tension=350, frequency=3.2))      #add 3 TensionRecords to the tension station, nonsense values for frequency
+tStation.set_record(tension.TensionRecord(raw_length=345, frequency=8))
+tStation.set_record(tension.TensionRecord(raw_length=370, frequency=5))
+print(tStation.get_record("first"))                                         #print the first TensionRecord, and whether the tube fails based on the last record.
+print(tStation.status())                                                    #Print this tube's status. 
+```   
 should output
 ```
 Tension: 350
 Frequency: 3.2
 Recorded on: [String representing datetime object of when the record was created]
-True
+Status.INCOMPLETE
 ```
-The last true indicates that the last measurement, with a tension of 370, is too high and therefore is a fail.
+This tube is incomplete because while it does not have two passing tensions that are two weeks apart, it's first passing test is within two weeks ago. (Unless it took a ***REALLY*** long time to run some of those lines)
