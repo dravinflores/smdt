@@ -27,3 +27,4 @@ Key | Description | Correct Lab State
 'archive'| Used to set the archive parameter of the db_manager class. For more info, see [db.py documentation](db.md). | true
 "loop"| if true, the database manager will loop forever running it's update function, at 5s intervals. Otherwise, it only gets ran once. | true
 "cleanup"| If true, it calls the cleanup function of db_manager and locks before it runs. | false
+"nopickler"| If true, the station_pickler will not be ran, meaning that the station's data directories will not feed into the database. Only pickled tube files already in the new_data directory will be added. | false
