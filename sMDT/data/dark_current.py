@@ -13,26 +13,13 @@
 #
 ###############################################################################
 from abc import ABC
-
-
-
-# Import Preparation block.
-# Currently only needed so the tests in the mains work with the current imports.
-import os
-import sys
-
-# Gets the path of the current file being executed.
-path = os.path.realpath(__file__)
-current_folder = os.path.dirname(os.path.abspath(__file__))
-
-# Adds the folder that file is in to the system path
-sys.path.append(current_folder)
-
-from station import Station
-from record import Record
-from status import Status
 from datetime import datetime
 import textwrap
+
+from .station import Station
+from .record import Record
+from .status import Status
+
 
 
 class DarkCurrentRecord(Record):
@@ -96,13 +83,3 @@ class DarkCurrent(Station, ABC):
         else:
             return Status.PASS
 
-
-
-
-if __name__ == "__main__":
-    dark_current = DarkCurrent()
-    dark_current.set_record(DarkCurrentRecord(15,  date=datetime.now()))
-    dark_current.set_record(DarkCurrentRecord(3,  date=datetime.now()))
-    # print(dark_current.get_record())
-    # print(dark_current.get_record("first"))
-    print(dark_current)

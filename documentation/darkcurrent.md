@@ -7,9 +7,12 @@ This module has two main classes, the DarkCurrent object, and the DarkCurrentRec
 
 DarkCurrent Station Object
 --------------------
-dark_current.DarkCurrent, the darkcurrent station object, does not do much. All it really does is inherit from [Station](station.md), where all the interesting code is. 
 
-It also provides the \_\_str\_\_ function for printing the station and all of it's records.
+Member Functions|Parameters|Return|Description
+---|---|---|---
+Constructor|None|None|Constructs the dark current station object
+status()|None|[Status](status.md)|Returns Status.INCOMPLETE if there is no records. If there are records, the last one is checked. If it is a failure based of it's fail() function, then this returns Status.FAIL. Otherwise, returns Status.PASS
+\_\_str\_\_()|None|string|Returns a string representation of the station, includes printing each of it's records.
 
 DarkCurrentRecord Object
 ------------------

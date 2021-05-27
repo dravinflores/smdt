@@ -12,24 +12,13 @@
 #
 ###############################################################################
 from abc import ABC
-
-
-
-# Import Preparation block.
-# Currently only needed so the tests in the mains work with the current imports.
-import os
-import sys
-
-# Gets the path of the current file being executed.
-DATA_DIR = os.path.dirname(os.path.abspath(__file__))
-# Adds the folder that file is in to the system path
-sys.path.append(DATA_DIR)
-
-from station import Station
-from status import Status
-from record import Record
 import datetime
 import textwrap
+
+from .station import Station
+from .status import Status
+from .record import Record
+
 
 
 class TensionRecord(Record):
@@ -111,9 +100,9 @@ class Tension(Station, ABC):
         else:
             for record in sorted(self.m_records, key=lambda i: i.date):
                 if not record.fail():
-                    two_weeks = datetime.timedelta(days=14)
+                    three_weeks = datetime.timedelta(days=21)
                     delta = datetime.datetime.now() - record.date
-                    if delta < two_weeks:
+                    if delta < three_weeks:
                         return Status.INCOMPLETE
                     else:
                         break
@@ -121,14 +110,3 @@ class Tension(Station, ABC):
 
     def fail(self):
         return self.status() == Status.FAIL
-
-
-
-
-if __name__ == "__main__":
-    tension = Tension()
-    tension.set_record(TensionRecord(15, 0.0005, datetime.datetime.now()))
-    tension.set_record(TensionRecord(3, 134.56, datetime.datetime.now()))
-    # print(tension.get_record())
-    # print(tension.get_record("first"))
-    print(tension)

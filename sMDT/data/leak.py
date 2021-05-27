@@ -12,26 +12,13 @@
 #
 ###############################################################################
 from abc import ABC
-
-
-
-# Import Preparation block.
-# Currently only needed so the tests in the mains work with the current imports.
-import os
-import sys
-
-# Gets the path of the current file being executed.
-path = os.path.realpath(__file__)
-current_folder = os.path.dirname(os.path.abspath(__file__))
-
-# Adds the folder that file is in to the system path
-sys.path.append(current_folder)
-
-from station import Station
-from status import Status
-from record import Record
 from datetime import datetime
 import textwrap
+
+from .station import Station
+from .status import Status
+from .record import Record
+
 
 
 class LeakRecord(Record):
@@ -91,10 +78,3 @@ class Leak(Station, ABC):
         else:
             return Status.PASS
 
-if __name__ == "__main__":
-    leak = Leak()
-    leak.set_record(LeakRecord(0.0001, datetime.now()))
-    leak.set_record(LeakRecord(3, datetime.now()))
-    # print(leak.get_record())
-    # print(leak.get_record("first"))
-    print(leak)

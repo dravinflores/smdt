@@ -7,9 +7,14 @@ This module has two main classes, the Tension object, and the TensionRecord obje
 
 Tension Station Object
 --------------------
-tension.Tension, the tension station object, does not do much. All it really does is inherit from [Station](station.md), where all the interesting code is. 
 
-It also provides the \_\_str\_\_ function for printing the station and all of it's records.
+Member Functions|Parameters|Return|Description
+---|---|---|---
+Constructor|None|None|Constructs the tension station object
+passed_first_tension()|None|Bool|Returns true if the tension station has any passing tension records.
+passed_second_tension()|None|Bool|Returns true if the tension station has a pair of passing tension records that were recorded at least a week apart.
+status()|None|Status|Returns Status.PASS if the tube has passed its second tension. If it has no records, or if the first passing record was less than two weeks ago, returns Status.INCOMPLETE. Otherwise, returns Status.FAIL
+fail()|None|bool|Returns True if this data indicates a failed tube. This is equivalent to status() == Status.FAIL.
 
 TensionRecord Object
 ------------------
@@ -28,24 +33,25 @@ Member Functions|Parameters|Return|Description
 ---|---|---|---
 Constructor|tension : float, frequency : float, date : datetime, user : string | TensionRecord object | Creates a record object with the specified data
 \_\_str\_\_()|None|string|Returns a string representation of the record
-fail()|None|bool|Returns True if this data indicates a failed tube. See above for description of the failure conditions.
+fail()|None|bool|Returns True if this data indicates a failed record. See above for the failure condition.
 
 Usage
 -----
 See the [Station](station.md) documentation for more depth on how to use station objects. 
 ```python
 from sMDT.data import tension
-tension = tension.Tension()                                                #instantiate tension station object
-tension.set_record(tension.TensionRecord(tension=350, frequency=3.2)) #add 3 TensionRecords to the tension station, nonsense values for frequency
-tension.set_record(tension.TensionRecord(raw_length=345, frequency=8))
-tension.set_record(tension.TensionRecord(raw_length=370, frequency=5))
-print(tension.get_record("first"), tension.fail("last"))                   #print the first TensionRecord, and whether the tube fails based on the last record.
-```
+tStation = tension.Tension()                                                #instantiate tension station object
+tStation.set_record(tension.TensionRecord(tension=350, frequency=3.2))      #add 3 TensionRecords to the tension station, nonsense values for frequency
+tStation.set_record(tension.TensionRecord(raw_length=345, frequency=8))
+tStation.set_record(tension.TensionRecord(raw_length=370, frequency=5))
+print(tStation.get_record("first"))                                         #print the first TensionRecord, and whether the tube fails based on the last record.
+print(tStation.status())                                                    #Print this tube's status. 
+```   
 should output
 ```
 Tension: 350
 Frequency: 3.2
 Recorded on: [String representing datetime object of when the record was created]
-True
+Status.INCOMPLETE
 ```
-The last true indicates that the last measurement, with a tension of 370, is too high and therefore is a fail.
+This tube is incomplete because while it does not have two passing tensions that are two weeks apart, it's first passing test is within two weeks ago. (Unless it took a ***REALLY*** long time to run some of those lines)

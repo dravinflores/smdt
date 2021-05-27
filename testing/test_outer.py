@@ -133,7 +133,7 @@ def test_comprehensive():
         tube1 = tube.Tube()
         for j in range(i+1):
             tube1.tension.add_record(tension.TensionRecord(j))
-        tube1.m_tube_id = id + str(i)
+        tube1.set_ID(id + str(i))
         tubes.add_tube(tube1)
 
     dbman.update(logging=False)
@@ -154,7 +154,7 @@ def test_db_simple():
     dbman.wipe('confirm')
     tube1 = tube.Tube()
     id = "MSU000001"
-    tube1.m_tube_id = id
+    tube1.set_ID(id)
     tube1.tension.add_record(tension.TensionRecord(1.5))
 
     tubes.add_tube(tube1)
@@ -165,6 +165,7 @@ def test_db_simple():
 
 def test_swage_pickler():
     from sMDT import legacy,db
+    from sMDT.data.status import Status
     import shelve
     db_path = os.path.join(testing_dir, "database.s")
     tubes = db.db(db_path=db_path)
@@ -175,14 +176,17 @@ def test_swage_pickler():
     dbman.update(logging=False)
 
 
-    tube1 = tubes.get_tube("MSU01447")
-    assert tube1.m_tube_id == "MSU01447"
+    tube1 = tubes.get_tube("MSU01234")
+    assert tube1.get_ID() == "MSU01234"
     assert tube1.swage.get_record().swage_length == 0.07
     assert tube1.swage.get_record().raw_length == -9.71
+    assert tube1.swage.status() == Status.PASS
+
 
 def test_tension_pickler():
-    from sMDT import legacy,db
-    import shelve
+    from sMDT import db
+    from sMDT.data.status import Status
+
     db_path = os.path.join(testing_dir, "database.s")
     tubes = db.db(db_path=db_path)
 
@@ -192,14 +196,16 @@ def test_tension_pickler():
     dbman.update(logging=False)
 
 
-    tube1 = tubes.get_tube("MSU02458")
-    assert tube1.m_tube_id == "MSU02458"
+    tube1 = tubes.get_tube("MSU01234")
+    assert tube1.get_ID() == "MSU01234"
     assert tube1.tension.get_record().tension == 355.448134
     assert tube1.tension.get_record().frequency == 95.0
+    assert tube1.tension.status() == Status.PASS
 
 def test_leak_pickler():
     from sMDT import legacy,db
-    import shelve
+    from sMDT.data.status import Status
+
     db_path = os.path.join(testing_dir, "database.s")
     tubes = db.db(db_path=db_path)
 
@@ -209,14 +215,14 @@ def test_leak_pickler():
     dbman.update(logging=False)
 
 
-    tube1 = tubes.get_tube("MSU03026")
-    assert tube1.m_tube_id == "MSU03026"
+    tube1 = tubes.get_tube("MSU01234")
+    assert tube1.get_ID() == "MSU01234"
     assert tube1.leak.get_record().leak_rate == 1.33e-06
     assert not tube1.leak.fail()
+    assert tube1.leak.status() == Status.PASS
 
 def test_darkcurrent_pickler():
-    from sMDT import legacy,db
-    import shelve
+    from sMDT import db
     db_path = os.path.join(testing_dir, "database.s")
     tubes = db.db(db_path=db_path)
 
@@ -225,10 +231,42 @@ def test_darkcurrent_pickler():
     dbman.cleanup()
     dbman.update(logging=False)
 
+    tube1 = tubes.get_tube("MSU01234")
+    assert tube1.get_ID() == "MSU01234"
+    assert tube1.dark_current.get_record().dark_current == 0
 
-    tube1 = tubes.get_tube("MSU02673")
-    assert tube1.m_tube_id == "MSU02673"
-    assert tube1.dark_current.get_record().dark_current == -.15
+def test_tube_INCOMPLETE_status():
+    from sMDT import tube
+    from sMDT.data.status import Status
+    tube1 = tube.Tube()
+    assert tube1.status() == Status.INCOMPLETE
 
+def test_pickled_tube_status():
+    from sMDT import db
+    from sMDT.data.status import Status
+    db_path = os.path.join(testing_dir, "database.s")
+    tubes = db.db(db_path=db_path)
 
+    dbman = db.db_manager(db_path=db_path, testing=False, archive=False)
+    dbman.wipe("confirm")
+    dbman.cleanup()
+    dbman.update(logging=False)
+
+    tube1 = tubes.get_tube("MSU01234")
+    assert tube1.get_ID() == "MSU01234"
+    assert tube1.status() == Status.PASS
+
+def test_get_IDs():
+    from sMDT import db
+    from sMDT.data.status import Status
+    db_path = os.path.join(testing_dir, "database.s")
+    tubes = db.db(db_path=db_path)
+
+    dbman = db.db_manager(db_path=db_path, testing=False, archive=False)
+    dbman.wipe("confirm")
+    dbman.cleanup()
+    dbman.update(logging=False)
+
+    IDlist = tubes.get_IDs()
+    assert IDlist == ["MSU01234"]
 

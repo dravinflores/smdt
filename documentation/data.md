@@ -18,6 +18,7 @@ Modules:
 
 * [dark_current](darkcurrent.md) -Dark current station and dark current record
  
+* [status](status.md) -Simple enumerated status, PASS, FAIL, INCOMPLETE
 
 Usage
 -----

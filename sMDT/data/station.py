@@ -21,19 +21,6 @@ modes = {
 
 
 
-# Import Preparation block.
-# Currently only needed so the tests in the mains work with the current imports.
-import os
-import sys
-
-# Gets the path of the current file being executed.
-path = os.path.realpath(__file__)
-current_folder = os.path.dirname(os.path.abspath(__file__))
-
-# Adds the folder that file is in to the system path
-sys.path.append(current_folder)
-
-
 class Station:
     """
     Abstract class representing a station that will record data on a tube
@@ -81,4 +68,7 @@ class Station:
 
     def visited(self):
         return len(self.m_records) != 0
+
+    def status(self):
+        raise NotImplementedError
 

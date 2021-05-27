@@ -12,22 +12,12 @@
 #
 ###############################################################################
 
-# Import Preparation block.
-# Currently only needed so the tests in the mains work with the current imports.
-import os
-import sys
 
-# Gets the path of the current file being executed.
-sMDT_DIR = os.path.dirname(os.path.abspath(__file__))
-
-# Adds the folder that file is in to the system path
-sys.path.append(sMDT_DIR)
-
-from data.swage import Swage
-from data.tension import Tension
-from data.leak import Leak
-from data.dark_current import DarkCurrent
-from data.status import Status
+from .data.swage import Swage
+from .data.tension import Tension
+from .data.leak import Leak
+from .data.dark_current import DarkCurrent
+from .data.status import Status
 
 
 class Tube:
@@ -39,6 +29,7 @@ class Tube:
         self.leak = Leak()
         self.dark_current = DarkCurrent()
         self.legacy_data = dict()
+        self.comment_fail = False
 
     def __add__(self, other):
         ret = Tube()
@@ -52,19 +43,28 @@ class Tube:
         return ret
 
     def __str__(self):
-        n = self.getID() + '\n'
-        a = self.swage.__str__()
-        b = self.tension.__str__()
-        c = self.leak.__str__()
-        d = self.dark_current.__str__()
-
-        ret_str = n + a + b + c + d
-        ret_str = str(ret_str)
+        ret_str = ""
+        ret_str += self.getID() + '-' + self.status().name + '\n'
+        if len(self.m_comments) != 0:
+            ret_str += "\nComments:\n"
+        for comment in self.m_comments:
+            ret_str += comment + '\n'
+        else:
+            ret_str += '\n'
+        if self.comment_fail:
+            ret_str += "MARKED AS FAIL BY COMMENT"
+        ret_str += self.swage.__str__()
+        ret_str += self.tension.__str__()
+        ret_str += self.leak.__str__()
+        ret_str += self.dark_current.__str__()
 
         return ret_str
 
-    def getID(self):
+    def get_ID(self):
         return self.m_tube_id
+
+    def set_ID(self, ID):
+        self.m_tube_id = ID
 
     def get_comments(self):
         return self.m_comments
@@ -73,20 +73,17 @@ class Tube:
         self.m_comments.append(comment)
 
     def fail(self):
-        return any([x.fail() for x in [self.swage,self.leak,self.tension,self.dark_current]])
+        return any([x.fail() for x in [self.swage,self.leak,self.tension,self.dark_current]]) or self.comment_fail
 
     def status(self):
         stations = [self.swage, self.tension, self.leak, self.dark_current]
-        if any([i.status() == Status.FAIL for i in stations]):
+        if any([i.status() == Status.FAIL for i in stations]) or self.comment_fail:
             return Status.FAIL
         elif any([i.status() == Status.INCOMPLETE for i in stations]):
             return Status.INCOMPLETE
         elif all([i.status() == Status.PASS for i in stations]):
             return Status.PASS
         else:
-            raise RuntimeError #this should be impossible if the station status are implemented correctly
+            raise RuntimeError #this should be impossible if the station status are properly mutually exclusive
 
 
-if __name__ == '__main__':
-    a = Tube()
-    print(a)

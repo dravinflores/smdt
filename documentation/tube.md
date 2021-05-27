@@ -10,8 +10,8 @@ Members
 
 Member Variable | Type | Description
 ---|---|---
-m_tube_id | string | represents the ID number/string of a tube.
-m_comments | list[string] | a list of comments associated with the tube
+m_tube_id | string | represents the ID number/string of a tube. Use getters and setters rather than direct access.
+m_comments | list[string] | a list of comments associated with the tube.  Use getters and setters rather than direct access.
 swage | [SwageStation](swage.md) | Swage Station object
 leak | [LeakStation](leak.md) | Leak Station object
 tension | [TensionStation](tension.md) | Tension Station Object
@@ -23,9 +23,12 @@ Member Function | Parameters | Return Value | Description
 Constructor | None | None | Constructs the tube object. Empty with no data or ID, must be set by user. 
 new_comment(comment)| comment : string | None | Adds the new comment to the list of comments
 get_comments() | None | list[string] | Returns the list of comments
+get_ID(),set_ID(ID) | None, ID | string, None | Simple getter and setter for the tube's ID.
 fail() | None | boolean | Returns true if the tube is a failure. A tube is considereed a failure if any of it's station's fail() functions return true. The stations fail functions just use the default mode. 
+status() | None | [Status Enum](status.md) | Returns an Enum representing the status of a tube. A tube is either a Status.PASS, a Status.FAIL, or a Status.INCOMPLETE. status() will return Status.FAIL IF AND ONLY IF fail() returns True.  
 \_\_str\_\_() | None | string | returns string representation of the tube.
 \_\_add\_\_(tube) | tube : Tube | Tube | operator override for '+' operator. You shouldn't use this, it exists so tube + tube is meaninful when adding to the database. 
+
 
 Usage
 -----

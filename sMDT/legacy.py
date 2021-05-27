@@ -14,26 +14,18 @@
 #
 ###############################################################################
 
-# Import Preparation block.
-# Currently only needed so the tests in the mains work with the current imports.
+
 import os
 import sys
-
-sMDT_DIR = os.path.dirname(os.path.abspath(__file__))
-containing_dir = os.path.dirname(sMDT_DIR)
-sys.path.append(sMDT_DIR)
-
-from tube import Tube
 import pickle
-from pathlib import Path
 import datetime
 import random
 
-import locks
-from data.swage import Swage, SwageRecord
-from data.tension import Tension, TensionRecord
-from data.leak import Leak, LeakRecord
-from data.dark_current import DarkCurrent, DarkCurrentRecord
+from .tube import Tube
+from .data.swage import Swage, SwageRecord
+from .data.tension import Tension, TensionRecord
+from .data.leak import Leak, LeakRecord
+from .data.dark_current import DarkCurrent, DarkCurrentRecord
 
 
 class station_pickler:
@@ -42,6 +34,8 @@ class station_pickler:
     stations. This class will take whatever data is generated in the form of a csv file, and will read it into a sMDT
     tube object. It will then pickle the object into the standard specified for new data for the db manager.
     '''
+
+    sMDT_DIR = os.path.dirname(os.path.abspath(__file__))
 
     def __init__(self, path, archive=True, logging=True):
         '''
@@ -71,7 +65,7 @@ class station_pickler:
         swage_directory = os.path.join(self.path, "SwagerStation")
         archive_directory = os.path.join(swage_directory, "archive")
         CSV_directory = os.path.join(swage_directory, "SwagerData")
-        new_data_directory = os.path.join(sMDT_DIR, "new_data")
+        new_data_directory = os.path.join(self.sMDT_DIR, "new_data")
 
         for directory in [swage_directory, CSV_directory, archive_directory, new_data_directory]:
             if not os.path.isdir(directory):
@@ -129,8 +123,8 @@ class station_pickler:
                             sDate = None
 
                     tube = Tube()
-                    tube.m_tube_id = barcode
-                    tube.m_tube_id = barcode
+                    tube.set_ID(barcode)
+                    tube.set_ID(barcode)
                     tube.new_comment(comment)
                     tube.swage.add_record(SwageRecord(raw_length=raw_length,
                                                       swage_length=swage_length,
@@ -166,7 +160,7 @@ class station_pickler:
         tension_directory = os.path.join(self.path, "TensionStation")
         archive_directory = os.path.join(tension_directory, "archive")
         CSV_directory = os.path.join(tension_directory, "output")
-        new_data_directory = os.path.join(sMDT_DIR, "new_data")
+        new_data_directory = os.path.join(self.sMDT_DIR, "new_data")
 
         for directory in [tension_directory, CSV_directory, archive_directory, new_data_directory]:
             if not os.path.isdir(directory):
@@ -212,9 +206,7 @@ class station_pickler:
 
                     # Create tube instance
                     tube = Tube()
-                    tube.m_tube_id = barcode
-                    if barcode == "MSU02345":
-                        print('break')
+                    tube.set_ID(barcode)
 
                     if self.logging:
                         print("Pickling tension data for tube", barcode)
@@ -247,7 +239,7 @@ class station_pickler:
         CSV_directory = os.path.join(self.path, 'LeakDetector')
         archive_directory = os.path.join(leak_directory, "archive")
 
-        new_data_directory = os.path.join(sMDT_DIR, "new_data")
+        new_data_directory = os.path.join(self.sMDT_DIR, "new_data")
 
         for directory in [leak_directory, CSV_directory, archive_directory, new_data_directory]:
             if not os.path.isdir(directory):
@@ -289,7 +281,7 @@ class station_pickler:
 
                     # Create tube instance
                     tube = Tube()
-                    tube.m_tube_id = barcode
+                    tube.set_ID(barcode)
                     tube.leak.add_record(LeakRecord(leak_rate=leak,
                                                     date=sDate, user=user))
 
@@ -321,7 +313,7 @@ class station_pickler:
         CSV_directory = os.path.join(self.path, 'DarkCurrent', '3015V Dark Current')
         archive_directory = os.path.join(darkcurrent_directory, "archive")
 
-        new_data_directory = os.path.join(sMDT_DIR, "new_data")
+        new_data_directory = os.path.join(self.sMDT_DIR, "new_data")
 
         for directory in [darkcurrent_directory, CSV_directory, archive_directory, new_data_directory]:
             if not os.path.isdir(directory):
@@ -332,7 +324,7 @@ class station_pickler:
 
                 tube = Tube()
                 barcode = filename.split('.')[0]
-                tube.m_tube_id = barcode
+                tube.set_ID(barcode)
                 if self.archive:
                     archive_file = open(os.path.join(archive_directory, filename), 'a')
 
