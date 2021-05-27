@@ -7,9 +7,13 @@ This module has two main classes, the Leak object, and the LeakRecord object. Th
 
 Leak Station Object
 --------------------
-leak.Leak, the leak station object, does not do much. All it really does is inherit from [Station](station.md), where all the interesting code is. 
 
-It also provides the \_\_str\_\_ function for printing the station and all of it's records.
+Member Functions|Parameters|Return|Description
+---|---|---|---
+Constructor|None|None|Constructs the leak station object
+status()|None|[Status](status.md)|Returns Status.INCOMPLETE if there is no records. If there are records, the last one is checked. If it is a failure based of it's fail() function, then this returns Status.FAIL. Otherwise, returns Status.PASS
+fail()|None|bool|Returns True if this data indicates a failed tube. Equivalent to status() == Status.FAIL
+\_\_str\_\_()|None|string|Returns a string representation of the station, includes printing each of it's records.
 
 LeakRecord Object
 ------------------
