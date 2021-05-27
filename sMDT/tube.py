@@ -60,7 +60,7 @@ class Tube:
 
         return ret_str
 
-    def getID(self):
+    def get_ID(self):
         return self.m_tube_id
 
     def set_ID(self, ID):

@@ -168,13 +168,13 @@ class db_manager():
                     new_data_file.close()  # close the file
 
                     if logging:
-                        print("Loading tube", tube.getID(), "into database.")
+                        print("Loading tube", tube.get_ID(), "into database.")
 
-                    if tube.getID() in tubes:  # add the tubes to the database
-                        temp = tubes[tube.getID()] + tube
-                        tubes[tube.getID()] = temp
+                    if tube.get_ID() in tubes:  # add the tubes to the database
+                        temp = tubes[tube.get_ID()] + tube
+                        tubes[tube.get_ID()] = temp
                     else:
-                        tubes[tube.getID()] = tube
+                        tubes[tube.get_ID()] = tube
                     os.remove(os.path.join(new_data_path, filename))  # delete the file that we added the tube from
                     count += 1
             t = time.localtime()
