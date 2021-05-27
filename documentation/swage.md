@@ -11,6 +11,13 @@ swage.Swage, the swage station object, does not do much. All it really does is i
 
 It also provides the \_\_str\_\_ function for printing the station and all of it's records.
 
+Member Functions|Parameters|Return|Description
+---|---|---|---
+Constructor|None|None|Constructs the swage station object
+status()|None|[Status](status.md)|Returns Status.INCOMPLETE if there is no records. If there is a record with no error codes and within the constraints, returns Status.PASS. Otherwise, returns Status.FAIL
+fail()|None|bool|Returns True if this data indicates a failed tube. This is equivalent to status() == Status.FAIL.
+\_\_str\_\_()|None|string|Returns a string representation of the station
+
 SwageRecord Object
 ------------------
 swage.SwageRecord is the [Record](record.md) object that stores a single instance of data from the swage station. 
@@ -27,9 +34,9 @@ date | datetime | the datetime object representing when this was recorded. By de
 Member Functions|Parameters|Return|Description
 ---|---|---|---
 Constructor|raw_length : float, swage_length : float,clean_code : string, error_code : string, date : datetime, user : string| SwageRecord object | Creates a record object with the specified data
-status()|None|[Status](status.md)|Returns Status.INCOMPLETE if there is no records. If there is a record with no error codes and within the constraints, returns Status.PASS. Otherwise, returns Status.FAIL
 \_\_str\_\_()|None|string|Returns a string representation of the record
-fail()|None|bool|Returns True if this data indicates a failed tube. This is equivalent to status() == Status.FAIL.
+fail()|None|bool|Returns True if this data indicates a failed tube. See above for the failure condition. 
+
 Usage
 -----
 See the [Station](station.md) documentation for more depth on how to use station objects. 
