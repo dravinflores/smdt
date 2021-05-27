@@ -184,3 +184,8 @@ def test_locks():
     assert lock.is_locked()
     del lock2
     assert not lock.is_locked()
+
+def test_tube_str():
+    from .tube import Tube
+    tube1 = Tube()
+    str(tube1)
