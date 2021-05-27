@@ -78,10 +78,3 @@ class Leak(Station, ABC):
         else:
             return Status.PASS
 
-if __name__ == "__main__":
-    leak = Leak()
-    leak.set_record(LeakRecord(0.0001, datetime.now()))
-    leak.set_record(LeakRecord(3, datetime.now()))
-    # print(leak.get_record())
-    # print(leak.get_record("first"))
-    print(leak)

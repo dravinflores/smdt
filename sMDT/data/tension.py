@@ -110,14 +110,3 @@ class Tension(Station, ABC):
 
     def fail(self):
         return self.status() == Status.FAIL
-
-
-
-
-if __name__ == "__main__":
-    tension = Tension()
-    tension.set_record(TensionRecord(15, 0.0005, datetime.datetime.now()))
-    tension.set_record(TensionRecord(3, 134.56, datetime.datetime.now()))
-    # print(tension.get_record())
-    # print(tension.get_record("first"))
-    print(tension)

@@ -121,11 +121,5 @@ def test_enum():
     from .swage import Swage
     from .status import Status
     swage = Swage()
-    print(swage.status())
-    print(Status.INCOMPLETE)
-    print(swage.status() is Status.INCOMPLETE)
+    assert swage.status() is Status.INCOMPLETE
 
-if __name__ == "__main__":
-    test_modes_derived_station()
-    test_new_mode()
-    test_base_station()

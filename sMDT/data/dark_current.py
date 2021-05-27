@@ -83,13 +83,3 @@ class DarkCurrent(Station, ABC):
         else:
             return Status.PASS
 
-
-
-
-if __name__ == "__main__":
-    dark_current = DarkCurrent()
-    dark_current.set_record(DarkCurrentRecord(15,  date=datetime.now()))
-    dark_current.set_record(DarkCurrentRecord(3,  date=datetime.now()))
-    # print(dark_current.get_record())
-    # print(dark_current.get_record("first"))
-    print(dark_current)
