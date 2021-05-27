@@ -100,9 +100,9 @@ class Tension(Station, ABC):
         else:
             for record in sorted(self.m_records, key=lambda i: i.date):
                 if not record.fail():
-                    two_weeks = datetime.timedelta(days=14)
+                    three_weeks = datetime.timedelta(days=21)
                     delta = datetime.datetime.now() - record.date
-                    if delta < two_weeks:
+                    if delta < three_weeks:
                         return Status.INCOMPLETE
                     else:
                         break
