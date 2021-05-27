@@ -14,14 +14,17 @@ It also provides the \_\_str\_\_ function for printing the station and all of it
 Member Functions|Parameters|Return|Description
 ---|---|---|---
 Constructor|None|None|Constructs the swage station object
-status()|None|[Status](status.md)|Returns Status.INCOMPLETE if there is no records. If there is a record with no error codes and within the constraints, returns Status.PASS. Otherwise, returns Status.FAIL
-fail()|None|bool|Returns True if this data indicates a failed tube. This is equivalent to status() == Status.FAIL.
+status()|None|[Status](status.md)|Returns Status.INCOMPLETE if there is no records. If there are records, the last one is checked. If it is a failure based of it's fail() function, then this returns Status.FAIl. Otherwise, returns Status.PASS
 \_\_str\_\_()|None|string|Returns a string representation of the station
 
 SwageRecord Object
 ------------------
 swage.SwageRecord is the [Record](record.md) object that stores a single instance of data from the swage station. 
 It's mostly a data container, but provides useful functions for printing and fail testing. 
+
+Failure condition: A SwageRecord is considered a failure if raw_length is outside the range (0,2000) cm, or if the swage_length is outside the same range.
+Any error code besides 0 also will cause this record to indicate a failure. 
+The failure condition may not be accurate, #TODO
 
 Member variables|Units|Description
 ---|---|---
