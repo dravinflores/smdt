@@ -21,6 +21,10 @@ Station folders | For each station, there is one or two folders associated with 
 Export_tubes.py | This gui allows the user to scan in a set of tubes that will be shipped to UofM, and the program will output particular data we have on them that is of use to UofM.
 errors.txt | This file is a text record of files that the station_pickler had issues with. 
 
+Data Flow
+---------
+![](https://imgur.com/QmbBLGk)
+
 Documentation
 -------------
 Be sure to read the [documentation for the sMDT package](documentation/sMDT.md) before working with the sMDT computer systems.
