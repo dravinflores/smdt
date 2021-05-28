@@ -1,7 +1,7 @@
 {
   "wipe": true,
-  "archive": true,
-  "loop": true,
+  "archive": false,
+  "loop": false,
   "cleanup":  true,
-  "nopickler": true
+  "nopickler": false
 }
