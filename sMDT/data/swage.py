@@ -85,13 +85,11 @@ class Swage(Station, ABC):
 
         # We want to print out each record.
         for record in self.m_records:
-            b += record.__str__() + '\n\n'
+            b += record.__str__()
 
-        # We want to get rid of the last '\n' in the string.
-        b = b[0:-1]
 
         # We want to have the return string indent each record, for viewing ease.
-        return a + textwrap.indent(b, '\t')
+        return a + textwrap.indent(b, '\t') + '\n'
     
     def fail(self):
         if not self.visited():
