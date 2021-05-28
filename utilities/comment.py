@@ -17,6 +17,7 @@
 
 import os
 import sys
+import datetime
 
 DROPBOX_DIR = os.path.dirname(os.path.dirname(__file__))
 sys.path.append(DROPBOX_DIR)
@@ -51,7 +52,7 @@ if __name__ == "__main__":
                 if YN_answer_loop("Does this comment mean the tube is a failure? (Y/N)\n"):
                     tube2.comment_fail = True
                 user = input("Enter your name:\n")
-                tube2.new_comment((comment, user))
+                tube2.new_comment((comment, user, datetime.datetime.now()))
                 database.add_tube(tube2)
 
                 input("Comment added.\nPress enter to continue...")
