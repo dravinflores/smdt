@@ -35,7 +35,7 @@ class LeakRecord(Record):
         self.date = date
 
     def __str__(self):
-        a = f"Leak Rate: {self.leak_rate}\n"
+        a = f"Leak Rate: {self.leak_rate} mbar l/s\n"
         b = f"Recorded on: {self.date}\n"
         c = f"Recorded by: {self.user}\n\n"
         return a + b + c

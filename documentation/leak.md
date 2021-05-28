@@ -20,11 +20,11 @@ LeakRecord Object
 leak.LeakRecord is the [Record](record.md) object that stores a single instance of data from the leak station. 
 It's mostly a data container, but provides useful functions for printing and fail testing. 
 
-Failure condition: A LeakRecord is considered a failure if the leak rate is greater than `5.0E-5`
+Failure condition: A LeakRecord is considered a failure if the leak rate is greater than `5.0E-5` mbar l/s
 
 Member variables|Units|Description
 ---|---|---
-leak_rate | #TODO | The measured leak rate of the tube.
+leak_rate | mbar l/s | The measured leak rate of the tube.
 date | datetime | the datetime object representing when this was recorded. By default, it's datetime.now() at the point of record creation
 
 Member Functions|Parameters|Return|Description
