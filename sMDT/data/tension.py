@@ -60,7 +60,7 @@ class Tension(Station, ABC):
         super().__init__()
 
     def __str__(self):
-        a = "Tension Data:\n"
+        a = "Tension Data: " + self.status().name + "\n"
         b = ""
 
         # We want to print out each record.

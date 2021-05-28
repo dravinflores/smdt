@@ -56,7 +56,7 @@ class DarkCurrent(Station, ABC):
         super().__init__()
 
     def __str__(self):
-        a = "Dark Current Data:\n"
+        a = "Dark Current Data:  " + self.status().name + "\n"
         b = ""
 
         # We want to print out each record.

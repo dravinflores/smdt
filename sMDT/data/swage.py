@@ -80,7 +80,7 @@ class Swage(Station, ABC):
         super().__init__()
 
     def __str__(self):
-        a = "Swage Data:\n"
+        a = "Swage Data: " + self.status().name + "\n"
         b = ""
 
         # We want to print out each record.

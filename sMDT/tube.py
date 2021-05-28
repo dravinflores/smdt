@@ -50,8 +50,8 @@ class Tube:
             ret_str += "\nComments:\n"
         for comment in self.m_comments:
             ret_str += comment + '\n'
-        else:
-            ret_str += '\n'
+        #else:
+            #ret_str += '\n'
         if self.comment_fail:
             ret_str += "MARKED AS FAIL BY COMMENT"
         ret_str += self.swage.__str__()
