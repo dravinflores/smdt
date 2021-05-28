@@ -50,7 +50,7 @@ def write(code, lengths, cleanCode, errorCode, name, endplugcode):
     tube1 = tube.Tube()
     tube1.set_ID(code)
     if comment:
-        tube1.new_comment(comment)
+        tube1.new_comment((comment, name))
     tube1.swage.add_record(swage.SwageRecord(raw_length=float(lengths[0]), swage_length=float(lengths[1]), clean_code=cleanCode, error_code=errorCode, user=name))
     if endplugcode == "Munich":
         tube1.legacy_data['is_munich'] = True

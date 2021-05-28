@@ -15,7 +15,6 @@
 ###############################################################################
 
 
-
 import os
 import sys
 
@@ -23,6 +22,7 @@ DROPBOX_DIR = os.path.dirname(os.path.dirname(__file__))
 sys.path.append(DROPBOX_DIR)
 
 from sMDT import db, tube
+
 
 def YN_answer_loop(string):
     """
@@ -34,6 +34,7 @@ def YN_answer_loop(string):
         print("Answer not of the form (Y/N).")
         answer = input(string)
     return answer.lower() == 'y'
+
 
 if __name__ == "__main__":
     database = db.db()
@@ -49,12 +50,16 @@ if __name__ == "__main__":
                 tube2.set_ID(tubeID)
                 if YN_answer_loop("Does this comment mean the tube is a failure? (Y/N)\n"):
                     tube2.comment_fail = True
-                tube2.new_comment(comment)
+                user = input("Enter your name:\n")
+                tube2.new_comment((comment, user))
                 database.add_tube(tube2)
 
-        input("Goodbye!\nPress any key to continue...")
-
+                input("Comment added.\nPress enter to continue...")
+            else:
+                input("\nPress enter to continue...")
+        else:
+            input("\nPress enter to continue...")
 
 
     except KeyError:
-        input("No tube with that ID found.\nPress any key to continue...")
+        input("No tube with that ID found.\nPress enter to continue...")

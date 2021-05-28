@@ -118,14 +118,15 @@ class station_pickler:
                         cCode = None
                         # Swager date was stored in the filename in this version
                         try:
-                            sDate = datetime.datetime.strptime(filename, '%m.%d.%Y_%H_%M_%S.csv')
+                            sDate = datetime.datetime.strptime(filename, '%d.%m.%Y_%H_%M_%S.csv')
                         except ValueError:
                             sDate = None
 
                     tube = Tube()
                     tube.set_ID(barcode)
                     tube.set_ID(barcode)
-                    tube.new_comment(comment)
+                    if comment:
+                        tube.new_comment((comment, user))
                     tube.swage.add_record(SwageRecord(raw_length=raw_length,
                                                       swage_length=swage_length,
                                                       clean_code=cCode,
@@ -339,7 +340,7 @@ class station_pickler:
                     elif len(line) == 3:
                         current = float(line[0])
                         date = line[1]
-                        voltage = line[2] # Not stored currently
+                        voltage = line[2]  # Not stored currently
                     # Report to terminal unknown formats
                     else:
                         if self.logging:

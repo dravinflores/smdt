@@ -48,10 +48,10 @@ class Tube:
             ret_str += self.get_ID() + '-' + self.status().name + '\n'
         if len(self.m_comments) != 0:
             ret_str += "\nComments:\n"
-        for comment in self.m_comments:
-            ret_str += comment + '\n'
-        #else:
-            #ret_str += '\n'
+        for comment, user in self.m_comments:
+            ret_str += comment + " -" + user + '\n'
+        else:
+            ret_str += "\n"
         if self.comment_fail:
             ret_str += "MARKED AS FAIL BY COMMENT"
         ret_str += self.swage.__str__()
@@ -74,7 +74,7 @@ class Tube:
         self.m_comments.append(comment)
 
     def fail(self):
-        return any([x.fail() for x in [self.swage,self.leak,self.tension,self.dark_current]]) or self.comment_fail
+        return any([x.fail() for x in [self.swage, self.leak, self.tension, self.dark_current]]) or self.comment_fail
 
     def status(self):
         stations = [self.swage, self.tension, self.leak, self.dark_current]
@@ -85,6 +85,4 @@ class Tube:
         elif all([i.status() == Status.PASS for i in stations]):
             return Status.PASS
         else:
-            raise RuntimeError #this should be impossible if the station status are properly mutually exclusive
-
-
+            raise RuntimeError  # this should be impossible if the station status are properly mutually exclusive
