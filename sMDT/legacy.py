@@ -299,8 +299,8 @@ class station_pickler:
                         pickle.dump(tube, f)
                     # file_lock.unlock()
 
-        if self.archive:
-            os.remove(os.path.join(CSV_directory, filename))
+                if self.archive:
+                    os.remove(os.path.join(CSV_directory, filename))
 
     '''
     This is the dark current pickler function that will pickle every dark current csv file 
