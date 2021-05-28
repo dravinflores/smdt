@@ -19,7 +19,7 @@ DarkCurrentRecord Object
 dark_current.DarkCurrentRecord is the [Record](record.md) object that stores a single instance of data from the darkcurrent station. 
 It's mostly a data container, but provides useful functions for printing and fail testing. 
 
-Failure condition: A DarkCurrentRecord is considered a failure if darkcurrent is greater than 1 nA.
+Failure condition: A DarkCurrentRecord is considered a failure if darkcurrent is greater than 2 nA.
 
 Member variables|Units|Description
 ---|---|---
