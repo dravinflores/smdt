@@ -86,32 +86,32 @@ class station_pickler:
                         self.error_files['Swage'].add(filename)
                         continue
                     if len(line) == 9:
-                        barcode = line[0].replace('\r\n', '')
+                        barcode = line[0].replace('\r', '').replace('\n', '')
                         raw_length = float(line[1]) if line[1] != "" else None
                         swage_length = float(line[2]) if line[2] != "" else None
                         sDate = datetime.datetime.strptime(line[3], '%m.%d.%Y_%H_%M_%S')
                         cCode = line[4]
                         eCode = line[5]
                         comment = line[6]
-                        user = line[7].replace('\r\n', '')
+                        user = line[7].replace('\r', '').replace('\n', '')
 
                         endplug_type = line[8]
 
                     # An earlier version when endplug type wasn't recorded
                     elif len(line) == 8:
-                        barcode = line[0].replace('\r\n', '')
+                        barcode = line[0].replace('\r', '').replace('\n', '')
                         raw_length = float(line[1]) if line[1] != "" else None
                         swage_length = float(line[2]) if line[2] != "" else None
                         sDate = datetime.datetime.strptime(line[3], '%m.%d.%Y_%H_%M_%S')
                         cCode = line[4]
                         eCode = line[5]
                         comment = line[6]
-                        user = line[7].replace('\r\n', '')
+                        user = line[7].replace('\r', '').replace('\n', '')
                     # This was the very first iteration where there were only 3 things recorded
                     else:
-                        barcode = line[0].replace('\r\n', '')
+                        barcode = line[0].replace('\r', '').replace('\n', '')
                         comment = line[1]
-                        user = line[2].replace('\r\n', '')
+                        user = line[2].replace('\r', '').replace('\n', '')
                         raw_length = None
                         swage_length = None
                         eCode = None
@@ -126,7 +126,7 @@ class station_pickler:
                     tube.set_ID(barcode)
                     tube.set_ID(barcode)
                     if comment:
-                        tube.new_comment((comment, user))
+                        tube.new_comment((comment, user, sDate))
                     tube.swage.add_record(SwageRecord(raw_length=raw_length,
                                                       swage_length=swage_length,
                                                       clean_code=cCode,
