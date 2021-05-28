@@ -48,7 +48,8 @@ class TensionRecord(Record):
         a = f"Tension: {self.tension}\n"
         b = f"Frequency: {self.frequency}\n"
         c = f"Recorded on: {self.date}\n"
-        return a + b + c
+        d = f"Recorded by: {self.user}\n\n"
+        return a + b + c + d
 
 
 
@@ -64,9 +65,10 @@ class Tension(Station, ABC):
         b = ""
 
         # We want to print out each record.
-        for record in self.m_records:
+        for record in sorted(self.m_records, key=lambda i: i.date):
             b += record.__str__()
 
+        b = b[:-1]
 
         # We want to have the return string indent each record, for viewing ease.
         return a + textwrap.indent(b, '\t') + '\n'
@@ -81,8 +83,8 @@ class Tension(Station, ABC):
         for record in sorted(self.m_records, key=lambda i: i.date):
             if not record.fail():
                 if found_first_tension:
-                    delta = record.date - first_tension_date
-                    if delta > two_weeks:
+                    delta = record.date.date() - first_tension_date.date()
+                    if delta >= two_weeks:
                         return True
                 else:
                     found_first_tension = True

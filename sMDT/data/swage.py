@@ -64,7 +64,7 @@ class SwageRecord(Record):
         c = f"Clean Code: {self.clean_code}\n"
         d = f"Error Code: {self.error_code}\n"
         e = f"Recorded on: {self.date}\n"
-        f = f"Recorded by: {self.user}\n"
+        f = f"Recorded by: {self.user}\n\n"
 
         return_str = a + b + c + d + e + f
         return return_str
@@ -84,9 +84,10 @@ class Swage(Station, ABC):
         b = ""
 
         # We want to print out each record.
-        for record in self.m_records:
+        for record in sorted(self.m_records, key=lambda i: i.date):
             b += record.__str__()
 
+        b = b[:-1]
 
         # We want to have the return string indent each record, for viewing ease.
         return a + textwrap.indent(b, '\t') + '\n'

@@ -37,7 +37,8 @@ class LeakRecord(Record):
     def __str__(self):
         a = f"Leak Rate: {self.leak_rate}\n"
         b = f"Recorded on: {self.date}\n"
-        return a + b
+        c = f"Recorded by: {self.user}\n\n"
+        return a + b + c
 
     def fail(self):
         return self.leak_rate > LeakRecord.threshold_leak
@@ -55,9 +56,10 @@ class Leak(Station, ABC):
         b = ""
 
         # We want to print out each record.
-        for record in self.m_records:
+        for record in sorted(self.m_records, key=lambda i: i.date):
             b += record.__str__()
 
+        b = b[:-1]
 
         # We want to have the return string indent each record, for viewing ease.
         return a + textwrap.indent(b, '\t') + '\n'

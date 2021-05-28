@@ -40,20 +40,21 @@ class Tube:
         ret.dark_current = self.dark_current + other.dark_current
         ret.tension = self.tension + other.tension
         ret.legacy_data = dict(self.legacy_data, **other.legacy_data)
+        ret.comment_fail = self.comment_fail or other.comment_fail
         return ret
 
     def __str__(self):
         ret_str = ""
         if self.get_ID():
             ret_str += self.get_ID() + '-' + self.status().name + '\n'
+            print(self.comment_fail)
         if len(self.m_comments) != 0:
             ret_str += "\nComments:\n"
-        for comment, user in self.m_comments:
-            ret_str += comment + " -" + user + '\n'
-        else:
-            ret_str += "\n"
+        for comment, user, date in self.m_comments:
+            ret_str += comment + " -" + user + " " + date.date().isoformat() + '\n\n'
         if self.comment_fail:
-            ret_str += "MARKED AS FAIL BY COMMENT"
+            ret_str = ret_str[:-1]
+            ret_str += "MARKED AS FAIL BY COMMENT\n\n"
         ret_str += self.swage.__str__()
         ret_str += self.tension.__str__()
         ret_str += self.leak.__str__()
