@@ -47,6 +47,8 @@ class SwageRecord(Record):
     def fail(self):
         if self.error_code and self.error_code[0] != '0':
             return True
+        elif self.raw_length is None or self.swage_length is None:
+            return True
         elif self.raw_length < SwageRecord.min_raw_length               \
                 or self.raw_length > SwageRecord.max_raw_length       \
                 or self.swage_length < SwageRecord.min_swage_length   \
