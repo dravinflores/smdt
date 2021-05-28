@@ -47,7 +47,7 @@ print(leak_station.fail("last"))                   #print the first LeakRecord, 
 ```
 should output
 ```
-Leak Rate: 0
+Leak Rate: 0 mbar l/s
 Recorded on: [String representing datetime object of when the record was created]
 False
 ```
