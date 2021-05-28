@@ -47,14 +47,14 @@ def progressBar(iterable, prefix = '', suffix = '', decimals = 1, length = 100, 
 
 if __name__ == "__main__":
     database1 = db.db()
-    #database2 = db.db(os.path.join(backup_dir, "database.s"))
+    database2 = db.db(os.path.join(backup_dir, "database.s"))
     id_list = database1.get_IDs()
     backup_database = shelve.open(os.path.join(backup_dir, "database.s"))
     for id in progressBar(id_list, prefix = 'Backing up database:', suffix = 'Complete', length = 50):
         backup_database[id] = database1.get_tube(id)
     backup_database.close()
-    #for id in progressBar(id_list, prefix = 'Validating backup:  ', suffix = 'Complete', length = 50):
-    #    assert database1.get_tube(id).status() == database2.get_tube(id).status()
+    for id in progressBar(id_list, prefix = 'Validating backup:  ', suffix = 'Complete', length = 50):
+        assert database1.get_tube(id).status() == database2.get_tube(id).status()
     if not os.path.isdir(backup_dir):
         os.mkdir(backup_dir)
     i = 0
