@@ -23,7 +23,7 @@ errors.txt | This file is a text record of files that the station_pickler had is
 
 Data Flow
 ---------
-![](https://imgur.com/a/TNRzhpA)
+![](https://i.imgur.com/7ZijVrg.png)
 
 Documentation
 -------------
