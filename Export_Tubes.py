@@ -46,11 +46,9 @@ def getStatus(code):
         return [Status.INCOMPLETE,Status.INCOMPLETE,Status.INCOMPLETE,Status.INCOMPLETE]
 
 # Returns a list of the data of the tube, in this order:
-# swage status, tension status, leak status, dark current status
+# first tension date, last tension, last tension date, tension frequency, dark current
 def getData(code):
-    #raise NotImplementedError
-    #return 1 # for now, this is not implemented correctly
-    data = [None, None, None, None]
+    data = [None, None, None, None, None]
     try:
         database = db.db()
         tube1 = database.get_tube(code)
@@ -121,10 +119,10 @@ def checkCodes(barcodeList):
         if dfail:
             text_derrors.insert(tk.INSERT, tube)
 
-    text_serrors.insert(tk.INSERT, '\nIncomplete:\n')
-    text_terrors.insert(tk.INSERT, '\nIncomplete:\n')
-    text_lerrors.insert(tk.INSERT, '\nIncomplete:\n')
-    text_derrors.insert(tk.INSERT, '\nIncomplete:\n')
+    text_serrors.insert(tk.INSERT, '\n\nIncompl:\n')
+    text_terrors.insert(tk.INSERT, '\n\nIncompl:\n')
+    text_lerrors.insert(tk.INSERT, '\n\nIncompl:\n')
+    text_derrors.insert(tk.INSERT, '\n\nIncompl:\n')
     for tube in barcodes:
         status = getStatus(tube)
         if status[0] == Status.INCOMPLETE:
@@ -148,12 +146,12 @@ def write(name, barcodeList):
     filename  = "Exported_Tubes/" + f"{datetime.now().strftime('%m.%d.%Y_%H_%M_%S.csv')}"
     f = open(filename,'w')
 
-    f.write("Logger,Barcode,First Tension Date,Final Tension Measurement,Dark Current\n")
+    f.write("Logger,Barcode,First Tension Date,Final Tension Measurement,Final Tension Date,Frequency,Dark Current\n")
     barcodes = textToList(barcodeList)
     badTubeList = []
     for code in barcodes:
-        data = getData(database,code)
-        f.write(f"{name},{code},{data[0]},{data[1]},{data[2]}\n")
+        data = getData(code)
+        f.write(f"{name},{code},{data[0]},{data[1]},{data[2]},{data[3]},{data[4]}\n")
     return badTubeList
 
 #######################################
