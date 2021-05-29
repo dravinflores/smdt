@@ -74,7 +74,7 @@ class Tube:
         self.m_comments.append(comment)
 
     def fail(self):
-        return any([x.fail() for x in [self.swage, self.leak, self.tension, self.dark_current]]) or self.comment_fail
+        return self.status() == Status.FAIL
 
     def status(self):
         stations = [self.swage, self.tension, self.leak, self.dark_current]
