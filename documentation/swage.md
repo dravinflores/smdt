@@ -19,16 +19,15 @@ SwageRecord Object
 swage.SwageRecord is the [Record](record.md) object that stores a single instance of data from the swage station. 
 It's mostly a data container, but provides useful functions for printing and fail testing. 
 
-Failure condition: A SwageRecord is considered a failure if raw_length is outside the range (0,2000) cm, or if the swage_length is outside the same range.
-Any error code besides 0 also will cause this record to indicate a failure. 
-The failure condition may not be accurate, #TODO
+Failure condition: A SwageRecord is considered a failure if raw_length is outside the range (-1000,1000) cm, or if the swage_length is outside the same range.
+Any error code besides 0 also will cause this record to indicate a failure. This number is in place so that in the future, a number may be agreed upon to reject tubes that fall outside of this range. Currently, no tubes are rejected based on length measurements. 
 
 Member variables|Units|Description
 ---|---|---
-raw_length | cm | The measured length of the tube before it is swaged. 
-swage_length | cm| The measured length from endplug to endplug after swaging is done.
-clean_code | N/A| #TODO DOCUMENT ERROR AND CLEAN CODES 
-error_code | N/A| #TODO DOCUMENT ERROR AND CLEAN CODES 
+raw_length | cm | The measured length of the tube relative to a ruler of length 1624.3 mm before it is swaged. 
+swage_length | cm| The measured length of the tube relative to a ruler of length 1624.3 mm from end plug to end plug after swaging is done.
+clean_code | N/A| 0: Not Cleaned<br /> 1: Cleaning described in comment<br /> 2: Wiped with Ethanol<br /> 3: Only Vacuumed<br /> 4: Vacuumed and Wiped with Ethanol<br /> 5: Vacuumed with Nitrogen
+error_code | N/A| 0: No Error<br /> 1: Error Described in Comment<br /> 2: Swaged Improperly<br /> 3: Wire Snapped<br /> 4: Damaged wire couldn't tension<br /> 5: Wire lost inside swaged tube<br /> 6: Ferrule bumped after tensioning
 date | datetime | the datetime object representing when this was recorded. By default, it's datetime.now() at the point of record creation
 
 Member Functions|Parameters|Return|Description
