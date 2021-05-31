@@ -25,8 +25,8 @@ Failure condition: A TensionRecord is considered a failure if tension is outside
 
 Member variables|Units|Description
 ---|---|---
-tension | g | The calculated tension of the tube.
-frequency | #TODO | The measured length from endplug to endplug after swaging is done.
+tension | g | The calculated tension of the tube using the following equation $T = \frac{\pi L^2 d^2 f^2 \rho}{g}$. This calculation involves the tube's length, diameter of the wire, measured frequency, and density of the wire. The length used is 1605 mm in the calculation. 
+frequency | Hz | The frequency measured by vibrating the wire. Tension is calculated with this value. 
 date | datetime | the datetime object representing when this was recorded. By default, it's datetime.now() at the point of record creation
 
 Member Functions|Parameters|Return|Description
