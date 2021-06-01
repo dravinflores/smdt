@@ -224,7 +224,7 @@ if __name__ == "__main__":
                         float(new_value)
                         log += str_now() + "Leak Record " + str(index) + ': Replaced leak_rate value of ' + str(
                             tube1.leak.m_records[index].leak_rate) + " with " + new_value + '\n'
-                        tube1.leak.m_records[index].leak = float(new_value)
+                        tube1.leak.m_records[index].leak_rate = float(new_value)
                     except ValueError:
                         print("Invalid input")
                         continue
@@ -261,7 +261,7 @@ if __name__ == "__main__":
                 database.overwrite_tube(tube1)
             print("Saved, now closing.\n")
             logfile = open(log_path, 'a')
-            logfile.write(tubeID)
+            logfile.write(tubeID + '\n')
             logfile.write(log)
             break
         elif choice == 'c': #exit without saving
