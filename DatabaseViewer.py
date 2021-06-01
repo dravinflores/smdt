@@ -6,10 +6,11 @@ import datetime
 from sMDT import db, tube
 import sys
 
-# The way things are programmed here is a bit odd. We're using an abstract 
-# table model, but might be a bit more useful to create an abstract item model, 
+
+# The way things are programmed here is a bit odd. We're using an abstract
+# table model, but might be a bit more useful to create an abstract item model,
 # and then subclass the table viewer instead. That way we could just create the
-# model for a tube, and then have a viewing of tubes. 
+# model for a tube, and then have a viewing of tubes.
 # See: < https://tinyurl.com/stackoverflow-itemmodel >.
 # Add it to the todo.
 
@@ -20,7 +21,7 @@ class DBTableModel(QtCore.QAbstractTableModel):
     standard_horizontal_headers = [
         "Status", "Tube ID", "User(s)", "Swage Date", "Initial Tension Date",
         "Initial Tension (g)", "Secondary Tension (g)", "Leak Rate",
-        "Dark Current (nA)", "Raw Length (cm)", "Swage Length (cm)" 
+        "Dark Current (nA)", "Raw Length (cm)", "Swage Length (cm)"
     ]
 
     def __init__(self, data_array):
@@ -31,7 +32,7 @@ class DBTableModel(QtCore.QAbstractTableModel):
         val = self.m_data[index.row()][index.column()]
 
         if role == QtCore.Qt.DisplayRole:
-            # Rather than passing in strings, let's go ahead and just convert 
+            # Rather than passing in strings, let's go ahead and just convert
             # here.
             if isinstance(val, datetime.datetime):
                 return val.strftime(DBTableModel.date_fmt_str)
@@ -40,7 +41,7 @@ class DBTableModel(QtCore.QAbstractTableModel):
             else:
                 # What else are we going to catch? Integers?
                 return str(val)
-        
+
         if role == QtCore.Qt.TextAlignmentRole:
             return QtCore.Qt.AlignHCenter + QtCore.Qt.AlignVCenter
 
@@ -50,7 +51,7 @@ class DBTableModel(QtCore.QAbstractTableModel):
             if isinstance(val, float):
                 return QtGui.QColor('grey')
             '''
-            
+
         if role == QtCore.Qt.BackgroundRole:
             # Here we can control the background color itself.
             if isinstance(val, bool) and val:
@@ -80,7 +81,7 @@ class DBTableModel(QtCore.QAbstractTableModel):
 
     def rowCount(self, index):
         return len(self.m_data)
-    
+
     def columnCount(self, index):
         return len(self.m_data[0])
 
@@ -99,7 +100,7 @@ class DBTabBar(QtWidgets.QTabWidget):
         self.addTab(self.graph_view, "Plot")
 
         self.table_view.setSortingEnabled(True)
-        
+
         # This part is a bit "hacky" and weird. We just put it in the tab
         # window for no other reason than it was a place to put it. Using the
         # abstract item model could offer a better organization.
@@ -160,7 +161,7 @@ class ViewDBMainWindow(QtWidgets.QMainWindow):
         self.setCentralWidget(self.tab_bar)
 
 
-# We're returning a tuple, corresponding to the following format: 
+# We're returning a tuple, corresponding to the following format:
 # (date, measurement).
 def get_measurement(list_of_records, type):
     date_set_without_times = set()
@@ -190,65 +191,87 @@ def get_measurement(list_of_records, type):
 
 def db_to_display_array(db):
     ret_arr = []
-    try:
-        tube_ids = db.get_IDs()
+    # try:
+    tube_ids = db.get_IDs()
 
-        for tube_id in tube_ids:
-            tube = db.get_tube(tube_id)
-            # print(tube)
+    for tube_id in tube_ids:
+        tube = db.get_tube(tube_id)
+        # print(tube)
 
-            # "Status", "Tube ID", "User(s)", "Swage Date", 
-            # "Initial Tension Date", "Initial Tension (g)", 
-            # "Secondary Tension (g)", "Leak Rate", "Dark Current (nA)", 
-            # "Raw Length (cm)", "Swage Length (cm)" 
+        # "Status", "Tube ID", "User(s)", "Swage Date",
+        # "Initial Tension Date", "Initial Tension (g)",
+        # "Secondary Tension (g)", "Leak Rate", "Dark Current (nA)",
+        # "Raw Length (cm)", "Swage Length (cm)"
 
-            status = tube.status()
-            tube_id = tube.get_ID()
+        status = tube.status()
+        tube_id = tube.get_ID()
 
-            user_set = set()
+        user_set = set()
 
-            # We need to do some special things for the users.
-            for record in tube.swage.get_record('all'):
-                user_set.add(record.user)
-            for record in tube.tension.get_record('all'):
-                user_set.add(record.user)
-            for record in tube.leak.get_record('all'):
-                user_set.add(record.user)
-            
-            user_list = list(user_set)
+        # We need to do some special things for the users.
+        for record in tube.swage.get_record('all'):
+            user_set.add(record.user)
+        for record in tube.tension.get_record('all'):
+            user_set.add(record.user)
+        for record in tube.leak.get_record('all'):
+            user_set.add(record.user)
 
+        user_list = list(user_set)
+
+        try:
             swage_date = tube.swage.get_record('last').date
+        except IndexError:
+            swage_date = None
+
+        try:
             (initial_tension_date, initial_tension) = \
                 get_measurement(tube.tension.get_record('all'), 'initial')
+        except ValueError:
+            (initial_tension_date, initial_tension) = None, None
 
+        try:
             (final_tension_date, final_tension) = \
                 get_measurement(tube.tension.get_record('all'), 'final')
+        except ValueError:
+            (final_tension_date, final_tension) = None, None
 
-            leak_rate = tube.leak.leak_rate
-            dark_current = tube.dark_current.dark_current
-            raw_length = tube.swage.raw_length
-            swage_length = tube.swage.swage_length
+        try:
+            leak_rate = tube.leak.get_record().leak_rate
+        except IndexError:
+            leak_rate = None
+        try:
+            dark_current = tube.dark_current.get_record().dark_current
+        except IndexError:
+            dark_current = None
+        try:
+            raw_length = tube.swage.get_record().raw_length
+        except IndexError:
+            raw_length = None
+        try:
+            swage_length = tube.swage.get_record().swage_length
+        except IndexError:
+            swage_length = None
 
-            l = [
-                status, 
-                tube_id, 
-                user_list[0], 
-                swage_date,
-                initial_tension_date, 
-                initial_tension, 
-                final_tension_date,
-                leak_rate,
-                dark_current,
-                raw_length,
-                swage_length
-            ]
-            ret_arr.append(l)
+        l = [
+            status,
+            tube_id,
+            user_list[0] if user_list else None,
+            swage_date,
+            initial_tension_date,
+            initial_tension,
+            final_tension_date,
+            leak_rate,
+            dark_current,
+            raw_length,
+            swage_length
+        ]
+        ret_arr.append(l)
 
-    except Exception as e:
-        ret_arr = []
-        print(e)
-    finally:
-        return ret_arr
+    # except Exception as e:
+    # ret_arr = []
+    # print(e)
+    # finally:
+    return ret_arr
 
 
 def get_data_array_alt():
@@ -281,7 +304,7 @@ if __name__ == '__main__':
 
     app = QtWidgets.QApplication(sys.argv)
 
-    # No reason for this to be here. It's just here for redundancy. 
+    # No reason for this to be here. It's just here for redundancy.
     try:
         app.setStyle("Fusion")
     except:
