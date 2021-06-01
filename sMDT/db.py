@@ -95,6 +95,44 @@ class db:
         tubes.close()
         return ret_ids
 
+    def delete_tube(self, tube_id):
+        if type(tube_id) == str:
+            ID = tube_id
+        else:
+            ID = tube_id.get_ID()
+        dt = datetime.datetime.now()
+        timestamp = dt.timestamp()
+        filename = str(timestamp) + str(random.randrange(0, 999)) + ".del.tube"
+        new_data_path = os.path.join(self.sMDT_DIR, "new_data")
+
+        if not os.path.isdir(new_data_path):
+            os.mkdir(new_data_path)
+
+        tube = Tube()
+        tube.set_ID(ID)
+
+        file_lock = locks.Lock(filename)
+        file_lock.lock()
+        with open(os.path.join(new_data_path, filename), "wb") as f:
+            pickle.dump(tube, f)
+        file_lock.unlock()
+
+    def overwrite_tube(self, tube):
+        dt = datetime.datetime.now()
+        timestamp = dt.timestamp()
+
+        filename = str(timestamp) + str(random.randrange(0, 999)) + ".edit.tube"
+
+        new_data_path = os.path.join(self.sMDT_DIR, "new_data")
+
+        if not os.path.isdir(new_data_path):
+            os.mkdir(new_data_path)
+
+        file_lock = locks.Lock(filename)
+        file_lock.lock()
+        with open(os.path.join(new_data_path, filename), "wb") as f:
+            pickle.dump(tube, f)
+        file_lock.unlock()
 
 class db_manager():
     sMDT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -158,15 +196,30 @@ class db_manager():
 
         with shelve.open(self.path) as tubes:
 
-            count = 0
+            addcount = editcount = delcount = 0
             for filename in os.listdir(new_data_path):
-                if filename.endswith(".tube"):
-                    # file_lock = locks.Lock(filename)
-                    # file_lock.wait()
-                    new_data_file = open(os.path.join(new_data_path, filename), 'rb')  # open the file
-                    tube = pickle.load(new_data_file)  # load the tube from pickle
-                    new_data_file.close()  # close the file
+                new_data_file = open(os.path.join(new_data_path, filename), 'rb')  # open the file
+                tube = pickle.load(new_data_file)  # load the tube from pickle
+                new_data_file.close()  # close the file
 
+                if filename.endswith(".del.tube"):
+                    if tube.get_ID() in tubes:
+                        del tubes[tube.get_ID()]
+                        if logging:
+                            print("Deleting tube", tube.get_ID(), "from database.")
+                            delcount += 1
+                    else:
+                        if logging:
+                            print("Attempted to delete tube", tube.get_ID(), ", tube not found.")
+
+                elif filename.endswith(".edit.tube"):
+                    if logging:
+                        print("Rewriting the data of", tube.get_ID(), "due to edit")
+                        editcount += 1
+                    tubes[tube.get_ID()] = tube
+
+
+                elif filename.endswith(".tube"):
                     if logging:
                         print("Loading tube", tube.get_ID(), "into database.")
 
@@ -175,11 +228,16 @@ class db_manager():
                         tubes[tube.get_ID()] = temp
                     else:
                         tubes[tube.get_ID()] = tube
-                    os.remove(os.path.join(new_data_path, filename))  # delete the file that we added the tube from
-                    count += 1
+
+                    addcount += 1
+                else:
+                    if logging:
+                        print("Unrecognized file type in new_data folder")
+
+                os.remove(os.path.join(new_data_path, filename))  # delete the file that we added the tube from
             t = time.localtime()
             if logging:
-                print("Added", count, "tubes at", time.strftime("%H:%M:%S", t))
+                print(addcount, "tubes added,", editcount, "edited,", delcount, "deleted at", time.strftime("%H:%M:%S", t))
 
         # unlock the database
         db_lock.unlock()
