@@ -53,7 +53,7 @@ class Tube:
             ret_str += comment + " -" + user + " " + date.date().isoformat() + '\n\n'
         if self.comment_fail:
             ret_str = ret_str[:-1]
-            ret_str += "MARKED AS FAIL BY COMMENT\n\n"
+            ret_str += "\nMARKED AS FAIL BY COMMENT\n\n"
         ret_str += self.swage.__str__()
         ret_str += self.tension.__str__()
         ret_str += self.leak.__str__()
