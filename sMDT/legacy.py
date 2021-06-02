@@ -336,6 +336,7 @@ class station_pickler:
                     archive_file = open(os.path.join(archive_directory, filename), 'a')
 
                 for line in CSV_file.readlines():
+                    voltage = None
                     if self.archive:
                         archive_file.write(line)
                     line = line.split(',')
@@ -346,7 +347,7 @@ class station_pickler:
                     elif len(line) == 3:
                         current = float(line[0])
                         date = line[1]
-                        voltage = line[2]  # Not stored currently
+                        voltage = float(line[2])  # Not stored currently
                     # Report to terminal unknown formats
                     else:
                         if self.logging:
@@ -360,7 +361,8 @@ class station_pickler:
                         sDate = None
 
                     tube.dark_current.add_record(DarkCurrentRecord(dark_current=current,
-                                                                   date=sDate))
+                                                                   date=sDate,
+                                                                   voltage=voltage))
                     if self.logging:
                         print("Pickling dark current data for tube", barcode)
 
