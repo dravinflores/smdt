@@ -192,10 +192,9 @@ def get_measurement(list_of_records, type):
 def db_to_display_array(db):
     ret_arr = []
     # try:
-    tube_ids = db.get_IDs()
+    tubes = db.get_tubes()
 
-    for tube_id in tube_ids:
-        tube = db.get_tube(tube_id)
+    for tube in tubes:
         # print(tube)
 
         # "Status", "Tube ID", "User(s)", "Swage Date",
