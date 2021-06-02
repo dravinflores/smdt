@@ -61,13 +61,11 @@ if __name__ == "__main__":
             if YN_answer_loop("Would you still like to add the above comment to the tube? (Y/N)\n"):
                 tube2 = tube.Tube()
                 tube2.set_ID(tubeID)
-                # TODO error code support
                 for code in ErrorCodes:
-                    print(int(code), code.__name__)
-                if YN_answer_loop("Does this comment mean the tube is a failure? (Y/N)\n"):
-                    tube2.comment_fail = True
+                    print(int(code), code.name)
+                codeChoice = int(answer_loop("Choose an error code:\n", [str(int(i)) for i in ErrorCodes]))
                 user = input("Enter your name:\n")
-                tube2.new_comment((comment, user, datetime.datetime.now()))
+                tube2.new_comment((comment, user, datetime.datetime.now(), ErrorCodes(codeChoice)))
                 database.add_tube(tube2)
 
                 input("Comment added.\nPress enter to continue...")
