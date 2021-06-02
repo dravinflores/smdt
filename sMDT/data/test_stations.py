@@ -71,9 +71,9 @@ def test_swage_status():
     from .status import Status
     s = Swage()
     assert s.status() == Status.INCOMPLETE
-    s.add_record(SwageRecord(error_code="0: No Error", raw_length=-9.71, swage_length=0.07))
+    s.add_record(SwageRecord(raw_length=-9.71, swage_length=0.07))
     assert s.status() == Status.PASS
-    s.add_record(SwageRecord(error_code="5: Wire lost inside swaged tube", raw_length=-9.78, swage_length=-0.11))
+    s.add_record(SwageRecord(raw_length=-99999999, swage_length=-0.11))
     assert s.fail()
     assert s.status() == Status.FAIL
 
@@ -109,13 +109,13 @@ def test_tension_status():
     today = datetime.datetime.now()
     days22 = datetime.timedelta(days=22)
     t.add_record(TensionRecord(tension=350, date=today))
-    assert t.status() == Status.INCOMPLETE
+    assert t.status() == Status.PASS
     t.add_record(TensionRecord(tension=350, date=today-days22))
     assert t.status() == Status.PASS
 
     t2 = Tension()
     t2.add_record(TensionRecord(tension=350, date=today-days22))
-    assert t2.status() == Status.FAIL
+    assert t2.status() == Status.PASS
 
 def test_enum():
     from .swage import Swage

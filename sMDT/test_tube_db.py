@@ -162,7 +162,7 @@ def test_tube_status():
     tube2.swage.add_record(swage.SwageRecord(raw_length=-9.81, swage_length=0.07))
     assert tube2.status() == Status.INCOMPLETE
     tube2.tension.add_record(tension.TensionRecord(tension=350, date=datetime.datetime.now()))
-    assert tube2.status() == Status.INCOMPLETE
+    assert tube2.status() == Status.PASS
     tube2.tension.add_record(tension.TensionRecord(tension=350, date=datetime.datetime.now()-datetime.timedelta(days=15)))
     assert tube2.status() == Status.PASS
 
