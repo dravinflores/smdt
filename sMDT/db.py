@@ -76,8 +76,8 @@ class db:
         """
         Returns the tube specified by id. May wait for the database to be unlocked.
         """
-        db_lock = locks.Lock("database")
-        db_lock.wait()
+        #db_lock = locks.Lock("database")
+        #db_lock.wait()
         tubes = shelve.open(self.path)
         try:
             ret_tube = tubes[id]
@@ -86,6 +86,21 @@ class db:
             raise KeyError
         tubes.close()
         return ret_tube
+
+    def get_tubes(self, selection=None):
+        tubes = shelve.open(self.path)
+        if selection:
+            ret_tubes = []
+            for ID in selection:
+                try:
+                    ret_tubes.append(tubes[ID])
+                except KeyError:
+                    pass
+        else:
+            ret_tubes = list(tubes.values())
+        tubes.close()
+        return ret_tubes
+
 
     def get_IDs(self):
         db_lock = locks.Lock("database")
