@@ -6,12 +6,7 @@ import sys
 import datetime
 
 
-if __name__ == "__main__":
-    name = sys.argv[1]
-    tension = sys.argv[2]
-    frequency = sys.argv[3]
-    date = sys.argv[4]
-    barcode = sys.argv[5]
+def main(name, tension, frequency, date, barcode):
     date = datetime.datetime.strptime(date, '%d.%m.%Y %H.%M.%S')
 
     datab = db.db()

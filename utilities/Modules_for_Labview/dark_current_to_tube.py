@@ -6,11 +6,7 @@ import sys
 import datetime
 
 
-if __name__ == "__main__":
-    name = sys.argv[1]
-    dark_current = sys.argv[2]
-    date = sys.argv[3]
-    barcode = sys.argv[4]
+def main(name, dark_current, date, barcode):
     date = datetime.datetime.strptime(date, '%m/%d/%Y%I:%M %p')
 
     datab = db.db()
