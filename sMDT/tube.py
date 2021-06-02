@@ -49,8 +49,8 @@ class Tube:
             ret_str += self.get_ID() + '-' + self.status().name + '\n'
         if len(self.m_comments) != 0:
             ret_str += "\nComments:\n"
-        for comment, user, date in self.m_comments:
-            ret_str += comment + " -" + user + " " + date.date().isoformat() + '\n\n'
+        for comment, user, date, error_code in self.m_comments:
+            ret_str += comment + " -" + user + " " + date.date().isoformat() + " " + error_code.name + '\n\n'
         if self.comment_fail:
             ret_str = ret_str[:-1]
             ret_str += "\nMARKED AS FAIL BY COMMENT\n\n"
