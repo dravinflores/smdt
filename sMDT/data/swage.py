@@ -32,22 +32,22 @@ class SwageRecord(Record):
     max_swage_length = 1000   # cm
     min_swage_length = -1000      # cm
 
+
+
+
     # Does this format for a long list of parameters look cleaner?
     def __init__(self, raw_length=None, swage_length=None,
-                 clean_code=None, error_code=None, date=datetime.now(), user=None):
+                 clean_code=None, date=datetime.now(), user=None):
 
         # Call the super class init to construct the object.
         super().__init__(user)
         self.raw_length = raw_length
         self.swage_length = swage_length
         self.clean_code = clean_code
-        self.error_code = error_code
         self.date = date 
 
     def fail(self):
-        if self.error_code and self.error_code[0] != '0':
-            return True
-        elif self.raw_length is None or self.swage_length is None:
+        if self.raw_length is None or self.swage_length is None:
             return True
         elif self.raw_length < SwageRecord.min_raw_length               \
                 or self.raw_length > SwageRecord.max_raw_length       \
@@ -62,11 +62,10 @@ class SwageRecord(Record):
         a = f"Raw Length: {self.raw_length}\n"
         b = f"Swage Length: {self.swage_length}\n"
         c = f"Clean Code: {self.clean_code}\n"
-        d = f"Error Code: {self.error_code}\n"
         e = f"Recorded on: {self.date}\n"
         f = f"Recorded by: {self.user}\n\n"
 
-        return_str = a + b + c + d + e + f
+        return_str = a + b + c + e + f
         return return_str
 
 
