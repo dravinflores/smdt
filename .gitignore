@@ -12,9 +12,14 @@ venv/
 /database.s.dat
 /.vs/PythonSettings.json
 errors.txt
+
 # Just in case there is the additon of the database.s.* stuff.
 database.s.*
 database.p
 *.xml
 *.tube
 *.lock
+*.s
+
+# Trying to get rid of those .DS_Store files
+*.DS_Store

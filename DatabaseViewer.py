@@ -1,9 +1,11 @@
+from typing import final
 from PySide6 import QtCore, QtWidgets, QtGui
 from pathlib import Path
 import operator
 import datetime
 
 from sMDT import db, tube
+from sMDT.data import status
 import sys
 
 
@@ -20,9 +22,15 @@ class DBTableModel(QtCore.QAbstractTableModel):
     # These are just baked in at the moment.
     standard_horizontal_headers = [
         "Status", "Tube ID", "User(s)", "Swage Date", "Initial Tension Date",
-        "Initial Tension (g)", "Secondary Tension (g)", "Leak Rate",
-        "Dark Current (nA)", "Raw Length (cm)", "Swage Length (cm)"
+        "Initial Tension (g)", "Secondary Tension Date", 
+        "Secondary Tension (g)", "Leak Rate (mbar L/s)", "Dark Current (nA)", 
+        "Raw Length (cm)", "Swage Length (cm)"
     ]
+
+    # These constants here are just so we can remove any None types, purely
+    # for allowing the sorting of any data.
+    no_value_recorded_float = 299792458.00
+    no_value_recorded_date = datetime.datetime(1800, 1, 1)
 
     def __init__(self, data_array):
         super().__init__()
@@ -33,11 +41,26 @@ class DBTableModel(QtCore.QAbstractTableModel):
 
         if role == QtCore.Qt.DisplayRole:
             # Rather than passing in strings, let's go ahead and just convert
-            # here.
+            # here. We'll also catch the ability to get constants.
+            if isinstance(val, float) and \
+                    val == DBTableModel.no_value_recorded_float:
+                return ""
+
+            if isinstance(val, datetime.datetime) and \
+                    val == DBTableModel.no_value_recorded_date:
+                return ""
+
             if isinstance(val, datetime.datetime):
                 return val.strftime(DBTableModel.date_fmt_str)
             elif isinstance(val, float):
                 return f"{val:0.2f}"
+            elif isinstance(val, status.Status):
+                if val == status.Status.FAIL:
+                    return "FAIL"
+                elif val == status.Status.PASS:
+                    return "PASS"
+                else:
+                    return "INCOMPLETE"
             else:
                 # What else are we going to catch? Integers?
                 return str(val)
@@ -54,10 +77,13 @@ class DBTableModel(QtCore.QAbstractTableModel):
 
         if role == QtCore.Qt.BackgroundRole:
             # Here we can control the background color itself.
-            if isinstance(val, bool) and val:
-                return QtGui.QColor('green')
-            elif isinstance(val, bool) and not val:
-                return QtGui.QColor('red')
+            if isinstance(val, status.Status):
+                if val == status.Status.FAIL:
+                    return QtGui.QColor('red')
+                elif val == status.Status.PASS:
+                    return QtGui.QColor('green')
+                else:
+                    return QtGui.QColor('orange')
             else:
                 pass
 
@@ -87,7 +113,7 @@ class DBTableModel(QtCore.QAbstractTableModel):
 
 
 class DBTabBar(QtWidgets.QTabWidget):
-    def __init__(self, data):
+    def __init__(self, data, db):
         super().__init__()
 
         # Creating the widgets that will be associated with the tabs.
@@ -111,6 +137,8 @@ class DBTabBar(QtWidgets.QTabWidget):
         self.table_view.resizeColumnsToContents()
         self.table_view.setModel(DBTableModel(data))
 
+        self.database = db
+
     def setup_table_view_tab_ui(self):
         table_view_tab = QtWidgets.QTableView()
         layout = QtWidgets.QVBoxLayout()
@@ -125,14 +153,33 @@ class DBTabBar(QtWidgets.QTabWidget):
         search_view_tab = QtWidgets.QWidget()
         layout = QtWidgets.QVBoxLayout()
 
-        layout.addWidget(QtWidgets.QCheckBox("Option 1"))
-        layout.addWidget(QtWidgets.QCheckBox("Option 2"))
+        search_view_tab.typable_box_widget = QtWidgets.QLineEdit()
+        search_view_tab.typable_box_widget.setMaxLength(15)
+
+        prompt = "Type in tube ID and press enter"
+
+        search_view_tab.typable_box_widget.setPlaceholderText(prompt)
+        search_view_tab.typable_box_widget.returnPressed.connect(
+            self.typed_text
+        )
+
+        search_view_tab.data_spot = QtWidgets.QLabel()
+
+        layout.addWidget(search_view_tab.typable_box_widget)
+        layout.addWidget(search_view_tab.data_spot)
 
         layout.insertSpacing(0, 15)
         layout.addStretch()
 
         search_view_tab.setLayout(layout)
         return search_view_tab
+
+    def typed_text(self):
+        tube_id = self.search_view.typable_box_widget.text()
+        self.search_view.data_spot.setText(
+            # self.search_view.typable_box_widget.text()
+            str(self.database.get_tube(tube_id))
+        )
 
     def setup_graph_view_tab_ui(self):
         graph_view_tab = QtWidgets.QWidget()
@@ -142,7 +189,7 @@ class DBTabBar(QtWidgets.QTabWidget):
 
 
 class ViewDBMainWindow(QtWidgets.QMainWindow):
-    def __init__(self, data):
+    def __init__(self, data, db):
         super().__init__()
 
         self.title = "Database Viewer"
@@ -157,7 +204,7 @@ class ViewDBMainWindow(QtWidgets.QMainWindow):
         main_layout = QtWidgets.QVBoxLayout()
         self.setLayout(main_layout)
 
-        self.tab_bar = DBTabBar(data)
+        self.tab_bar = DBTabBar(data, db)
         self.setCentralWidget(self.tab_bar)
 
 
@@ -174,10 +221,10 @@ def get_measurement(list_of_records, type):
     elif type == 'final':
         date = max(date_set_without_times)
     else:
-        date = None
+        date = DBTableModel.no_value_recorded_date
 
-    ret_date = None
-    ret_measurement = None
+    ret_date = DBTableModel.no_value_recorded_date
+    ret_measurement = DBTableModel.no_value_recorded_float
 
     # Now we want the data that corresponds to the first passing measurement.
     for record in list_of_records:
@@ -220,36 +267,65 @@ def db_to_display_array(db):
         try:
             swage_date = tube.swage.get_record('last').date
         except IndexError:
-            swage_date = None
+            swage_date = DBTableModel.no_value_recorded_date
 
         try:
             (initial_tension_date, initial_tension) = \
                 get_measurement(tube.tension.get_record('all'), 'initial')
         except ValueError:
-            (initial_tension_date, initial_tension) = None, None
+            (initial_tension_date, initial_tension) = (
+                    DBTableModel.no_value_recorded_date, 
+                    DBTableModel.no_value_recorded_float
+                )
 
         try:
             (final_tension_date, final_tension) = \
                 get_measurement(tube.tension.get_record('all'), 'final')
         except ValueError:
-            (final_tension_date, final_tension) = None, None
+            (final_tension_date, final_tension) = (
+                    DBTableModel.no_value_recorded_date, 
+                    DBTableModel.no_value_recorded_float
+                )
 
         try:
             leak_rate = tube.leak.get_record().leak_rate
         except IndexError:
-            leak_rate = None
+            leak_rate = DBTableModel.no_value_recorded_float
         try:
             dark_current = tube.dark_current.get_record().dark_current
         except IndexError:
-            dark_current = None
+            dark_current = DBTableModel.no_value_recorded_float
         try:
             raw_length = tube.swage.get_record().raw_length
         except IndexError:
-            raw_length = None
+            raw_length = DBTableModel.no_value_recorded_float
         try:
             swage_length = tube.swage.get_record().swage_length
         except IndexError:
-            swage_length = None
+            swage_length = DBTableModel.no_value_recorded_float
+
+        if tube_id is None:
+            tube_id = ""
+        elif swage_date is None:
+            swage_date = DBTableModel.no_value_recorded_date
+        elif initial_tension_date is None:
+            initial_tension_date = DBTableModel.no_value_recorded_date
+        elif initial_tension is None:
+            initial_tension = DBTableModel.no_value_recorded_float
+        elif final_tension_date is None:
+            final_tension_date = DBTableModel.no_value_recorded_date
+        elif final_tension is None:
+            final_tension = DBTableModel.no_value_recorded_float
+        elif leak_rate is None:
+            leak_rate = DBTableModel.no_value_recorded_float
+        elif dark_current is None:
+            dark_current = DBTableModel.no_value_recorded_float
+        elif raw_length is None:
+            raw_length = DBTableModel.no_value_recorded_float
+        elif swage_length is None:
+            swage_length = DBTableModel.no_value_recorded_float
+        else:
+            pass
 
         l = [
             status,
@@ -259,6 +335,7 @@ def db_to_display_array(db):
             initial_tension_date,
             initial_tension,
             final_tension_date,
+            final_tension,
             leak_rate,
             dark_current,
             raw_length,
@@ -309,6 +386,6 @@ if __name__ == '__main__':
     except:
         pass
 
-    window = ViewDBMainWindow(data_array)
+    window = ViewDBMainWindow(data_array, database)
     window.show()
     sys.exit(app.exec())
