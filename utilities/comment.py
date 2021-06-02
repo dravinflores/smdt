@@ -49,6 +49,7 @@ if __name__ == "__main__":
             if YN_answer_loop("Would you still like to add the above comment to the tube? (Y/N)\n"):
                 tube2 = tube.Tube()
                 tube2.set_ID(tubeID)
+                # TODO error code support
                 if YN_answer_loop("Does this comment mean the tube is a failure? (Y/N)\n"):
                     tube2.comment_fail = True
                 user = input("Enter your name:\n")
