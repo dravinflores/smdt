@@ -20,9 +20,9 @@ if __name__ == "__main__":
 		config = json.load(f)
 		f.close()
 
-		WIPE = False
+		WIPE = True
 		ARCHIVE = True
-		LOOP = True
+		LOOP = False
 		CLEANUP = False
 		NOPICKLER = False
 
