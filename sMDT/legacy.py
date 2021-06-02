@@ -26,6 +26,7 @@ from .data.swage import Swage, SwageRecord
 from .data.tension import Tension, TensionRecord
 from .data.leak import Leak, LeakRecord
 from .data.dark_current import DarkCurrent, DarkCurrentRecord
+from .data.status import ErrorCodes
 
 
 class station_pickler:
@@ -125,12 +126,17 @@ class station_pickler:
                     tube = Tube()
                     tube.set_ID(barcode)
                     tube.set_ID(barcode)
-                    if comment:
-                        tube.new_comment((comment, user, sDate))
+                    try:
+                        error_code = ErrorCodes(int(eCode[0]))
+                    except ValueError:
+                        error_code = ErrorCodes(0)
+                    except TypeError:
+                        error_code = ErrorCodes(0)
+                    if comment or error_code != 0:
+                        tube.new_comment((comment, user, sDate, error_code))
                     tube.swage.add_record(SwageRecord(raw_length=raw_length,
                                                       swage_length=swage_length,
                                                       clean_code=cCode,
-                                                      error_code=eCode,
                                                       date=sDate,
                                                       user=user))
 

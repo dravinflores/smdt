@@ -95,17 +95,21 @@ class Tension(Station, ABC):
     def status(self):
         if not self.visited():
             return Status.INCOMPLETE
-        if self.passed_second_tension():
+        #if self.passed_second_tension():
+        #    return Status.PASS
+        #else:
+        #    for record in sorted(self.m_records, key=lambda i: i.date):
+        #        if not record.fail():
+        #            three_weeks = datetime.timedelta(days=21)
+        #            delta = datetime.datetime.now() - record.date
+        #            if delta < three_weeks:
+        #                return Status.INCOMPLETE
+        #            else:
+        #                break
+        #    return Status.FAIL
+        elif self.passed_first_tension():
             return Status.PASS
         else:
-            for record in sorted(self.m_records, key=lambda i: i.date):
-                if not record.fail():
-                    three_weeks = datetime.timedelta(days=21)
-                    delta = datetime.datetime.now() - record.date
-                    if delta < three_weeks:
-                        return Status.INCOMPLETE
-                    else:
-                        break
             return Status.FAIL
 
     def fail(self):

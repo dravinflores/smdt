@@ -23,6 +23,7 @@ DROPBOX_DIR = os.path.dirname(os.path.dirname(__file__))
 sys.path.append(DROPBOX_DIR)
 
 from sMDT import db, tube
+from sMDT.data.status import ErrorCodes
 
 
 def YN_answer_loop(string):
@@ -37,6 +38,17 @@ def YN_answer_loop(string):
     return answer.lower() == 'y'
 
 
+def answer_loop(string, options):
+    """
+    Gets an answer from the user
+    """
+    answer = ""
+    answer = input(string)
+    while answer.lower() not in options:
+        print("Lowercase input is not in ", options, ", try again.\n")
+        answer = input(string)
+    return answer.lower()
+
 if __name__ == "__main__":
     database = db.db()
     tubeID = input("Which tube would you like to comment on?\n")
@@ -50,6 +62,8 @@ if __name__ == "__main__":
                 tube2 = tube.Tube()
                 tube2.set_ID(tubeID)
                 # TODO error code support
+                for code in ErrorCodes:
+                    print(int(code), code.__name__)
                 if YN_answer_loop("Does this comment mean the tube is a failure? (Y/N)\n"):
                     tube2.comment_fail = True
                 user = input("Enter your name:\n")
