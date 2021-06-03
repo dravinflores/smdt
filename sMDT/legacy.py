@@ -356,7 +356,8 @@ class station_pickler:
                         continue
 
                     try:
-                        sDate = datetime.datetime.strptime(date, '%d_%m_%Y_%H_%M_%S\n')
+                        date = date.replace("\n","")
+                        sDate = datetime.datetime.strptime(date, '%d_%m_%Y_%H_%M_%S')
                     except ValueError:
                         sDate = None
 
