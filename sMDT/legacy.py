@@ -203,10 +203,6 @@ class station_pickler:
                         self.error_files['Tension'].add(filename)
                         continue
 
-                    if barcode[0:3] != 'MSU':
-                        self.error_files['Tension'].add(filename)
-                        continue
-
                     try:
                         sDate = datetime.datetime.strptime(date, '%d.%m.%Y %H.%M.%S')
                     except ValueError:
