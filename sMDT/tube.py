@@ -30,7 +30,7 @@ class Tube:
         self.dark_current = DarkCurrent()
         self.legacy_data = dict()
         self.bent = Bent()
-        self.comment_fail = False # Depricated
+        self.comment_fail = False
 
     def __add__(self, other):
         ret = Tube()
@@ -90,7 +90,7 @@ class Tube:
 
     def status(self):
         stations = [self.swage, self.tension, self.leak, self.dark_current]
-        if any([i.status() == Status.FAIL for i in stations]) or self.comment_fails():
+        if any([i.status() == Status.FAIL for i in stations]) or self.comment_fails() or self.comment_fail:
             return Status.FAIL
         elif any([i.status() == Status.INCOMPLETE for i in stations]):
             return Status.INCOMPLETE
