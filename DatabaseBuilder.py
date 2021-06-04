@@ -16,10 +16,6 @@ if __name__ == "__main__":
 		input("Press enter to continue...")
 	else:
 
-		f = open("db_config.json", 'r')
-		config = json.load(f)
-		f.close()
-
 		WIPE = True
 		ARCHIVE = True
 		LOOP = False
