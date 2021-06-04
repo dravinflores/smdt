@@ -25,7 +25,7 @@ DROPBOX_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(DROPBOX_DIR)
 from sMDT import db, tube
 from sMDT.data import swage
-
+path=os.path.dirname(os.path.abspath(__file__))
 
 
 def write(code, lengths, cleanCode, name):
@@ -96,7 +96,7 @@ def handle_enter(event):
         text_entryStatus.insert("1.0", barcode + " was entered\ninto database")
             
 
-filename = 'SwagerData\\' + f"{datetime.now().strftime('%m.%d.%Y_%H_%M_%S.csv')}"
+filename = os.path.join(path,"SwagerData",f"{datetime.now().strftime('%m.%d.%Y_%H_%M_%S.csv')}")
 window = tk.Tk()
 window.title("Swage Station GUI")
 window.columnconfigure(0, weight=1, minsize=75)
