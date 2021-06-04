@@ -201,7 +201,9 @@ class db_manager():
             pickler.pickle_tension()
             pickler.pickle_leak()
             pickler.pickle_darkcurrent()
+            pickler.pickle_bentness()
             pickler.write_errors()
+
 
         # Lock the database
         db_lock = locks.Lock("database")
