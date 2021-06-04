@@ -3,11 +3,10 @@
 '''
 Bentness GUI
 
-Description: This simply records the bentness of the tube. It puts it in the
-directory called "BentnessData". It is a simple csv file that is created
-where the name, time, bentness and code is recorded. 
+Description: This simply records the bentness of the tube. It automatically
+adds a tube to the database without creating a csv file.
 
-To run, first install Tkinter and pickle modules into your python library. After
+To run, first install Tkinter module into your python library. After
 that, running is as simple as: python "Bentness GUI.py" or double clicking in 
 Windows 10. 
 
@@ -18,23 +17,22 @@ import tkinter as tk
 from tkinter import StringVar
 import os
 from datetime import datetime
+import sys
 
-path = os.path.dirname(os.path.abspath(__file__))
+DROPBOX_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(DROPBOX_DIR)
+from sMDT import db, tube
+from sMDT.data import bent
+path=os.path.dirname(os.path.abspath(__file__))
+
+
 
 def write(code, length, name):
-    try:
-        comment = text_comment.get('1.0',tk.END)[0:-1]
-        comment = comment.replace(',',':')
-        comment = comment.replace('\n','. ')
-        with open(filename, 'r') as ff:
-            lines = list(filter(lambda x: x != '\n', ff.readlines()))
-            lines.append(f"{code},{length},\
-{datetime.now().strftime('%m.%d.%Y_%H_%M_%S')},{name},{comment}\n")
-        open(filename,'w').writelines(lines)
-        
-    except FileNotFoundError:
-        open(filename,'w').close()
-        write(code, length, name)
+    datab = db.db()
+    tube1 = tube.Tube()
+    tube1.set_ID(code)
+    tube1.bent.add_record(bent.BentRecord(bentness=float(length),user=name))    
+    datab.add_tube(tube1)
         
 #######################################
 #####      Swage Entry Code    ########
@@ -73,10 +71,8 @@ def handle_enter(event):
             write(barcode,firstLength,name)
             entry_barcode.delete(0, tk.END)
             entry_length.delete(0, tk.END)
-            text_comment.delete("1.0", tk.END)
-            
-
-filename = os.path.join(path,"BentnessData",f"{datetime.now().strftime('%m.%d.%Y_%H_%M_%S.csv')}")
+        
+        
 window = tk.Tk()
 window.title("Bentness GUI")
 window.columnconfigure(0, weight=1, minsize=75)
@@ -104,11 +100,6 @@ entry_barcode = tk.Entry(master=frame_entry)
 label_length = tk.Label(master=frame_entry, text='Gap Size')
 entry_length = tk.Entry(master=frame_entry)
 
-label_comment = tk.Label(master=frame_entry, text='Comment')
-text_comment = tk.Text(master=frame_entry,
-                       width=30,
-                       height=4)
-
 button = tk.Button(
     master=frame_entry,
     text="Create Entry",
@@ -131,9 +122,6 @@ entry_barcode.pack()
 
 label_length.pack()
 entry_length.pack()
-
-label_comment.pack()
-text_comment.pack()
 
 button.pack()
 
