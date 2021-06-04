@@ -206,8 +206,8 @@ class db_manager():
 
 
         # Lock the database
-        db_lock = locks.Lock("database")
-        db_lock.lock()
+       # db_lock = locks.Lock("database")
+       # db_lock.lock()
 
         new_data_path = os.path.join(self.sMDT_DIR, "new_data")
 
@@ -257,4 +257,4 @@ class db_manager():
                 print(addcount, "tubes added,", editcount, "edited,", delcount, "deleted at", time.strftime("%H:%M:%S", t))
 
         # unlock the database
-        db_lock.unlock()
+        #db_lock.unlock()

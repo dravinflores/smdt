@@ -17,7 +17,7 @@ from .data.swage import Swage
 from .data.tension import Tension
 from .data.leak import Leak
 from .data.dark_current import DarkCurrent
-from .data.status import Status
+from .data.status import Status, ErrorCodes
 from .data.bent import Bent
 
 class Tube:
@@ -30,7 +30,7 @@ class Tube:
         self.dark_current = DarkCurrent()
         self.legacy_data = dict()
         self.bent = Bent()
-        self.comment_fail = False
+        self.comment_fail = False # Depricated
 
     def __add__(self, other):
         ret = Tube()
@@ -78,9 +78,19 @@ class Tube:
     def fail(self):
         return self.status() == Status.FAIL
 
+    def comment_fails(self):
+        ok_error_codes = [ErrorCodes.NO_ERROR, 
+                          ErrorCodes.SHIM_FITS_2_4MM, 
+                          ErrorCodes.SHIM_FITS_1_6MM, 
+                          ErrorCodes.SHIM_FITS_0_8MM]
+        for comment in self.m_comments:
+            if comment[3] not in ok_error_codes:
+                return True
+        return False
+
     def status(self):
         stations = [self.swage, self.tension, self.leak, self.dark_current]
-        if any([i.status() == Status.FAIL for i in stations]) or self.comment_fail:
+        if any([i.status() == Status.FAIL for i in stations]) or self.comment_fails():
             return Status.FAIL
         elif any([i.status() == Status.INCOMPLETE for i in stations]):
             return Status.INCOMPLETE
