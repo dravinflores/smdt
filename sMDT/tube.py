@@ -18,7 +18,7 @@ from .data.tension import Tension
 from .data.leak import Leak
 from .data.dark_current import DarkCurrent
 from .data.status import Status
-
+from .data.bent import Bent
 
 class Tube:
     def __init__(self):
@@ -29,6 +29,7 @@ class Tube:
         self.leak = Leak()
         self.dark_current = DarkCurrent()
         self.legacy_data = dict()
+        self.bent = Bent()
         self.comment_fail = False
 
     def __add__(self, other):
@@ -39,6 +40,7 @@ class Tube:
         ret.leak = self.leak + other.leak
         ret.dark_current = self.dark_current + other.dark_current
         ret.tension = self.tension + other.tension
+        ret.bent = self.bent + other.bent
         ret.legacy_data = dict(self.legacy_data, **other.legacy_data)
         return ret
 
@@ -56,6 +58,7 @@ class Tube:
         ret_str += self.swage.__str__()
         ret_str += self.tension.__str__()
         ret_str += self.leak.__str__()
+        ret_str += self.bent.__str__()
         ret_str += self.dark_current.__str__()
 
         return ret_str
