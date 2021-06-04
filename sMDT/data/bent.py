@@ -45,7 +45,7 @@ class BentRecord(Record):
 
     def __str__(self):
         # Using string concatenation here.
-        a = f"Bentness: {self.raw_length}\n"
+        a = f"Bentness: {self.bentness}\n"
         b = f"Recorded on: {self.date}\n"
         c = f"Recorded by: {self.user}\n\n"
 
