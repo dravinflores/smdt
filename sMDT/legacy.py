@@ -382,7 +382,7 @@ class station_pickler:
 
         bentness_directory = os.path.join(self.path, "BentnessStation/")
 
-        CSV_directory = os.path.join(bentness_directory, 'output')
+        CSV_directory = os.path.join(bentness_directory, 'BentnessData')
         archive_directory = os.path.join(bentness_directory, "archive")
 
         new_data_directory = os.path.join(self.sMDT_DIR, "new_data")
