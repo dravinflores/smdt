@@ -28,8 +28,8 @@ class DarkCurrentRecord(Record):
     """
 
     # Here are the project defined limits.
-    max_individual_current = 2E-9   # 2 nA
-    max_collective_current = 8E-9   # 8 nA
+    max_individual_current = 2   # 2 nA
+    max_collective_current = 8   # 8 nA
 
     def __init__(self, dark_current=None, date=datetime.now(), voltage=None, user=None):
         super().__init__(user)
