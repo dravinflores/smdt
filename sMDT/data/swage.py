@@ -47,16 +47,17 @@ class SwageRecord(Record):
         self.date = date 
 
     def fail(self):
-        if self.raw_length is None or self.swage_length is None:
-            return True
-        elif self.raw_length < SwageRecord.min_raw_length               \
-                or self.raw_length > SwageRecord.max_raw_length       \
-                or self.swage_length < SwageRecord.min_swage_length   \
-                or self.swage_length > SwageRecord.max_swage_length:
-            return True
-        else:
-            return False
-
+        #if self.raw_length is None or self.swage_length is None:
+        #    return True
+        #elif self.raw_length < SwageRecord.min_raw_length               \
+        #        or self.raw_length > SwageRecord.max_raw_length       \
+        #        or self.swage_length < SwageRecord.min_swage_length   \
+        #        or self.swage_length > SwageRecord.max_swage_length:
+        #    return True
+        #else:
+        #    return False
+        return False
+        
     def __str__(self):
         # Using string concatenation here.
         a = f"Raw Length: {self.raw_length}\n"
