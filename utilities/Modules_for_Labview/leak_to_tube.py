@@ -6,12 +6,7 @@ import sys
 import datetime
 
 
-if __name__ == "__main__":
-    name = sys.argv[1]
-    leak = sys.argv[2]
-    pressure = sys.argv[3]
-    barcode = sys.argv[4]
-    date = sys.argv[5]
+def main(name, leak, barcode, date):
     date = datetime.datetime.strptime(date, '%m/%d/%Y%I:%M %p')
 
     datab = db.db()

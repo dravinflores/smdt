@@ -17,8 +17,8 @@ from .data.swage import Swage
 from .data.tension import Tension
 from .data.leak import Leak
 from .data.dark_current import DarkCurrent
-from .data.status import Status
-
+from .data.status import Status, ErrorCodes
+from .data.bent import Bent
 
 class Tube:
     def __init__(self):
@@ -29,6 +29,7 @@ class Tube:
         self.leak = Leak()
         self.dark_current = DarkCurrent()
         self.legacy_data = dict()
+        self.bent = Bent()
         self.comment_fail = False
 
     def __add__(self, other):
@@ -39,8 +40,8 @@ class Tube:
         ret.leak = self.leak + other.leak
         ret.dark_current = self.dark_current + other.dark_current
         ret.tension = self.tension + other.tension
+        ret.bent = self.bent + other.bent
         ret.legacy_data = dict(self.legacy_data, **other.legacy_data)
-        ret.comment_fail = self.comment_fail or other.comment_fail
         return ret
 
     def __str__(self):
@@ -49,14 +50,15 @@ class Tube:
             ret_str += self.get_ID() + '-' + self.status().name + '\n'
         if len(self.m_comments) != 0:
             ret_str += "\nComments:\n"
-        for comment, user, date in self.m_comments:
-            ret_str += comment + " -" + user + " " + date.date().isoformat() + '\n\n'
-        if self.comment_fail:
+        for comment, user, date, error_code in self.m_comments:
+            ret_str += comment + " -" + user + " " + date.date().isoformat() + " " + error_code.name + '\n\n'
+        if any([code != 0 for (h, e, y, code) in self.m_comments]):
             ret_str = ret_str[:-1]
             ret_str += "\nMARKED AS FAIL BY COMMENT\n\n"
         ret_str += self.swage.__str__()
         ret_str += self.tension.__str__()
         ret_str += self.leak.__str__()
+        ret_str += self.bent.__str__()
         ret_str += self.dark_current.__str__()
 
         return ret_str
@@ -76,9 +78,19 @@ class Tube:
     def fail(self):
         return self.status() == Status.FAIL
 
+    def comment_fails(self):
+        ok_error_codes = [ErrorCodes.NO_ERROR, 
+                          ErrorCodes.SHIM_FITS_2_4MM, 
+                          ErrorCodes.SHIM_FITS_1_6MM, 
+                          ErrorCodes.SHIM_FITS_0_8MM]
+        for comment in self.m_comments:
+            if comment[3] not in ok_error_codes:
+                return True
+        return False
+
     def status(self):
         stations = [self.swage, self.tension, self.leak, self.dark_current]
-        if any([i.status() == Status.FAIL for i in stations]) or self.comment_fail:
+        if any([i.status() == Status.FAIL for i in stations]) or self.comment_fails() or self.comment_fail:
             return Status.FAIL
         elif any([i.status() == Status.INCOMPLETE for i in stations]):
             return Status.INCOMPLETE

@@ -26,6 +26,8 @@ from .data.swage import Swage, SwageRecord
 from .data.tension import Tension, TensionRecord
 from .data.leak import Leak, LeakRecord
 from .data.dark_current import DarkCurrent, DarkCurrentRecord
+from .data.bent import Bent, BentRecord
+from .data.status import ErrorCodes
 
 
 class station_pickler:
@@ -44,7 +46,7 @@ class station_pickler:
         '''
         self.path = path
         self.archive = archive
-        self.error_files = {'Swage': set(), 'Tension': set(), 'Leak': set(), 'DarkCurrent': set()}
+        self.error_files = {'Swage': set(), 'Tension': set(), 'Leak': set(), 'DarkCurrent': set(), 'Bentness': set()}
         self.logging = logging
 
     def write_errors(self):
@@ -125,12 +127,17 @@ class station_pickler:
                     tube = Tube()
                     tube.set_ID(barcode)
                     tube.set_ID(barcode)
-                    if comment:
-                        tube.new_comment((comment, user, sDate))
+                    try:
+                        error_code = ErrorCodes(int(eCode[0]))
+                    except ValueError:
+                        error_code = ErrorCodes(0)
+                    except TypeError:
+                        error_code = ErrorCodes(0)
+                    if comment or error_code != 0:
+                        tube.new_comment((comment, user, sDate, error_code))
                     tube.swage.add_record(SwageRecord(raw_length=raw_length,
                                                       swage_length=swage_length,
                                                       clean_code=cCode,
-                                                      error_code=eCode,
                                                       date=sDate,
                                                       user=user))
 
@@ -193,10 +200,6 @@ class station_pickler:
                     else:
                         if self.logging:
                             print("File " + filename + " has a line with unknown format")
-                        self.error_files['Tension'].add(filename)
-                        continue
-
-                    if barcode[0:3] != 'MSU':
                         self.error_files['Tension'].add(filename)
                         continue
 
@@ -330,6 +333,7 @@ class station_pickler:
                     archive_file = open(os.path.join(archive_directory, filename), 'a')
 
                 for line in CSV_file.readlines():
+                    voltage = None
                     if self.archive:
                         archive_file.write(line)
                     line = line.split(',')
@@ -340,7 +344,7 @@ class station_pickler:
                     elif len(line) == 3:
                         current = float(line[0])
                         date = line[1]
-                        voltage = line[2]  # Not stored currently
+                        voltage = float(line[2])  # Not stored currently
                     # Report to terminal unknown formats
                     else:
                         if self.logging:
@@ -349,12 +353,14 @@ class station_pickler:
                         continue
 
                     try:
-                        sDate = datetime.datetime.strptime(date, '%d_%m_%Y_%H_%M_%S\n')
+                        date = date.replace("\n","")
+                        sDate = datetime.datetime.strptime(date, '%d_%m_%Y_%H_%M_%S')
                     except ValueError:
                         sDate = None
 
                     tube.dark_current.add_record(DarkCurrentRecord(dark_current=current,
-                                                                   date=sDate))
+                                                                   date=sDate,
+                                                                   voltage=voltage))
                     if self.logging:
                         print("Pickling dark current data for tube", barcode)
 
@@ -370,6 +376,75 @@ class station_pickler:
 
             if self.archive:
                 os.remove(os.path.join(CSV_directory, filename))
+
+
+    def pickle_bentness(self):
+
+        bentness_directory = os.path.join(self.path, "BentnessStation/")
+
+        CSV_directory = os.path.join(bentness_directory, 'BentnessData')
+        archive_directory = os.path.join(bentness_directory, "archive")
+
+        new_data_directory = os.path.join(self.sMDT_DIR, "new_data")
+
+        for directory in [bentness_directory, CSV_directory, archive_directory, new_data_directory]:
+            if not os.path.isdir(directory):
+                os.mkdir(directory)
+
+        for filename in os.listdir(CSV_directory):
+            with open(os.path.join(CSV_directory, filename)) as CSV_file:
+                
+                if self.archive:
+                    archive_file = open(os.path.join(archive_directory, filename), 'a')
+
+                for line in CSV_file.readlines():
+                    tube = Tube()
+                    if self.archive:
+                        archive_file.write(line)
+                    line = line.split(',')
+                    # Check there are 4 or 5 columns (5th column is comment for some of them)
+                    if len(line) == 4 or len(line) == 5:
+                        barcode = line[0]
+                        bentness = float(line[1])
+                        date = line[2]
+                        user = line[3]
+                        #comment = line[4] # Not used right now
+                    # Report to terminal unknown formats
+                    else:
+                        if self.logging:
+                            print("File " + filename + " has unknown format")
+                        self.error_files['Bentness'].add(filename)
+                        continue
+
+                    try:
+                        date = date.replace("\n","")
+                        sDate = datetime.datetime.strptime(date, '%m.%d.%Y_%H_%M_%S')
+                    except ValueError:
+                        sDate = None
+                        if self.logging:
+                            print("File " + filename + " has unknown format")
+                        self.error_files['Bentness'].add(filename)                        
+                        continue
+
+                    tube.set_ID(barcode)
+                    tube.bent.add_record(BentRecord(bentness=bentness, date=sDate, user=user))
+                    if self.logging:
+                        print("Pickling bentness data for tube", barcode)
+
+                    pickled_filename = str(datetime.datetime.now().timestamp()) + \
+                                       str(random.randrange(100, 999)) + 'bentness.tube'
+
+                    # Lock and write tube instance to pickle file
+                    # file_lock = locks.Lock(pickled_filename)
+                    # file_lock.lock()
+                    with open(os.path.join(new_data_directory, pickled_filename), "wb") as f:
+                        pickle.dump(tube, f)
+                    # file_lock.unlock()
+
+            if self.archive:
+                os.remove(os.path.join(CSV_directory, filename))
+
+
 
             # dict_keys = [
 #    # Keys related to the swage station.

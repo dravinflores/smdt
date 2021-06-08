@@ -31,16 +31,18 @@ class DarkCurrentRecord(Record):
     max_individual_current = 2E-9   # 2 nA
     max_collective_current = 8E-9   # 8 nA
 
-    def __init__(self, dark_current=None, date=datetime.now(), user=None):
+    def __init__(self, dark_current=None, date=datetime.now(), voltage=None, user=None):
         super().__init__(user)
         self.dark_current = dark_current
         self.date = date
+        self.voltage = voltage
 
     def __str__(self):
         a = f"Dark Current: {self.dark_current}\n"
         b = f"Recorded on: {self.date}\n"
-        c = f"Recorded by: {self.user}\n\n"
-        return a + b + c
+        c = f"Recorded by: {self.user}\n"
+        d = f"Voltage: {self.voltage}\n\n"
+        return a + b + c + d
 
     def fail(self):
         if self.dark_current > DarkCurrentRecord.max_individual_current:

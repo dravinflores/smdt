@@ -16,15 +16,11 @@ if __name__ == "__main__":
 		input("Press enter to continue...")
 	else:
 
-		f = open("db_config.json", 'r')
-		config = json.load(f)
-		f.close()
-
-		WIPE = config['wipe']
-		ARCHIVE = config['archive']
-		LOOP = config['loop']
-		CLEANUP = config['cleanup']
-		NOPICKLER = config['nopickler']
+		WIPE = False
+		ARCHIVE = True
+		LOOP = True
+		CLEANUP = False
+		NOPICKLER = False
 
 
 

@@ -201,11 +201,13 @@ class db_manager():
             pickler.pickle_tension()
             pickler.pickle_leak()
             pickler.pickle_darkcurrent()
+            pickler.pickle_bentness()
             pickler.write_errors()
 
+
         # Lock the database
-        db_lock = locks.Lock("database")
-        db_lock.lock()
+       # db_lock = locks.Lock("database")
+       # db_lock.lock()
 
         new_data_path = os.path.join(self.sMDT_DIR, "new_data")
 
@@ -255,4 +257,4 @@ class db_manager():
                 print(addcount, "tubes added,", editcount, "edited,", delcount, "deleted at", time.strftime("%H:%M:%S", t))
 
         # unlock the database
-        db_lock.unlock()
+        #db_lock.unlock()

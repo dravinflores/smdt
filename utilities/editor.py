@@ -23,6 +23,7 @@ DROPBOX_DIR = os.path.dirname(os.path.dirname(__file__))
 sys.path.append(DROPBOX_DIR)
 
 from sMDT import db, tube
+from sMDT.data.status import ErrorCodes
 
 
 def answer_loop(string, options):
@@ -94,10 +95,11 @@ if __name__ == "__main__":
                     comment = input("What is your comment?\n")
                     if answer_loop("Would you still like to add the above comment to the tube? (Y/N)\n",
                                    ['y', 'n']) == 'y':
-                        if answer_loop("Does this comment mean the tube is a failure? (Y/N)\n", ['y', 'n']) == 'y':
-                            tube1.comment_fail = True
+                        for code in ErrorCodes:
+                            print(int(code), code.name)
+                        codeChoice = int(answer_loop("Choose an error code:\n", [str(int(i)) for i in ErrorCodes]))
                         user = input("Enter your name:\n")
-                        tube1.new_comment((comment, user, datetime.datetime.now()))
+                        tube1.new_comment((comment, user, datetime.datetime.now(), ErrorCodes(codeChoice)))
                         log += str_now() + 'Added comment "' + comment + '" to tube ' + '\n'
                 elif commentChoice == 'e': #Edit a comment
                     index = input("Enter the 0 index of the comment you want to edit\n")
@@ -113,7 +115,18 @@ if __name__ == "__main__":
                                 "Would you still like to replace the original comment with your new one? (Y/N)\n",
                                 ['y', 'n']) == 'y':
                             log += str_now() + 'Replaced comment "' + tube1.m_comments[index][0] + '" with ' + new_comment  + '\n'
-                            tube1.m_comments[index][0] = new_comment
+                            old = tube1.m_comments[index]
+                            new = (new_comment,old[1],old[2],old[3])
+                            tube1.m_comments[index] = new
+
+                        if answer_loop("Would you like to edit this comment's error code? [Y/N]\n", ['y','n']) == 'y':
+                            for code in ErrorCodes:
+                                print(int(code), code.name)
+                            codeChoice = int(answer_loop("Choose a new error code:\n", [str(int(i)) for i in ErrorCodes]))
+                            old = tube1.m_comments[index]
+                            new = (old[0], old[1], old[2], ErrorCodes(codeChoice))
+                            tube1.m_comments[index] = new
+                            log += str_now() + 'Replaced comment '+ str(index) + "'s error code. " + str(old[3]) + ' to ' + str(new[3]) + '\n'
 
                     except ValueError:
                         print("Invalid comment index")
