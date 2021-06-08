@@ -152,6 +152,8 @@ class db:
 class db_manager():
     sMDT_DIR = os.path.dirname(os.path.abspath(__file__))
     containing_dir = os.path.dirname(sMDT_DIR)
+    DROPBOX_DIR = os.path.dirname(os.path.dirname(__file__))
+    sys.path.append(DROPBOX_DIR)
 
     def __init__(self, db_path=os.path.join(containing_dir, "database.s"), archive=True, testing=False):
         """
@@ -214,6 +216,8 @@ class db_manager():
         with shelve.open(self.path) as tubes:
 
             addcount = editcount = delcount = 0
+            log_activity = open('activity.log','a')
+            t = time.localtime()
             for filename in os.listdir(new_data_path):
                 new_data_file = open(os.path.join(new_data_path, filename), 'rb')  # open the file
                 tube = pickle.load(new_data_file)  # load the tube from pickle
@@ -223,14 +227,17 @@ class db_manager():
                     if tube.get_ID() in tubes:
                         del tubes[tube.get_ID()]
                         if logging:
+                            log_activity.write(time.strftime("%d-%b-%Y %H:%M:%S", t) + "\tDeleting tube " + tube.get_ID() + " from database.\n")
                             print("Deleting tube", tube.get_ID(), "from database.")
                             delcount += 1
                     else:
                         if logging:
+                            log_activity.write(time.strftime("%d-%b-%Y %H:%M:%S", t) + "\tAttempted to delete tube " + tube.get_ID() + ", tube not found.\n")
                             print("Attempted to delete tube", tube.get_ID(), ", tube not found.")
 
                 elif filename.endswith(".edit.tube"):
                     if logging:
+                        log_activity.write(time.strftime("%d-%b-%Y %H:%M:%S", t) + "\tRewriting the data of " + tube.get_ID() + " due to edit\n")
                         print("Rewriting the data of", tube.get_ID(), "due to edit")
                         editcount += 1
                     tubes[tube.get_ID()] = tube
@@ -238,6 +245,7 @@ class db_manager():
 
                 elif filename.endswith(".tube"):
                     if logging:
+                        log_activity.write(time.strftime("%d-%b-%Y %H:%M:%S", t) + "\tLoading tube or adding data to " + tube.get_ID() + " into database.\n")
                         print("Loading tube", tube.get_ID(), "into database.")
 
                     if tube.get_ID() in tubes:  # add the tubes to the database
@@ -255,6 +263,6 @@ class db_manager():
             t = time.localtime()
             if logging:
                 print(addcount, "tubes added,", editcount, "edited,", delcount, "deleted at", time.strftime("%H:%M:%S", t))
-
+            log_activity.close()
         # unlock the database
         #db_lock.unlock()
