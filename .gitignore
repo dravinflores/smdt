@@ -29,8 +29,8 @@ database.p
 *.DS_Store
 
 # We do not want to store the output files onto the GitHub
-SwagerStation/SwagerData/
-TensionStation/output/
-LeakDetector/
-DarkCurrent/3015V\ Dark\ Current\ /
-BentnessStation/output/
+BentnessStation/output/*.csv
+DarkCurrent/3015V\ Dark\ Current/*.csv
+LeakDetector/*.txt
+SwagerStation/SwagerData/*.csv
+TensionStation/output/*.out
