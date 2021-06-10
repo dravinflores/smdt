@@ -34,3 +34,6 @@ DarkCurrent/3015V\ Dark\ Current/*.csv
 LeakDetector/*.txt
 SwagerStation/SwagerData/*.csv
 TensionStation/output/*.out
+
+# Not sure if Pytest is adding files.
+activity.log

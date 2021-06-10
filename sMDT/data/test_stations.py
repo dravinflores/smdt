@@ -74,7 +74,9 @@ def test_swage_status():
     assert s.status() == Status.INCOMPLETE
     s.add_record(SwageRecord(raw_length=-9.71, swage_length=0.07))
     assert s.status() == Status.PASS
-    s.add_record(SwageRecord(raw_length=-99999999, swage_length=-0.11))
+    s.add_record(
+        SwageRecord(raw_length=-99999999, swage_length=-0.11, has_failed=True)
+    )
 
     # The swage station's fail() method has not been implemented yet. 
     assert s.fail()
