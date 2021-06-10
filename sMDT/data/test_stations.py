@@ -74,10 +74,12 @@ def test_swage_status():
     assert s.status() == Status.INCOMPLETE
     s.add_record(SwageRecord(raw_length=-9.71, swage_length=0.07))
     assert s.status() == Status.PASS
-    s.add_record(SwageRecord(raw_length=-99999999, swage_length=-0.11))
+    s.add_record(
+        SwageRecord(raw_length=-99999999, swage_length=-0.11, has_failed=True)
+    )
 
     # The swage station's fail() method has not been implemented yet. 
-    # assert s.fail()
+    assert s.fail()
     assert s.status() == Status.FAIL
 
 
@@ -92,18 +94,21 @@ def test_leak_status():
     assert l.fail()
     assert l.status() == Status.FAIL
 
+
 def test_dark_current_status():
     from .dark_current import DarkCurrent, DarkCurrentRecord
     from .status import Status
     dc = DarkCurrent()
     assert dc.status() == Status.INCOMPLETE
+
     dc.add_record(DarkCurrentRecord(dark_current=0))
     assert dc.status() == Status.PASS
-    dc.add_record(DarkCurrentRecord(dark_current=0.15))
 
-    # The dark current station's fail() method has not been implemented yet.
-    # assert dc.fail()
+    # dc.add_record(DarkCurrentRecord(dark_current=0.15))
+    dc.add_record(DarkCurrentRecord(dark_current=100))
+    assert dc.fail()
     assert dc.status() == Status.FAIL
+
 
 def test_tension_status():
     from .tension import Tension, TensionRecord
@@ -122,11 +127,13 @@ def test_tension_status():
     t2.add_record(TensionRecord(tension=350, date=today-days22))
     assert t2.status() == Status.PASS
 
+
 def test_enum():
     from .swage import Swage
     from .status import Status
     swage = Swage()
     assert swage.status() is Status.INCOMPLETE
+
 
 def test_first_tension():
     from .tension import Tension, TensionRecord
@@ -134,6 +141,7 @@ def test_first_tension():
     assert not tStation.passed_first_tension()
     tStation.add_record(TensionRecord(tension=350))
     assert tStation.passed_first_tension()
+    
 
 def test_second_tension():
     from .tension import Tension, TensionRecord

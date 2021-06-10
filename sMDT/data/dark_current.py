@@ -24,14 +24,16 @@ from .status import Status
 
 class DarkCurrentRecord(Record):
     """
-    Class for objects representing individual records from the Dark Current station.
+    Class for objects representing individual records from the 
+    Dark Current station.
     """
 
     # Here are the project defined limits.
-    max_individual_current = 2   # 2 nA
-    max_collective_current = 8   # 8 nA
+    max_individual_current = 2 # nA
+    max_collective_current = 8 # nA
 
-    def __init__(self, dark_current=None, date=datetime.now(), voltage=None, user=None):
+    def __init__(self, dark_current=None, date=datetime.now(), voltage=None, 
+            user=None):
         super().__init__(user)
         self.dark_current = dark_current
         self.date = date
@@ -53,7 +55,8 @@ class DarkCurrentRecord(Record):
 
 class DarkCurrent(Station, ABC):
     """
-    Class for objects representing individual records from the Dark Current station.
+    Class for objects representing individual records from the 
+    Dark Current station.
     """
     def __init__(self):
         super().__init__()
@@ -68,7 +71,8 @@ class DarkCurrent(Station, ABC):
 
         b = b[:-1]
 
-        # We want to have the return string indent each record, for viewing ease.
+        # We want to have the return string indent each record, 
+        # for viewing ease.
         return a + textwrap.indent(b, '\t') + '\n'
 
     def fail(self):

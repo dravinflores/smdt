@@ -20,24 +20,26 @@ from .status import Status
 from .record import Record
 
 
-
 class SwageRecord(Record):
     """
     Class for objects representing individual records from the Swage station.
     """
 
     # These are the fail limits for any tube.
-    max_raw_length = 1000   # cm
-    min_raw_length = -1000      # cm
-    max_swage_length = 1000   # cm
-    min_swage_length = -1000      # cm
-
-
-
+    max_raw_length      = 1000  # cm
+    min_raw_length      = -1000 # cm
+    max_swage_length    = 1000  # cm
+    min_swage_length    = -1000 # cm
 
     # Does this format for a long list of parameters look cleaner?
-    def __init__(self, raw_length=None, swage_length=None,
-                 clean_code=None, date=datetime.now(), user=None):
+    def __init__(
+        self, 
+        raw_length=None, 
+        swage_length=None,
+        clean_code=None, 
+        date=datetime.now(), 
+        user=None, 
+        has_failed=False):
 
         # Call the super class init to construct the object.
         super().__init__(user)
@@ -45,18 +47,24 @@ class SwageRecord(Record):
         self.swage_length = swage_length
         self.clean_code = clean_code
         self.date = date 
+        self.has_failed = has_failed
 
     def fail(self):
-        #if self.raw_length is None or self.swage_length is None:
-        #    return True
-        #elif self.raw_length < SwageRecord.min_raw_length               \
-        #        or self.raw_length > SwageRecord.max_raw_length       \
-        #        or self.swage_length < SwageRecord.min_swage_length   \
-        #        or self.swage_length > SwageRecord.max_swage_length:
-        #    return True
-        #else:
-        #    return False
-        return False
+        '''
+        if self.raw_length is None or self.swage_length is None:
+            return True
+        elif self.raw_length < SwageRecord.min_raw_length \
+                or self.raw_length > SwageRecord.max_raw_length \
+                or self.swage_length < SwageRecord.min_swage_length \
+                or self.swage_length > SwageRecord.max_swage_length:
+            return True
+        else:
+            return False
+        '''
+
+        # Tubes, at this point in time, are not going to be failed on the basis
+        # of length.
+        return self.has_failed
         
     def __str__(self):
         # Using string concatenation here.
@@ -68,8 +76,6 @@ class SwageRecord(Record):
 
         return_str = a + b + c + e + f
         return return_str
-
-
 
 
 class Swage(Station, ABC):
@@ -89,7 +95,8 @@ class Swage(Station, ABC):
 
         b = b[:-1]
 
-        # We want to have the return string indent each record, for viewing ease.
+        # We want to have the return string indent each record, for 
+        # viewing ease.
         return a + textwrap.indent(b, '\t') + '\n'
     
     def fail(self):
