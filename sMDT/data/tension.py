@@ -70,7 +70,8 @@ class Tension(Station, ABC):
 
         b = b[:-1]
 
-        # We want to have the return string indent each record, for viewing ease.
+        # We want to have the return string indent each record, 
+        # for viewing ease.
         return a + textwrap.indent(b, '\t') + '\n'
 
     def passed_first_tension(self):
