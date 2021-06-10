@@ -1,3 +1,4 @@
+# Here are all the IDE based files/directories to ignore.
 .idea/
 venv/
 /.vs/*
@@ -6,7 +7,10 @@ venv/
 /.vs/VSWorkspaceState.json
 /.vs/ProjectSettings.json
 /.vs/slnx.sqlite
+
 *.pyc
+
+# We want to ignore the created files for the database.
 /database.s.dir
 /database.s.bak
 /database.s.dat
@@ -23,3 +27,10 @@ database.p
 
 # Trying to get rid of those .DS_Store files
 *.DS_Store
+
+# We do not want to store the output files onto the GitHub
+SwagerStation/SwagerData/
+TensionStation/output/
+LeakDetector/
+DarkCurrent/3015V\ Dark\ Current\ /
+BentnessStation/output/
