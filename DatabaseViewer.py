@@ -1,30 +1,57 @@
+###############################################################################
+#   File: DatabaseViewer.py
+#   Author(s): Dravin Flores
+#   Date Created: 01 June, 2021
+#
+#   Purpose: This program displays the database as a read-only GUI.
+#
+#   Known Issues:
+#
+#   Workarounds:
+#
+###############################################################################
+
 from typing import final
 from PySide6 import QtCore, QtWidgets, QtGui
-from pathlib import Path
 import operator
 import datetime
+import threading
 
 from sMDT import db, tube
 from sMDT.data import status
 import sys
 
 
-# The way things are programmed here is a bit odd. We're using an abstract
-# table model, but might be a bit more useful to create an abstract item model,
-# and then subclass the table viewer instead. That way we could just create the
-# model for a tube, and then have a viewing of tubes.
-# See: < https://tinyurl.com/stackoverflow-itemmodel >.
-# Add it to the todo.
+def sort_by_most_recent_date(data_array):
+    '''
+    We want to, by default, sort the tubes by the most recent date. So any
+    where we have a passed in data array, we will want to sort it.
+    '''
+
+    # If the underlying data structure has changed, then we will need to 
+    # adjust the lambda. Clearly this would be a key error.
+    if type(data_array[0][6]) != type(DBTableModel.no_value_recorded_date):
+        raise KeyError
+    else:
+        return sorted(data_array, key=lambda data : data[6], reverse=True)
+
 
 class DBTableModel(QtCore.QAbstractTableModel):
+    """
+    This class controls how the tube data will be modeled in Qt. This is the 
+    class that has 'access' to the data. Any Qt class that shows data will do
+    so according to this class.
+    """
+
     date_fmt_str = '%d %b %Y'
 
-    # These are just baked in at the moment.
     standard_horizontal_headers = [
-        "Status", "Tube ID", "User(s)", "Swage Date", "Initial Tension Date",
-        "Initial Tension (g)", "Secondary Tension Date", 
-        "Secondary Tension (g)", "Leak Rate (mbar L/s)", "Dark Current (nA)", 
-        "Raw Length (cm)", "Swage Length (cm)"
+        "Status", "Tube ID", "Swage User", "Tension User", "Leak User",
+        "Dark Current User", "Swage Date", 
+        # "Initial Tension Date", 
+        # "Initial Tension (g)", 
+        "Recent Tension Date", 
+        "Recent Tension (g)", "Leak Rate (mbar L/s)", "Dark Current (nA)"
     ]
 
     # These constants here are just so we can remove any None types, purely
@@ -34,7 +61,8 @@ class DBTableModel(QtCore.QAbstractTableModel):
 
     def __init__(self, data_array):
         super().__init__()
-        self.m_data = data_array
+        # self.m_data = data_array
+        self.m_data = sort_by_most_recent_date(data_array)
 
     def data(self, index, role):
         val = self.m_data[index.row()][index.column()]
@@ -111,25 +139,83 @@ class DBTableModel(QtCore.QAbstractTableModel):
     def columnCount(self, index):
         return len(self.m_data[0])
 
+    def flags(self, index):
+        return QtCore.Qt.ItemIsEnabled \
+            | QtCore.Qt.ItemIsEditable \
+            | QtCore.Qt.ItemIsSelectable
+
+    def refresh(self, new_data):
+        self.layoutAboutToBeChanged.emit()
+        self.m_data = sort_by_most_recent_date(new_data)
+        self.layoutChanged.emit()
+
+
+class DBTableView(QtWidgets.QTableView):
+    """
+    This class controls how the tube data will be viewed, in which case the 
+    table view is chosen so that the data can be arranged in a spreadsheet-like
+    manner.
+    """
+    def __init__(self):
+        super().__init__()
+        self.timer = QtCore.QTimer()
+        self.timer.timeout.connect(self.timeout)
+        self.timer.setInterval(
+            QtGui.QGuiApplication.styleHints().mouseDoubleClickInterval()
+        )
+        self.timer.setSingleShot(True)
+        self.setAlternatingRowColors(True)
+        # self.setGridStyle(QtCore.Qt.PenStyle.NoPen)
+        self.setShowGrid(False)
+        self.setCornerButtonEnabled(True)
+        # self.setCornerButtonEnabled(True)
+        self.resizeRowsToContents()
+        self.setWordWrap(True)
+
+
+    def mouseDoubleClickEvent(self, event):
+        super().mouseDoubleClickEvent(event)
+        self.open_single_tube_data()
+
+    def timeout(self):
+        self.custom_clicked.emit(self.index)
+
+    @QtCore.Slot()
+    def open_single_tube_data(self):
+        print("Hello")
+
+
+class DBTubeDataFloatingWindow(QtWidgets.QWidget):
+    """
+    This class allows for any tube barcode to be double clicked, which will
+    spawn a floating window which has all the data.
+    """
+    def __init__(self, tube):
+        super().__init__()
+        layout = QtWidgets.QVBoxLayout()
+        self.setWindowTitle(f"Data for {tube.get_ID()}")
+        self.data = QtWidgets.QLabel(str(tube))
+        layout.addWidget(self.data)
+        self.setLayout(layout)
+
 
 class DBTabBar(QtWidgets.QTabWidget):
+    """
+    This class allows for the ability to switch between the table of tubes 
+    window and the search window. 
+    """
     def __init__(self, data, db):
         super().__init__()
 
         # Creating the widgets that will be associated with the tabs.
         self.table_view = self.setup_table_view_tab_ui()
         self.search_view = self.setup_search_view_tab_ui()
-        self.graph_view = self.setup_graph_view_tab_ui()
 
         self.addTab(self.table_view, "Database")
         self.addTab(self.search_view, "Search")
-        self.addTab(self.graph_view, "Plot")
 
         self.table_view.setSortingEnabled(True)
 
-        # This part is a bit "hacky" and weird. We just put it in the tab
-        # window for no other reason than it was a place to put it. Using the
-        # abstract item model could offer a better organization.
         self.table_view.horizontalHeader().setStretchLastSection(True)
         self.table_view.horizontalHeader() \
             .setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
@@ -140,7 +226,8 @@ class DBTabBar(QtWidgets.QTabWidget):
         self.database = db
 
     def setup_table_view_tab_ui(self):
-        table_view_tab = QtWidgets.QTableView()
+        # table_view_tab = QtWidgets.QTableView()
+        table_view_tab = DBTableView()
         layout = QtWidgets.QVBoxLayout()
 
         table_view_tab.setLayout(layout)
@@ -187,6 +274,23 @@ class DBTabBar(QtWidgets.QTabWidget):
         graph_view_tab.setLayout(layout)
         return graph_view_tab
 
+    def call_for_refresh(self):
+        self.database = get_current_database()
+
+        # Testing purposes only
+        '''
+        self.db_manager = db.db_manager(testing=True)
+        a_new_tube = tube.Tube()
+        a_new_tube.m_tube_id = ''
+        self.database.add_tube(a_new_tube)
+        self.db_manager.update()
+        '''
+
+        data = db_to_display_array(self.database)
+        self.table_view.setModel(DBTableModel(data))
+
+        # self.database.delete_tube('')
+
 
 class ViewDBMainWindow(QtWidgets.QMainWindow):
     def __init__(self, data, db):
@@ -201,11 +305,32 @@ class ViewDBMainWindow(QtWidgets.QMainWindow):
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
 
-        main_layout = QtWidgets.QVBoxLayout()
-        self.setLayout(main_layout)
+        self.timer = QtCore.QTimer()
+        self.timer.start(1000)
 
+        main_layout = QtWidgets.QVBoxLayout()
         self.tab_bar = DBTabBar(data, db)
+        self.setLayout(main_layout)
         self.setCentralWidget(self.tab_bar)
+
+        toolbar = QtWidgets.QToolBar()
+        self.addToolBar(toolbar)
+
+        button_action = QtGui.QAction("Refresh", self)
+        button_action.setStatusTip("Click to refresh the database")
+        button_action.triggered.connect(self.refresh_data)
+        toolbar.addAction(button_action)
+
+        self.setStatusBar(QtWidgets.QStatusBar(self))
+
+    def refresh_data(self):
+        self.tab_bar.call_for_refresh()
+
+    def toggle_window(self, window):
+        if window.isVisible():
+            window.hide()
+        else:
+            window.show()
 
 
 # We're returning a tuple, corresponding to the following format:
@@ -236,33 +361,39 @@ def get_measurement(list_of_records, type):
     return (ret_date, ret_measurement)
 
 
+
 def db_to_display_array(db):
     ret_arr = []
-    # try:
     tubes = db.get_tubes()
 
     for tube in tubes:
-        # print(tube)
-
-        # "Status", "Tube ID", "User(s)", "Swage Date",
-        # "Initial Tension Date", "Initial Tension (g)",
-        # "Secondary Tension (g)", "Leak Rate", "Dark Current (nA)",
-        # "Raw Length (cm)", "Swage Length (cm)"
-
         status = tube.status()
         tube_id = tube.get_ID()
 
-        user_set = set()
+        last_swage_user = ''
+        last_tension_user = ''
+        last_leak_user = ''
+        last_current_user = ''
 
-        # We need to do some special things for the users.
-        for record in tube.swage.get_record('all'):
-            user_set.add(record.user)
-        for record in tube.tension.get_record('all'):
-            user_set.add(record.user)
-        for record in tube.leak.get_record('all'):
-            user_set.add(record.user)
+        try:
+            last_swage_user = tube.swage.get_record('last').user
+        except IndexError:
+            pass
 
-        user_list = list(user_set)
+        try:
+            last_tension_user = tube.tension.get_record('last').user
+        except IndexError:
+            pass
+
+        try:
+            last_leak_user = tube.leak.get_record('last').user
+        except IndexError:
+            pass
+
+        try:
+            last_current_user = tube.dark_current.get_record('last').user
+        except IndexError:
+            pass
 
         try:
             swage_date = tube.swage.get_record('last').date
@@ -291,14 +422,17 @@ def db_to_display_array(db):
             leak_rate = tube.leak.get_record().leak_rate
         except IndexError:
             leak_rate = DBTableModel.no_value_recorded_float
+
         try:
             dark_current = tube.dark_current.get_record().dark_current
         except IndexError:
             dark_current = DBTableModel.no_value_recorded_float
+
         try:
             raw_length = tube.swage.get_record().raw_length
         except IndexError:
             raw_length = DBTableModel.no_value_recorded_float
+
         try:
             swage_length = tube.swage.get_record().swage_length
         except IndexError:
@@ -327,26 +461,25 @@ def db_to_display_array(db):
         else:
             pass
 
+        
+
         l = [
             status,
             tube_id,
-            user_list[0] if user_list else None,
+            last_swage_user,
+            last_tension_user,
+            last_leak_user,
+            last_current_user,
             swage_date,
-            initial_tension_date,
-            initial_tension,
+            # initial_tension_date,
+            # initial_tension,
             final_tension_date,
             final_tension,
             leak_rate,
             dark_current,
-            raw_length,
-            swage_length
         ]
         ret_arr.append(l)
 
-    # except Exception as e:
-    # ret_arr = []
-    # print(e)
-    # finally:
     return ret_arr
 
 
@@ -365,26 +498,19 @@ def get_data_array_alt():
     return data_array
 
 
-if __name__ == '__main__':
-    path_str = str(Path())
-    database = db.db()
-    # print(database.get_tube("MSU03355"))
+def get_current_database():
+    return db.db()
 
+
+if __name__ == '__main__':
+    database = get_current_database()
     data_array = db_to_display_array(database)
 
     if not data_array:
         data_array = get_data_array_alt()
 
-    # db_manager = db.db_manager()
-    # db_manager.update()
-
     app = QtWidgets.QApplication(sys.argv)
-
-    # No reason for this to be here. It's just here for redundancy.
-    try:
-        app.setStyle("Fusion")
-    except:
-        pass
+    app.setStyle("Fusion")
 
     window = ViewDBMainWindow(data_array, database)
     window.show()
