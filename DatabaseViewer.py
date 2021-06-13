@@ -10,7 +10,7 @@
 #   Workarounds:
 #
 #   Updates:
-#   2021-06-12, Reinhard Schwienhorst: Update database every 5 seconds
+#   2021-06-13, Reinhard Schwienhorst: Update database every 5 seconds
 #
 ###############################################################################
 #
