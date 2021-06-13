@@ -10,7 +10,7 @@
 #   Workarounds:
 #
 #   Updates:
-#   2021-06-12, Reinhard Schwienhorst: Update database when clicking on a column header
+#   2021-06-12, Reinhard Schwienhorst: Update database every 5 seconds
 #
 ###############################################################################
 #
@@ -66,6 +66,13 @@ class DBTableModel(QtCore.QAbstractTableModel):
         super().__init__()
         self.m_data = data_array
         self.database=db
+        # use a timer to update the database every 5 seconds
+        timer = QtCore.QTimer(self)
+        self.connect(timer, QtCore.SIGNAL("timeout()"), self.update)
+        timer.start(5000)
+        # remember how the data is sorted when updating the display
+        self.column=3
+        self.reverse=True
 
     def data(self, index, role):
         val = self.m_data[index.row()][index.column()]
@@ -128,15 +135,13 @@ class DBTableModel(QtCore.QAbstractTableModel):
             return column + 1
 
     def sort(self, column, order):
+        self.column=column
+        self.reverse=True
         self.layoutAboutToBeChanged.emit()
-        # update data first
-        db.db_manager().update()
-        self.m_data = db_to_display_array(self.database.db())
-        self.m_data = sorted(self.m_data, key=operator.itemgetter(column),reverse=True)
-
+        self.m_data = sorted(self.m_data, key=operator.itemgetter(column),reverse=self.reverse)
         if order == QtCore.Qt.DescendingOrder:
             self.m_data.reverse()
-
+            self.reverse=False
         self.layoutChanged.emit()
 
     def rowCount(self, index):
@@ -144,6 +149,15 @@ class DBTableModel(QtCore.QAbstractTableModel):
 
     def columnCount(self, index):
         return len(self.m_data[0])
+
+    def update(self):
+        # update data first
+        db.db_manager().update()
+        self.layoutAboutToBeChanged.emit()
+        self.m_data = db_to_display_array(self.database.db())
+        self.m_data = sorted(self.m_data, key=operator.itemgetter(self.column),reverse=self.reverse)
+        self.layoutChanged.emit()
+        
 
 
 class DBTabBar(QtWidgets.QTabWidget):
