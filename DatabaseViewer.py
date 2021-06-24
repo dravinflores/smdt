@@ -11,6 +11,7 @@
 #
 #   Updates:
 #   2021-06-13, Reinhard Schwienhorst: Update database every 5 seconds
+#   2021-06-24, Reinhard: Allow user to enter only 4 digits for tube ID
 #
 ###############################################################################
 #
@@ -224,6 +225,12 @@ class DBTabBar(QtWidgets.QTabWidget):
 
     def typed_text(self):
         tube_id = self.search_view.typable_box_widget.text()
+        # check if it's a valid tube ID, if not try to make it into one
+        try:
+            self.database.db().get_tube(tube_id)
+        except KeyError:
+            tube_id = "MSU0"+tube_id
+
         self.search_view.data_spot.setText(
             # self.search_view.typable_box_widget.text()
             str(self.database.db().get_tube(tube_id))
