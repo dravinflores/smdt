@@ -1,6 +1,6 @@
 ###############################################################################
 #   File: DatabaseViewer.py
-#   Author(s): Dravin Flores
+#   Author(s): Dravin Flores, Reinhard Schwienhorst
 #   Date Created: 01 June, 2021
 #
 #   Purpose: This program displays the database as a read-only GUI.
@@ -14,8 +14,7 @@
 #   2021-06-24, Reinhard: Allow user to enter only 4 digits for tube ID
 #
 ###############################################################################
-#
-#
+
 pyside_version = None
 try:
     from PySide6 import QtCore, QtWidgets, QtGui
@@ -23,6 +22,7 @@ try:
 except ImportError:
     from PySide2 import QtCore, QtWidgets, QtGui
     pyside_version = 2
+
 from pathlib import Path
 import operator
 import datetime
@@ -30,9 +30,9 @@ import datetime
 import os
 import sys
 
-#fp = open('errors.txt', 'a')
-#fp.write(os.path.abspath(os.path.dirname(__file__)))
-#fp.close()
+# fp = open('errors.txt', 'a')
+# fp.write(os.path.abspath(os.path.dirname(__file__)))
+# fp.close()
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 
 from sMDT import db, tube
@@ -40,22 +40,21 @@ from sMDT.data import status
 import sys
 
 
-# The way things are programmed here is a bit odd. We're using an abstract
-# table model, but might be a bit more useful to create an abstract item model,
-# and then subclass the table viewer instead. That way we could just create the
-# model for a tube, and then have a viewing of tubes.
-# See: < https://tinyurl.com/stackoverflow-itemmodel >.
-# Add it to the todo.
-
-class DBTableModel(QtCore.QAbstractTableModel):
+class DataModel(QtCore.QAbstractTableModel):
+    """
+    This class allows for the tube data to be stored in a Qt-friendly way, 
+    through the view-model architecture. The model acts as the data storage,
+    whereas the view displays the data to the user.
+    """
     date_fmt_str = '%d %b %Y'
 
     # These are just baked in at the moment.
-    standard_horizontal_headers = [
-        "Status", "Tube ID", "Swage User", "Swage Date", "Initial Tension Date",
-        "Initial Tension (g)", "Secondary Tension Date", 
-        "Secondary Tension (g)", "Leak Rate (mbar L/s)", "Dark Current (nA)", 
-        "Raw Length (cm)", "Swage Length (cm)"
+    horizontal_headers = [
+        "Status", "Tube ID", "Swage User", "Swage Date", 
+        "Initial Tension Date", "Initial Tension (g)", 
+        "Secondary Tension Date", "Secondary Tension (g)", 
+        "Leak Rate (mbar L/s)", 
+        "Dark Current (nA)"
     ]
 
     # These constants here are just so we can remove any None types, purely
@@ -63,34 +62,39 @@ class DBTableModel(QtCore.QAbstractTableModel):
     no_value_recorded_float = 299792458.00
     no_value_recorded_date = datetime.datetime(1800, 1, 1)
 
-    def __init__(self, data_array,db):
+    def __init__(self, data_array, db):
         super().__init__()
         self.m_data = data_array
-        self.database=db
+        self.database = db
+
         # use a timer to update the database every 5 seconds
         timer = QtCore.QTimer(self)
         self.connect(timer, QtCore.SIGNAL("timeout()"), self.update)
         timer.start(5000)
+
         # remember how the data is sorted when updating the display
-        self.column=3
-        self.reverse=True
+        self.column = 3
+        self.reverse = True
 
     def data(self, index, role):
         val = self.m_data[index.row()][index.column()]
 
+        # For the data we want to print to the screen.
         if role == QtCore.Qt.DisplayRole:
-            # Rather than passing in strings, let's go ahead and just convert
-            # here. We'll also catch the ability to get constants.
+            # First we want to check for any unrecorded values and alert
+            # the user.
+            unrecorded_str = "-- NO RECORD --"
+
             if isinstance(val, float) and \
-                    val == DBTableModel.no_value_recorded_float:
-                return ""
+                    val == DataModel.no_value_recorded_float:
+                return unrecorded_str
 
             if isinstance(val, datetime.datetime) and \
-                    val == DBTableModel.no_value_recorded_date:
-                return ""
+                    val == DataModel.no_value_recorded_date:
+                return unrecorded_str
 
             if isinstance(val, datetime.datetime):
-                return val.strftime(DBTableModel.date_fmt_str)
+                return val.strftime(DataModel.date_fmt_str)
             elif isinstance(val, float):
                 return f"{val:0.2f}"
             elif isinstance(val, status.Status):
@@ -105,12 +109,12 @@ class DBTableModel(QtCore.QAbstractTableModel):
                 return str(val)
 
         if role == QtCore.Qt.TextAlignmentRole:
-            return QtCore.Qt.AlignHCenter #+ QtCore.Qt.AlignVCenter
+            return QtCore.Qt.AlignHCenter + QtCore.Qt.AlignVCenter
 
         if role == QtCore.Qt.ForegroundRole:
             # Here we can control the text color itself.
             '''
-            if isinstance(val, float):
+            if isinstance(val, string):
                 return QtGui.QColor('grey')
             '''
 
@@ -129,7 +133,7 @@ class DBTableModel(QtCore.QAbstractTableModel):
     def headerData(self, column, orientation, role):
         # We want to have named columns.
         if (role, orientation) == (QtCore.Qt.DisplayRole, QtCore.Qt.Horizontal):
-            return DBTableModel.standard_horizontal_headers[column]
+            return DataModel.horizontal_headers[column]
 
         # This is just so we can have numbered rows.
         if (role, orientation) == (QtCore.Qt.DisplayRole, QtCore.Qt.Vertical):
@@ -139,10 +143,17 @@ class DBTableModel(QtCore.QAbstractTableModel):
         self.column=column
         self.reverse=True
         self.layoutAboutToBeChanged.emit()
-        self.m_data = sorted(self.m_data, key=operator.itemgetter(column),reverse=self.reverse)
+
+        self.m_data = sorted(
+            self.m_data, 
+            key=operator.itemgetter(column),
+            reverse=self.reverse
+        )
+
         if order == QtCore.Qt.DescendingOrder:
             self.m_data.reverse()
-            self.reverse=False
+            self.reverse = False
+
         self.layoutChanged.emit()
 
     def rowCount(self, index):
@@ -153,68 +164,183 @@ class DBTableModel(QtCore.QAbstractTableModel):
 
     def update(self):
         # update data first
-        db.db_manager().update()
+
+        # Just a funny comment, this throws a FileNotFoundError on my personal
+        # machine.
+        try:
+            db.db_manager().update()
+        except FileNotFoundError:
+            pass
+
         self.layoutAboutToBeChanged.emit()
         self.m_data = db_to_display_array(self.database.db())
-        self.m_data = sorted(self.m_data, key=operator.itemgetter(self.column),reverse=self.reverse)
+
+        self.m_data = sorted(
+            self.m_data, 
+            key=operator.itemgetter(self.column),
+            reverse=self.reverse
+        )
+
         self.layoutChanged.emit()
+
+
+class DataView(QtWidgets.QTableView):
+    """
+    This class displays a model to the user.
+    """
+    def __init__(self):
+        super().__init__()
+
+        # This is for controlling the number of windows we have
+
+        self.w = None
+        self.window_list = []
+
+        self.setAlternatingRowColors(True)
         
+        self.doubleClicked.connect(self.on_double_click)
+
+    def on_double_click(self, index):
+        clicked_on_barcode = False
+        clicked_on_names = False
+
+        if index.column() == 1:
+            clicked_on_barcode = True
+        elif index.column() == 2:
+            clicked_on_names = True
+
+        if clicked_on_barcode:
+            tube_id = self.convert_to_barcode(index.data())
+            data_str = str(self.model().database.db().get_tube(tube_id))
+        elif clicked_on_names:
+            # We need to get the digits for the barcode
+            digits = self.model().index(index.row(), 1).data()
+            tube_id = self.convert_to_barcode(digits)
+
+            tube = self.model().database.db().get_tube(tube_id)
+
+            user_list = []
+
+            # We need to do some special things for the users.
+            for record in tube.swage.get_record('all'):
+                user_list.append(record.user)
+            for record in tube.tension.get_record('all'):
+                user_list.append(record.user)
+            for record in tube.leak.get_record('all'):
+                user_list.append(record.user)
+            for record in tube.dark_current.get_record('all'):
+                user_list.append(record.user)
+
+            user_list = list(set(user_list))
+            data_str = "List of users:\n"
+
+            for name in user_list:
+                if name is not None:
+                    data_str += '\t' + name + '\n'
+        else:
+            return 
+
+        self.show_new_window(data_str)
+
+    def convert_to_barcode(self, tube_id):
+        return "MSU0" + str(tube_id)
 
 
-class DBTabBar(QtWidgets.QTabWidget):
+    def show_new_window(self, data_str):
+        # print(self.window_list)
+        w = TubeDataWindow(data_str)
+        self.clean_windows_list()
+        self.window_list.append(w)
+        self.window_list[-1].show()
+
+    def clean_windows_list(self):
+        new_window_set = set()
+        for window in self.window_list:
+            if window.isVisible():
+                new_window_set.add(window)
+            else:
+                window.close()
+        self.window_list = list(new_window_set)
+
+
+class TubeDataWindow(QtWidgets.QWidget):
+    """
+    This class creates a widget which can display text to the screen.
+    """
+    def __init__(self, data_str=None):
+        super().__init__()
+
+        layout = QtWidgets.QVBoxLayout()
+
+        self.text_box = QtWidgets.QLabel()
+
+        if data_str is not None:
+            self.text_box.setText(data_str)
+
+        self.scrollable_window = QtWidgets.QScrollArea()
+        self.scrollable_window.setWidget(self.text_box)
+        self.scrollable_window.setWidgetResizable(True)
+
+        layout.addWidget(self.scrollable_window)
+        self.setLayout(layout)
+
+    def setText(self, text_str):
+        self.text_box.setText(text_str)
+
+
+class TabbedWindow(QtWidgets.QTabWidget):
+    """
+    This widget allows for different "context" windows to be displayed, and
+    selected using a tab selector.
+    """
     def __init__(self, data, db):
         super().__init__()
 
         # Creating the widgets that will be associated with the tabs.
-        self.table_view = self.setup_table_view_tab_ui()
-        self.search_view = self.setup_search_view_tab_ui()
-        self.graph_view = self.setup_graph_view_tab_ui()
+        self.table_view = self.setup_table_view_tab()
+        self.search_view = self.setup_search_view_tab()
+        self.plot_view = self.setup_plot_tab()
+        self.manual_data_entry = self.setup_manual_data_entry_tab()
 
         self.addTab(self.table_view, "Database")
         self.addTab(self.search_view, "Search")
-        self.addTab(self.graph_view, "Plot")
+        self.addTab(self.plot_view, "Plot")
+        self.addTab(self.manual_data_entry, "Add Data")
 
         self.table_view.setSortingEnabled(True)
-
-        # This part is a bit "hacky" and weird. We just put it in the tab
-        # window for no other reason than it was a place to put it. Using the
-        # abstract item model could offer a better organization.
-        self.table_view.horizontalHeader().setStretchLastSection(True)
-        self.table_view.horizontalHeader() \
-            .setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
-
-        self.table_view.resizeColumnsToContents()
-        self.table_view.setModel(DBTableModel(data,db))
+        self.table_view.setModel(DataModel(data,db))
 
         self.database = db
 
-    def setup_table_view_tab_ui(self):
-        table_view_tab = QtWidgets.QTableView()
+    def setup_table_view_tab(self):
+        table_view_tab = DataView()
         layout = QtWidgets.QVBoxLayout()
-
         table_view_tab.setLayout(layout)
+
+        table_view_tab.horizontalHeader().setStretchLastSection(True)
+
+        stretch = QtWidgets.QHeaderView.Stretch
+        table_view_tab.horizontalHeader().setSectionResizeMode(stretch)
+        
+        table_view_tab.resizeColumnsToContents()
+
         return table_view_tab
 
-    def setup_search_view_tab_ui(self):
-        # We need to actually create a few layouts, like the top_layout,
-        # right_side_layout, left_side_layout, and the bottom_layout.
-
+    def setup_search_view_tab(self):
         search_view_tab = QtWidgets.QWidget()
         layout = QtWidgets.QVBoxLayout()
 
-        search_view_tab.typable_box_widget = QtWidgets.QLineEdit()
-        search_view_tab.typable_box_widget.setMaxLength(15)
+        search_view_tab.mutable_text_box = QtWidgets.QLineEdit()
+        search_view_tab.mutable_text_box.setMaxLength(15)
 
         prompt = "Type in tube ID and press enter"
 
-        search_view_tab.typable_box_widget.setPlaceholderText(prompt)
-        search_view_tab.typable_box_widget.returnPressed.connect(
-            self.typed_text
-        )
+        search_view_tab.mutable_text_box.setPlaceholderText(prompt)
+        search_view_tab.mutable_text_box.returnPressed.connect(self.typed_text)
 
-        search_view_tab.data_spot = QtWidgets.QLabel()
+        search_view_tab.data_spot = TubeDataWindow()
 
-        layout.addWidget(search_view_tab.typable_box_widget)
+        layout.addWidget(search_view_tab.mutable_text_box)
         layout.addWidget(search_view_tab.data_spot)
 
         layout.insertSpacing(0, 15)
@@ -224,26 +350,91 @@ class DBTabBar(QtWidgets.QTabWidget):
         return search_view_tab
 
     def typed_text(self):
-        tube_id = self.search_view.typable_box_widget.text()
+        tube_id = self.search_view.mutable_text_box.text()
         # check if it's a valid tube ID, if not try to make it into one
         try:
             self.database.db().get_tube(tube_id)
         except KeyError:
-            tube_id = "MSU0"+tube_id
+            tube_id = "MSU0" + tube_id
 
         self.search_view.data_spot.setText(
-            # self.search_view.typable_box_widget.text()
             str(self.database.db().get_tube(tube_id))
         )
 
-    def setup_graph_view_tab_ui(self):
+    def setup_plot_tab(self):
         graph_view_tab = QtWidgets.QWidget()
         layout = QtWidgets.QVBoxLayout()
         graph_view_tab.setLayout(layout)
         return graph_view_tab
 
+    def setup_manual_data_entry_tab(self):
+        manual_data_entry_tab = QtWidgets.QWidget()
+        layout = QtWidgets.QVBoxLayout()
+        manual_data_entry_tab.setLayout(layout)
 
-class ViewDBMainWindow(QtWidgets.QMainWindow):
+        # We need a text entry box for the barcode.
+        self.tube_id_text_box = QtWidgets.QWidget()
+        tube_id_text_box_layout = QtWidgets.QFormLayout()
+        tube_id_text_box_layout.addRow("Tube ID:", QtWidgets.QLineEdit())
+        self.tube_id_text_box.setLayout(tube_id_text_box_layout)
+
+        # The way we're going to switch from entering data between the 
+        # stations is by a combo box.
+        self.station_select_combo = QtWidgets.QComboBox()
+        self.station_select_combo.addItems([
+            "Swage", "Tension", "Leak", "Dark Current"
+        ])
+        self.station_select_combo.activated.connect(self.switch_page)
+
+        # We want to only show one station's data entry at a time
+        self.stacked_layout = QtWidgets.QStackedLayout()
+
+        # Here is the swage station's data entry page.
+        swage_data_page = QtWidgets.QWidget()
+        swage_data_page_layout = QtWidgets.QFormLayout()
+        swage_data_page_layout.addRow("Raw Length:", QtWidgets.QLineEdit())
+        swage_data_page_layout.addRow("Swage Length:", QtWidgets.QLineEdit())
+        swage_data_page.setLayout(swage_data_page_layout)
+        self.stacked_layout.addWidget(swage_data_page)
+
+        # Here is the tension station's data entry page.
+        tension_data_page = QtWidgets.QWidget()
+        tension_data_page_layout = QtWidgets.QFormLayout()
+        tension_data_page_layout.addRow("Tension: ", QtWidgets.QLineEdit())
+        tension_data_page_layout.addRow("Frequency: ", QtWidgets.QLineEdit())
+        tension_data_page.setLayout(tension_data_page_layout)
+        self.stacked_layout.addWidget(tension_data_page)
+
+        # Here is the leak station's data entry page.
+        leak_data_page = QtWidgets.QWidget()
+        leak_data_page_layout = QtWidgets.QFormLayout()
+        leak_data_page_layout.addRow("Leak Rate:", QtWidgets.QLineEdit())
+        leak_data_page.setLayout(leak_data_page_layout)
+        self.stacked_layout.addWidget(leak_data_page)
+
+        # Here is the dark current's data entry page.
+        dark_current_data_page = QtWidgets.QWidget()
+        dark_current_data_page_layout = QtWidgets.QFormLayout()
+        dark_current_data_page_layout.addRow("Current:", QtWidgets.QLineEdit())
+        dark_current_data_page_layout.addRow("Voltage:", QtWidgets.QLineEdit())
+        dark_current_data_page.setLayout(dark_current_data_page_layout)
+        self.stacked_layout.addWidget(dark_current_data_page)
+
+        layout.addWidget(self.tube_id_text_box)
+        layout.addWidget(self.station_select_combo)
+        layout.addLayout(self.stacked_layout)
+        manual_data_entry_tab.setLayout(layout)
+
+        return manual_data_entry_tab
+
+    @QtCore.Slot()
+    def switch_page(self):
+        self.stacked_layout.setCurrentIndex(
+            self.station_select_combo.currentIndex()
+        )
+
+
+class MainWindow(QtWidgets.QMainWindow):
     def __init__(self, data, db):
         super().__init__()
 
@@ -259,13 +450,10 @@ class ViewDBMainWindow(QtWidgets.QMainWindow):
         main_layout = QtWidgets.QVBoxLayout()
         self.setLayout(main_layout)
 
-        self.tab_bar = DBTabBar(data, db)
-        self.setCentralWidget(self.tab_bar)
+        self.tabbed_window = TabbedWindow(data, db)
+        self.setCentralWidget(self.tabbed_window)
 
-
-# We're returning a tuple, corresponding to the following format:
-# (date, measurement).
-def get_measurement(list_of_records, type):
+def get_tension_measurement(list_of_records, type, mode):
     date_set_without_times = set()
     for record in list_of_records:
         date_set_without_times.add(record.date.date())
@@ -276,34 +464,44 @@ def get_measurement(list_of_records, type):
     elif type == 'final':
         date = max(date_set_without_times)
     else:
-        date = DBTableModel.no_value_recorded_date
+        date = DataModel.no_value_recorded_date
 
-    ret_date = DBTableModel.no_value_recorded_date
-    ret_measurement = DBTableModel.no_value_recorded_float
+    ret_date = DataModel.no_value_recorded_date
+    ret_tens = DataModel.no_value_recorded_float
 
-    # Now we want the data that corresponds to the first passing measurement.
-    for record in list_of_records:
-        if (record.date.date() == date) and (not record.fail()):
-            ret_date = record.date
-            ret_measurement = record.tension
-            break
+    if mode == 'last':
+        l = []
+        for record in list_of_records:
+            if record.date.date() == date:
+                l.append(record)
 
-    return (ret_date, ret_measurement)
+        ret_date = l[-1].date
+        ret_tens = l[-1].tension
+
+    if mode == 'first passing':
+        for record in list_of_records:
+            if record.date.date() == date and not record.fail():
+                ret_date = record.date
+                ret_measurement = record.tension
+                break
+    
+    if mode == 'last passing':
+        l = []
+        for record in list_of_records:
+            if record.date.date() == date and not record.fail():
+                l.append(record)
+
+        ret_date = l[-1].date
+        ret_tens = l[-1].tension
+
+    return (ret_date, ret_tens)
 
 
 def db_to_display_array(db):
     ret_arr = []
-    # try:
     tubes = db.get_tubes()
 
     for tube in tubes:
-        # print(tube)
-
-        # "Status", "Tube ID", "User(s)", "Swage Date",
-        # "Initial Tension Date", "Initial Tension (g)",
-        # "Secondary Tension (g)", "Leak Rate", "Dark Current (nA)",
-        # "Raw Length (cm)", "Swage Length (cm)"
-
         status = tube.status()
         tube_id = tube.get_ID()
 
@@ -316,67 +514,67 @@ def db_to_display_array(db):
         try:
             swage_date = tube.swage.get_record('last').date
         except IndexError:
-            swage_date = DBTableModel.no_value_recorded_date
+            swage_date = DataModel.no_value_recorded_date
 
         try:
             (initial_tension_date, initial_tension) = \
-                get_measurement(tube.tension.get_record('all'), 'initial')
+                get_tension_measurement(
+                    tube.tension.get_record('all'), 
+                    'initial',
+                    'last'
+                )
         except ValueError:
             (initial_tension_date, initial_tension) = (
-                    DBTableModel.no_value_recorded_date, 
-                    DBTableModel.no_value_recorded_float
+                    DataModel.no_value_recorded_date, 
+                    DataModel.no_value_recorded_float
                 )
 
         try:
             (final_tension_date, final_tension) = \
-                get_measurement(tube.tension.get_record('all'), 'final')
+                get_tension_measurement(
+                    tube.tension.get_record('all'), 
+                    'final',
+                    'last'
+                )
         except ValueError:
             (final_tension_date, final_tension) = (
-                    DBTableModel.no_value_recorded_date, 
-                    DBTableModel.no_value_recorded_float
+                    DataModel.no_value_recorded_date, 
+                    DataModel.no_value_recorded_float
                 )
 
         try:
             leak_rate = tube.leak.get_record().leak_rate
         except IndexError:
-            leak_rate = DBTableModel.no_value_recorded_float
+            leak_rate = DataModel.no_value_recorded_float
         try:
             dark_current = tube.dark_current.get_record().dark_current
         except IndexError:
-            dark_current = DBTableModel.no_value_recorded_float
-        try:
-            raw_length = tube.swage.get_record().raw_length
-        except IndexError:
-            raw_length = DBTableModel.no_value_recorded_float
-        try:
-            swage_length = tube.swage.get_record().swage_length
-        except IndexError:
-            swage_length = DBTableModel.no_value_recorded_float
+            dark_current = DataModel.no_value_recorded_float
 
         if tube_id is None:
             tube_id = 0
-        elif tube_id=="":
+        elif tube_id == "":
             tube_id = 0
         else:
-            tube_id = int(tube_id[3:])
+            try:
+                tube_id = int(tube_id[3:])
+            except ValueError:
+                tube_id = 0
+        
         if swage_date is None:
-            swage_date = DBTableModel.no_value_recorded_date
+            swage_date = DataModel.no_value_recorded_date
         elif initial_tension_date is None:
-            initial_tension_date = DBTableModel.no_value_recorded_date
+            initial_tension_date = DataModel.no_value_recorded_date
         elif initial_tension is None:
-            initial_tension = DBTableModel.no_value_recorded_float
+            initial_tension = DataModel.no_value_recorded_float
         elif final_tension_date is None:
-            final_tension_date = DBTableModel.no_value_recorded_date
+            final_tension_date = DataModel.no_value_recorded_date
         elif final_tension is None:
-            final_tension = DBTableModel.no_value_recorded_float
+            final_tension = DataModel.no_value_recorded_float
         elif leak_rate is None:
-            leak_rate = DBTableModel.no_value_recorded_float
+            leak_rate = DataModel.no_value_recorded_float
         elif dark_current is None:
-            dark_current = DBTableModel.no_value_recorded_float
-        elif raw_length is None:
-            raw_length = DBTableModel.no_value_recorded_float
-        elif swage_length is None:
-            swage_length = DBTableModel.no_value_recorded_float
+            dark_current = DataModel.no_value_recorded_float
         else:
             pass
 
@@ -391,18 +589,11 @@ def db_to_display_array(db):
             final_tension,
             leak_rate,
             dark_current,
-            raw_length,
-            swage_length
         ]
         ret_arr.append(l)
 
-    # except Exception as e:
-    # ret_arr = []
-    # print(e)
-
     # sort by swage date and tube ID
-    ret_arr=sorted(ret_arr,key = operator.itemgetter(3,1),reverse=True)
-    # finally:
+    ret_arr = sorted(ret_arr, key=operator.itemgetter(3,1), reverse=True)
     return ret_arr
 
 
@@ -415,16 +606,15 @@ def get_data_array_alt():
     for i in range(n_rows):
         arr = []
         for j in range(n_cols):
-            arr.append(j)
+            arr.append(i + j)
         data_array.append(arr)
 
     return data_array
 
 
-if __name__ == '__main__':
+def run():
     path_str = str(Path())
     database = db
-    # print(database.db().get_tube("MSU03355"))
 
     data_array = db_to_display_array(database.db())
 
@@ -436,15 +626,15 @@ if __name__ == '__main__':
 
     app = QtWidgets.QApplication(sys.argv)
 
-    # No reason for this to be here. It's just here for redundancy.
-    try:
-        app.setStyle("Fusion")
-    except:
-        pass
+    app.setStyle("fusion")
 
-    window = ViewDBMainWindow(data_array, database)
+    window = MainWindow(data_array, database)
     window.show()
+
     if pyside_version == 2:
         sys.exit(app.exec_())
     elif pyside_version == 6:
         sys.exit(app.exec())
+
+if __name__ == '__main__':
+    run()
