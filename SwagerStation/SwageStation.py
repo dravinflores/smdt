@@ -11,9 +11,6 @@ Windows 10.
 @author: Jason Gombas, Paul Johnecheck
 '''
 
-
-
-
 import tkinter as tk
 from tkinter import StringVar
 import pickle
@@ -27,15 +24,31 @@ from sMDT import db, tube
 from sMDT.data import swage
 path=os.path.dirname(os.path.abspath(__file__))
 
+# This is a constant
+NoneValueFloat: float = 3.0E8
+
 
 def write(code, lengths, cleanCode, name):
     database = db.db()
     tube1 = tube.Tube()
     tube1.set_ID(code)
-    tube1.swage.add_record(swage.SwageRecord(raw_length=float(lengths[0]), 
-                                             swage_length=float(lengths[1]), 
-                                             clean_code=cleanCode, 
-                                             user=name))
+
+    raw = float(lengths[0])
+    swage_len = float(lengths[1])
+    clean = cleanCode
+    username = name
+
+    if swage_len > 299792458.00:
+        raw = None
+
+    tube1.swage.add_record(
+        swage.SwageRecord(
+            raw_length=raw, 
+            swage_length=swage_len, 
+            clean_code=clean, 
+            user=username
+        )
+    )
     database.add_tube(tube1)
                     
 
@@ -49,6 +62,8 @@ def handle_enter(event):
     entry_slength.config({"background": "White"})
 
     status = True
+    using_default_swage_length_value = False
+
     if not entry_length.get().replace('.', '', 1).replace('-', '', 1).isdigit():
         entry_length.config({"background": "Red"})
         text_entryStatus.delete("1.0", tk.END)
@@ -74,20 +89,35 @@ def handle_enter(event):
         text_entryStatus.delete("1.0", tk.END)
         text_entryStatus.insert("1.0", "Fill in all fields")
         status = False
+
+    # For the database as it is currently, we would really like ignore the 
+    # swage length, because we are tensioning the tube before we swage. So 
+    # we want to edit this part.
     if entry_slength.get() == '':
         entry_slength.config({"background": "Red"})
         text_entryStatus.delete("1.0", tk.END)
-        text_entryStatus.insert("1.0", "Fill in all fields")
-        status = False
+        # text_entryStatus.insert("1.0", "Fill in all fields")
+        text_entryStatus.insert("1.0", "Using a default value.")
+        status = True
+        using_default_swage_length_value = True
+
     if status:         
         name = entry_name.get()
         barcode = entry_barcode.get()
         firstLength = entry_length.get()
-        secondLength = entry_slength.get()
-        write(barcode, 
-                [firstLength,secondLength], 
-                sv_cleanCode.get(),
-                name)
+
+        if using_default_swage_length_value:
+            secondLength = NoneValueFloat
+        else:
+            secondLength = entry_slength.get()
+
+        write(
+            barcode, 
+            [firstLength,secondLength], 
+            sv_cleanCode.get(),
+            name
+        )
+
         entry_barcode.delete(0, tk.END)
         entry_length.delete(0, tk.END)
         entry_slength.delete(0, tk.END)
@@ -96,7 +126,12 @@ def handle_enter(event):
         text_entryStatus.insert("1.0", barcode + " was entered\ninto database")
             
 
-filename = os.path.join(path,"SwagerData",f"{datetime.now().strftime('%m.%d.%Y_%H_%M_%S.csv')}")
+filename = os.path.join(
+    path,
+    "SwagerData",
+    f"{datetime.now().strftime('%m.%d.%Y_%H_%M_%S.csv')}"
+)
+
 window = tk.Tk()
 window.title("Swage Station GUI")
 window.columnconfigure(0, weight=1, minsize=75)
@@ -105,11 +140,11 @@ window.rowconfigure(0, weight=1, minsize=50)
 
 ########### Generate Frames ###############
 frame_entry = tk.Frame(
-            master=window,
-            width = 25,
-            relief=tk.RAISED,
-            borderwidth=1
-        )
+    master=window,
+    width = 25,
+    relief=tk.RAISED,
+    borderwidth=1
+)
 frame_entry.pack()
 
 ########### Entry Frame ###############
