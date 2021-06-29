@@ -39,12 +39,12 @@ def write(code, lengths, cleanCode, name):
     username = name
 
     if swage_len > 299792458.00:
-        raw = None
+        swage_len = None
 
     tube1.swage.add_record(
         swage.SwageRecord(
             raw_length=raw, 
-            swage_length=swage_len, 
+            # swage_length=swage_len, 
             clean_code=clean, 
             user=username
         )
