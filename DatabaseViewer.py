@@ -243,7 +243,21 @@ class DataView(QtWidgets.QTableView):
         self.show_new_window(data_str)
 
     def convert_to_barcode(self, tube_id):
-        return "MSU0" + str(tube_id)
+        id_str = str(tube_id)
+        ret_str = ''
+        
+        if len(id_str) == 1:
+            ret_str = "MSU0000" + id_str
+        elif len(id_str) == 2:
+            ret_str = "MSU000" + id_str
+        elif len(id_str) == 3:
+            ret_str = "MSU00" + id_str
+        elif len(id_str) == 4:
+            ret_str = "MSU0" + id_str
+        elif len(id_str) == 5:
+            ret_str = "MSU" + id_str
+
+        return ret_str
 
 
     def show_new_window(self, data_str):

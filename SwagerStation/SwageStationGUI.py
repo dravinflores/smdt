@@ -28,8 +28,9 @@ import os
 import sys
 
 is_in_dropbox_directory = False
+debug = False
 
-# sys.path.append(os.path.abspath(os.path.dirname(__file__)))
+sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 
 # We need to check if the file is being ran from dropbox or if it is being
 # ran locally.
@@ -37,8 +38,6 @@ if is_in_dropbox_directory:
     DROPBOX_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     sys.path.append(DROPBOX_DIR)
 else:
-    # This way uses the pathlib library. 
-    # p = Path(__file__).resolve().parent
     p = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     sys.path.append(p)
 
@@ -48,6 +47,9 @@ TEST_LEN = 53535353353553
 
 from sMDT import db, tube
 from sMDT.data import swage, status
+
+if debug:
+    db_man = db.db_manager(testing=True)
 
 # Subclass the QWidget to be the central widget, create the layout for all the
 # little subwidgets, and then set the central widget's layout.
@@ -79,10 +81,11 @@ class SwageWidget(QtWidgets.QWidget):
         self.swage_entry_layout = QtWidgets.QFormLayout()
 
         # Here are all the text entries.
-        # self.name_entry = QtWidgets.QLineEdit()
-        self.name_entry = CustomLineEdit()
+        self.name_entry = QtWidgets.QLineEdit()
         self.barcode_entry = QtWidgets.QLineEdit()
+        # self.barcode_entry = CustomLineEdit()
         self.raw_length_entry = QtWidgets.QLineEdit()
+        # self.raw_length_entry = CustomLineEdit()
         self.swage_length_entry = QtWidgets.QLineEdit()
 
         # Here we are adding in the rows with the names for the columns.
@@ -95,6 +98,8 @@ class SwageWidget(QtWidgets.QWidget):
 
         # Here is for the enter button.
         self.enter_button = QtWidgets.QPushButton("Create Entry")
+
+        # Here is for the text status box.
         self.text_box = TubeDataWindow()
 
         layout.addWidget(self.swage_entry)
@@ -102,36 +107,67 @@ class SwageWidget(QtWidgets.QWidget):
         layout.addWidget(self.text_box)
         self.setLayout(layout)
 
+        self.barcode_entry.textChanged.connect(
+            self.change_text_boxes_for_lengths
+        )
+
+        self.enter_button.clicked.connect(self.write_to_database)
+
         # self.setWindowFlags(QtCore.Qt.WindowCloseButtonHint)
 
-    def autofill_lengths(self, tube_id):
+    def autofill_raw_length(self, tube_id):
         # Debugging Purposes
-        if tube_id == MSU_CODE:
-            return (TEST_LEN, TEST_LEN)
+        if debug:
+            if tube_id == MSU_CODE:
+                return TEST_LEN
 
         try:
             t = self.database.get_tube(tube_id)
         except KeyError:
-            return (None, None)
+            return None
         else:
             r = t.swage.get_record('last')
-            return (r.raw_length, r.swage_length)
+            return r.raw_length
 
 
-    def change_text_boxes_for_lengths(self, tube_id):
-        (raw_len, swage_len) = self.autofill_lengths(tube_id)
-
-        if raw_len is None and swage_len is None:
-            return
-        
     @QtCore.Slot()
-    def print_changed_text(self, text):
-        print(text)
+    def change_text_boxes_for_lengths(self, tube_id):
+        if tube_id == '':
+            return
 
-    def write_to_database(self, barcode, name, clean_code, raw_len, swage_len):
+        raw_len = self.autofill_raw_length(tube_id)
+
+        if raw_len is None:
+            return
+        else:
+            self.raw_length_entry.setText(str(raw_len))
+
+    @QtCore.Slot()
+    def write_to_database(self):
+        barcode = self.barcode_entry.text()
+        name = self.name_entry.text()
+        clean_code = self.clean_code_combo.currentText()
+        raw_len = self.raw_length_entry.text()
+        swage_len = self.swage_length_entry.text()
+
         t = tube.Tube()
         t.set_ID(barcode)
 
+        if raw_len == '':
+            raw_len = None
+        
+        if swage_len == '':
+            swage_len = None
+
+        if not debug:
+            no_barcode      = barcode == ''
+            no_name         = name == ''
+            no_raw_len      = raw_len == ''
+            no_swage_len    = swage_len == ''
+
+            if no_barcode and no_name and no_raw_len and no_swage_len:
+                return
+ 
         if raw_len is not None:
             raw_len = float(raw_len)
 
@@ -146,7 +182,47 @@ class SwageWidget(QtWidgets.QWidget):
         )
 
         t.swage.add_record(rec)
-        self.database.add_tube(t)
+
+        if not debug:
+            try:
+                self.database.add_tube(t)
+            except Exception as e:
+                self.text_box.setText(
+                    f"There was an issue with entering tube {barcode}.\n"
+                    f"The error appears to be {e.what()}"
+                )
+            else:
+                if swage_len is not None:
+                    self.text_box.setText(
+                        f"Tube {barcode} was entered into the database"
+                    )
+                else:
+                    self.text_box.setText(
+                        f"Tube {barcode} was entered into the database\n"
+                        f"No swage length entered, so NoneValue was used."
+                    )
+        else:
+            print(t)
+            if swage_len is not None:
+                self.text_box.setText(
+                    f"Tube {barcode} was entered into the database"
+                )
+            else:
+                self.text_box.setText(
+                    f"Tube {barcode} was entered into the database\n"
+                    f"No swage length entered, so NoneValue was used."
+                )
+
+        if debug:
+            db_man.update()
+        
+        self.clear()
+
+    def clear(self):
+        self.barcode_entry.setText(''),
+        self.name_entry.setText(''),
+        self.raw_length_entry.setText(''),
+        self.swage_length_entry.setText('')
 
 
 class CustomLineEdit(QtWidgets.QLineEdit):
@@ -164,7 +240,7 @@ class CustomLineEdit(QtWidgets.QLineEdit):
 
     def tabPressed(self, text):
         self.recorded_text = text
-        # print(self.recorded_text)
+        print(self.recorded_text)
 
 
 # This is a copy.
