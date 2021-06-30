@@ -27,7 +27,7 @@ from pathlib import Path
 import os
 import sys
 
-is_in_dropbox_directory = False
+is_in_dropbox_directory = True
 debug = False
 
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
