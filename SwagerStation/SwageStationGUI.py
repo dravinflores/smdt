@@ -135,6 +135,9 @@ class SwageWidget(QtWidgets.QWidget):
         if tube_id == '':
             return
 
+        if len(tube_id) is not len("MSU00000"):
+            return
+
         raw_len = self.autofill_raw_length(tube_id)
 
         if raw_len is None:
