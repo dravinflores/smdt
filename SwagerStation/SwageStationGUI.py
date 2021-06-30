@@ -220,7 +220,7 @@ class SwageWidget(QtWidgets.QWidget):
 
     def clear(self):
         self.barcode_entry.setText(''),
-        self.name_entry.setText(''),
+        # self.name_entry.setText(''),
         self.raw_length_entry.setText(''),
         self.swage_length_entry.setText('')
 
