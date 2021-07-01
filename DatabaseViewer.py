@@ -59,10 +59,11 @@ class DataModel(QtCore.QAbstractTableModel):
     no_value_recorded_float = 299792458.00
     no_value_recorded_date = datetime.datetime(1800, 1, 1)
 
-    def __init__(self, data_array, database):
+    def __init__(self, data_array, database, path_str):
         super().__init__()
         self.m_data = data_array
         self.database = database
+        self.path_str = path_str
 
         # use a timer to update the database every 5 seconds
         self.timer = QtCore.QTimer()
@@ -162,7 +163,7 @@ class DataModel(QtCore.QAbstractTableModel):
 
     def update(self):
         self.layoutAboutToBeChanged.emit()
-        self.database = get_new_database()
+        self.database = get_new_database(self.path_str)
         self.m_data = db_to_display_array(self.database)
 
         self.m_data = sorted(
@@ -299,7 +300,7 @@ class TabbedWindow(QtWidgets.QTabWidget):
     selected using a tab selector.
     """
 
-    def __init__(self, data, database):
+    def __init__(self, data, database, path_str):
         super().__init__()
 
         # Creating the widgets that will be associated with the tabs.
@@ -313,8 +314,10 @@ class TabbedWindow(QtWidgets.QTabWidget):
         self.addTab(self.plot_view, "Plot")
         self.addTab(self.manual_data_entry, "Add Data")
 
+        self.data_model = DataModel(data, database, path_str)
+
         self.table_view.setSortingEnabled(True)
-        self.table_view.setModel(DataModel(data, database))
+        self.table_view.setModel(self.data_model)
 
     def setup_table_view_tab(self):
         table_view_tab = DataView()
@@ -439,7 +442,7 @@ class TabbedWindow(QtWidgets.QTabWidget):
 
 
 class MainWindow(QtWidgets.QMainWindow):
-    def __init__(self, data, database):
+    def __init__(self, data, database, path_str):
         super().__init__()
 
         self.title = "Database Viewer"
@@ -454,7 +457,7 @@ class MainWindow(QtWidgets.QMainWindow):
         main_layout = QtWidgets.QVBoxLayout()
         self.setLayout(main_layout)
 
-        self.tabbed_window = TabbedWindow(data, database)
+        self.tabbed_window = TabbedWindow(data, database, path_str)
         self.setCentralWidget(self.tabbed_window)
 
 
@@ -507,95 +510,101 @@ def db_to_display_array(database):
     tubes = database.get_tubes()
 
     for tube in tubes:
-        status = tube.status()
-        tube_id = tube.get_ID()
-
-        user_list = []
-
-        # We need to do some special things for the users.
-        for record in tube.swage.get_record('all'):
-            user_list.append(record.user)
-
         try:
-            swage_date = tube.swage.get_record('last').date
-        except IndexError:
-            swage_date = DataModel.no_value_recorded_date
+            status = tube.status()
+            tube_id = tube.get_ID()
 
-        try:
-            (initial_tension_date, initial_tension) = \
-                get_tension_measurement(
-                    tube.tension.get_record('all'),
-                    'initial',
-                    'last'
-                )
-        except ValueError:
-            (initial_tension_date, initial_tension) = (
-                DataModel.no_value_recorded_date,
-                DataModel.no_value_recorded_float
-            )
+            user_list = []
 
-        try:
-            (final_tension_date, final_tension) = \
-                get_tension_measurement(
-                    tube.tension.get_record('all'),
-                    'final',
-                    'last'
-                )
-        except ValueError:
-            (final_tension_date, final_tension) = (
-                DataModel.no_value_recorded_date,
-                DataModel.no_value_recorded_float
-            )
+            # We need to do some special things for the users.
+            for record in tube.swage.get_record('all'):
+                user_list.append(record.user)
 
-        try:
-            leak_rate = tube.leak.get_record().leak_rate
-        except IndexError:
-            leak_rate = DataModel.no_value_recorded_float
-        try:
-            dark_current = tube.dark_current.get_record().dark_current
-        except IndexError:
-            dark_current = DataModel.no_value_recorded_float
-
-        if tube_id is None:
-            tube_id = 0
-        elif tube_id == "":
-            tube_id = 0
-        else:
             try:
-                tube_id = int(tube_id[3:])
+                swage_date = tube.swage.get_record('last').date
+            except IndexError:
+                swage_date = DataModel.no_value_recorded_date
+
+            try:
+                (initial_tension_date, initial_tension) = \
+                    get_tension_measurement(
+                        tube.tension.get_record('all'),
+                        'initial',
+                        'last'
+                    )
             except ValueError:
+                (initial_tension_date, initial_tension) = (
+                    DataModel.no_value_recorded_date,
+                    DataModel.no_value_recorded_float
+                )
+
+            try:
+                (final_tension_date, final_tension) = \
+                    get_tension_measurement(
+                        tube.tension.get_record('all'),
+                        'final',
+                        'last'
+                    )
+            except ValueError:
+                (final_tension_date, final_tension) = (
+                    DataModel.no_value_recorded_date,
+                    DataModel.no_value_recorded_float
+                )
+
+            try:
+                leak_rate = tube.leak.get_record().leak_rate
+            except IndexError:
+                leak_rate = DataModel.no_value_recorded_float
+            try:
+                dark_current = tube.dark_current.get_record().dark_current
+            except IndexError:
+                dark_current = DataModel.no_value_recorded_float
+
+            if tube_id is None:
                 tube_id = 0
+            elif tube_id == "":
+                tube_id = 0
+            else:
+                try:
+                    tube_id = int(tube_id[3:])
+                except ValueError:
+                    tube_id = 0
 
-        if swage_date is None:
-            swage_date = DataModel.no_value_recorded_date
-        elif initial_tension_date is None:
-            initial_tension_date = DataModel.no_value_recorded_date
-        elif initial_tension is None:
-            initial_tension = DataModel.no_value_recorded_float
-        elif final_tension_date is None:
-            final_tension_date = DataModel.no_value_recorded_date
-        elif final_tension is None:
-            final_tension = DataModel.no_value_recorded_float
-        elif leak_rate is None:
-            leak_rate = DataModel.no_value_recorded_float
-        elif dark_current is None:
-            dark_current = DataModel.no_value_recorded_float
-        else:
+            if swage_date is None:
+                swage_date = DataModel.no_value_recorded_date
+            elif initial_tension_date is None:
+                initial_tension_date = DataModel.no_value_recorded_date
+            elif initial_tension is None:
+                initial_tension = DataModel.no_value_recorded_float
+            elif final_tension_date is None:
+                final_tension_date = DataModel.no_value_recorded_date
+            elif final_tension is None:
+                final_tension = DataModel.no_value_recorded_float
+            elif leak_rate is None:
+                leak_rate = DataModel.no_value_recorded_float
+            elif dark_current is None:
+                dark_current = DataModel.no_value_recorded_float
+            else:
+                pass
+
+            l = [
+                status,
+                tube_id,
+                user_list[0] if user_list else None,
+                swage_date,
+                initial_tension_date,
+                initial_tension,
+                final_tension_date,
+                final_tension,
+                leak_rate,
+                dark_current,
+            ]
+            ret_arr.append(l)
+
+        except AttributeError:
+            # We have found that something about the tube is not right.
+            # We can't display the tube.
             pass
-
-        l = [
-            status,
-            tube_id,
-            user_list[0] if user_list else None,
-            swage_date,
-            initial_tension_date,
-            initial_tension,
-            final_tension_date,
-            final_tension,
-            leak_rate,
-            dark_current,
-        ]
-        ret_arr.append(l)
 
     # sort by swage date and tube ID
     ret_arr = sorted(ret_arr, key=operator.itemgetter(3, 1), reverse=True)
@@ -625,10 +634,15 @@ def get_new_database(path_str=None):
     return database
 
 
-def run():
-    path_str = str(Path('database-4pm-backup-Jason.s'))
-    database = get_new_database(path_str)
+def main():
+    # We want to get the file name from the command line.
 
+    try:
+        path_str = str(Path(sys.argv[1]))
+    except:
+        path_str = None
+
+    database = get_new_database(path_str)
     data_array = db_to_display_array(database)
 
     if not data_array:
@@ -638,7 +652,7 @@ def run():
 
     app.setStyle("fusion")
 
-    window = MainWindow(data_array, database)
+    window = MainWindow(data_array, database, path_str)
     window.show()
 
     if pyside_version == 2:
@@ -648,4 +662,4 @@ def run():
 
 
 if __name__ == '__main__':
-    run()
+    main()
