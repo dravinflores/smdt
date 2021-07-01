@@ -21,7 +21,6 @@ from .record import Record
 from .status import Status
 
 
-
 class DarkCurrentRecord(Record):
     """
     Class for objects representing individual records from the 
@@ -47,7 +46,9 @@ class DarkCurrentRecord(Record):
         return a + b + c + d
 
     def fail(self):
-        if self.dark_current > DarkCurrentRecord.max_individual_current:
+        if self.dark_current is None:
+            return True
+        elif self.dark_current > DarkCurrentRecord.max_individual_current:
             return True
         else:
             return False

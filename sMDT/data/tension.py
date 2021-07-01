@@ -20,7 +20,6 @@ from .status import Status
 from .record import Record
 
 
-
 class TensionRecord(Record):
     """
     Class for objects representing individual records from the Tension station.
@@ -38,7 +37,9 @@ class TensionRecord(Record):
         self.date = date
 
     def fail(self):
-        if self.tension < TensionRecord.min_tension \
+        if self.tension is None:
+            return True
+        elif self.tension < TensionRecord.min_tension \
                 or self.tension > TensionRecord.max_tension:
             return True
         else:
@@ -50,7 +51,6 @@ class TensionRecord(Record):
         c = f"Recorded on: {self.date}\n"
         d = f"Recorded by: {self.user}\n\n"
         return a + b + c + d
-
 
 
 class Tension(Station, ABC):
@@ -91,7 +91,6 @@ class Tension(Station, ABC):
                     found_first_tension = True
                     first_tension_date = record.date
         return False
-
 
     def status(self):
         if not self.visited():

@@ -224,6 +224,7 @@ class SwageWidget(QtWidgets.QWidget):
             db_man.update()
 
         if not debug:
+            '''
             self.write_to_csv(
                 barcode=barcode,
                 name=name,
@@ -231,6 +232,7 @@ class SwageWidget(QtWidgets.QWidget):
                 raw_len=raw_len,
                 swage_len=swage_len,
             )
+            '''
         
         self.clear()
 

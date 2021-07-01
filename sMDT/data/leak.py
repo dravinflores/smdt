@@ -20,7 +20,6 @@ from .status import Status
 from .record import Record
 
 
-
 class LeakRecord(Record):
     """
     Class for objects representing individual records from the Leak station.
@@ -41,7 +40,10 @@ class LeakRecord(Record):
         return a + b + c
 
     def fail(self):
-        return self.leak_rate > LeakRecord.threshold_leak
+        if self.leak_rate is None:
+            return True
+        else:
+            return self.leak_rate > LeakRecord.threshold_leak
 
 
 class Leak(Station, ABC):
