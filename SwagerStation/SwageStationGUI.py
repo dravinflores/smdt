@@ -21,11 +21,14 @@ except ImportError:
     from PySide2 import QtCore, QtWidgets, QtGui
     pyside_version = 2
 
-from datetime import date
 from pathlib import Path
+import datetime
 
 import os
 import sys
+
+import csv
+import json
 
 is_in_dropbox_directory = True
 debug = False
@@ -178,6 +181,7 @@ class SwageWidget(QtWidgets.QWidget):
             swage_len = float(swage_len)
 
         rec = swage.SwageRecord(
+            date=datetime.datetime.now(),
             raw_length=raw_len, 
             swage_length=swage_len, 
             clean_code=clean_code, 
@@ -218,6 +222,15 @@ class SwageWidget(QtWidgets.QWidget):
 
         if debug:
             db_man.update()
+
+        if not debug:
+            self.write_to_csv(
+                barcode=barcode,
+                name=name,
+                clean_code=clean_code,
+                raw_len=raw_len,
+                swage_len=swage_len,
+            )
         
         self.clear()
 
@@ -226,6 +239,59 @@ class SwageWidget(QtWidgets.QWidget):
         # self.name_entry.setText(''),
         self.raw_length_entry.setText(''),
         self.swage_length_entry.setText('')
+
+    def write_to_csv(
+        self, 
+        barcode='',
+        name='',
+        clean_code='',
+        raw_len='',
+        swage_len='',
+        date=''
+    ):
+        # The format is YYYY-MM-DD---HH:MM:SS
+        time_str = datetime.datetime.now().isoformat(sep='_')[0:19]
+        file_name = barcode + '-' + time_str + '.csv'
+        path_to_archive_folder = Path('archive')
+        path_to_file = path_to_archive_folder / file_name
+
+        if path_to_file.is_file():
+            file_exists = True
+        else:
+            file_exists = False
+
+        with path_to_file.open('a') as f:
+        # path_str = str(path_to_file.resolve())
+        # with open(path_str, 'a') as f:
+            writer = csv.writer(f)
+
+            if not file_exists:
+                r = [
+                    'Barcode', 
+                    'Name', 
+                    'Raw Length', 
+                    'Swage Length', 
+                    'Clean Code',
+                    'Date'
+                ]
+                writer.writerow(r)
+
+            r = [
+                barcode,
+                name,
+                raw_len,
+                swage_len,
+                clean_code,
+                date
+            ]
+
+            writer.writerow(r)
+
+    def write_to_json(self):
+        file_name = f".json"
+
+        with open(file_name, 'a') as f:
+            pass
 
 
 class CustomLineEdit(QtWidgets.QLineEdit):
