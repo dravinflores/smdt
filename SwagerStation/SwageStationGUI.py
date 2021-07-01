@@ -254,6 +254,7 @@ class SwageWidget(QtWidgets.QWidget):
         file_name = barcode + '-' + time_str + '.csv'
         path_to_archive_folder = Path('archive')
         path_to_file = path_to_archive_folder / file_name
+        path_to_file.resolve()
 
         if path_to_file.is_file():
             file_exists = True
