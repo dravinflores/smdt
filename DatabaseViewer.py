@@ -30,19 +30,16 @@ import datetime
 import os
 import sys
 
-# fp = open('errors.txt', 'a')
-# fp.write(os.path.abspath(os.path.dirname(__file__)))
-# fp.close()
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 
-from sMDT import db, tube
+from sMDT import db
 from sMDT.data import status
 import sys
 
 
 class DataModel(QtCore.QAbstractTableModel):
     """
-    This class allows for the tube data to be stored in a Qt-friendly way, 
+    This class allows for the tube data to be stored in a Qt-friendly way,
     through the view-model architecture. The model acts as the data storage,
     whereas the view displays the data to the user.
     """
@@ -50,10 +47,10 @@ class DataModel(QtCore.QAbstractTableModel):
 
     # These are just baked in at the moment.
     horizontal_headers = [
-        "Status", "Tube ID", "Swage User", "Swage Date", 
-        "Initial Tension Date", "Initial Tension (g)", 
-        "Secondary Tension Date", "Secondary Tension (g)", 
-        "Leak Rate (mbar L/s)", 
+        "Status", "Tube ID", "Swage User", "Swage Date",
+        "Initial Tension Date", "Initial Tension (g)",
+        "Secondary Tension Date", "Secondary Tension (g)",
+        "Leak Rate (mbar L/s)",
         "Dark Current (nA)"
     ]
 
@@ -62,15 +59,16 @@ class DataModel(QtCore.QAbstractTableModel):
     no_value_recorded_float = 299792458.00
     no_value_recorded_date = datetime.datetime(1800, 1, 1)
 
-    def __init__(self, data_array, db):
+    def __init__(self, data_array, database):
         super().__init__()
         self.m_data = data_array
-        self.database = db
+        self.database = database
 
         # use a timer to update the database every 5 seconds
-        timer = QtCore.QTimer(self)
-        self.connect(timer, QtCore.SIGNAL("timeout()"), self.update)
-        timer.start(5000)
+        self.timer = QtCore.QTimer()
+        # self.connect(timer, QtCore.SIGNAL("timeout()"), self.update)
+        self.timer.timeout.connect(self.update)
+        self.timer.start(5000)
 
         # remember how the data is sorted when updating the display
         self.column = 3
@@ -140,12 +138,12 @@ class DataModel(QtCore.QAbstractTableModel):
             return column + 1
 
     def sort(self, column, order):
-        self.column=column
-        self.reverse=True
+        self.column = column
+        self.reverse = True
         self.layoutAboutToBeChanged.emit()
 
         self.m_data = sorted(
-            self.m_data, 
+            self.m_data,
             key=operator.itemgetter(column),
             reverse=self.reverse
         )
@@ -163,20 +161,12 @@ class DataModel(QtCore.QAbstractTableModel):
         return len(self.m_data[0])
 
     def update(self):
-        # update data first
-
-        # Just a funny comment, this throws a FileNotFoundError on my personal
-        # machine.
-        try:
-            db.db_manager().update()
-        except FileNotFoundError:
-            pass
-
         self.layoutAboutToBeChanged.emit()
-        self.m_data = db_to_display_array(self.database.db())
+        self.database = get_new_database()
+        self.m_data = db_to_display_array(self.database)
 
         self.m_data = sorted(
-            self.m_data, 
+            self.m_data,
             key=operator.itemgetter(self.column),
             reverse=self.reverse
         )
@@ -188,6 +178,7 @@ class DataView(QtWidgets.QTableView):
     """
     This class displays a model to the user.
     """
+
     def __init__(self):
         super().__init__()
 
@@ -197,7 +188,7 @@ class DataView(QtWidgets.QTableView):
         self.window_list = []
 
         self.setAlternatingRowColors(True)
-        
+
         self.doubleClicked.connect(self.on_double_click)
 
     def on_double_click(self, index):
@@ -211,13 +202,13 @@ class DataView(QtWidgets.QTableView):
 
         if clicked_on_barcode:
             tube_id = self.convert_to_barcode(index.data())
-            data_str = str(self.model().database.db().get_tube(tube_id))
+            data_str = str(self.model().database.get_tube(tube_id))
         elif clicked_on_names:
             # We need to get the digits for the barcode
             digits = self.model().index(index.row(), 1).data()
             tube_id = self.convert_to_barcode(digits)
 
-            tube = self.model().database.db().get_tube(tube_id)
+            tube = self.model().database.get_tube(tube_id)
 
             user_list = []
 
@@ -238,14 +229,14 @@ class DataView(QtWidgets.QTableView):
                 if name is not None:
                     data_str += '\t' + name + '\n'
         else:
-            return 
+            return
 
         self.show_new_window(data_str)
 
     def convert_to_barcode(self, tube_id):
         id_str = str(tube_id)
         ret_str = ''
-        
+
         if len(id_str) == 1:
             ret_str = "MSU0000" + id_str
         elif len(id_str) == 2:
@@ -258,7 +249,6 @@ class DataView(QtWidgets.QTableView):
             ret_str = "MSU" + id_str
 
         return ret_str
-
 
     def show_new_window(self, data_str):
         # print(self.window_list)
@@ -281,6 +271,7 @@ class TubeDataWindow(QtWidgets.QWidget):
     """
     This class creates a widget which can display text to the screen.
     """
+
     def __init__(self, data_str=None):
         super().__init__()
 
@@ -307,7 +298,8 @@ class TabbedWindow(QtWidgets.QTabWidget):
     This widget allows for different "context" windows to be displayed, and
     selected using a tab selector.
     """
-    def __init__(self, data, db):
+
+    def __init__(self, data, database):
         super().__init__()
 
         # Creating the widgets that will be associated with the tabs.
@@ -322,9 +314,7 @@ class TabbedWindow(QtWidgets.QTabWidget):
         self.addTab(self.manual_data_entry, "Add Data")
 
         self.table_view.setSortingEnabled(True)
-        self.table_view.setModel(DataModel(data,db))
-
-        self.database = db
+        self.table_view.setModel(DataModel(data, database))
 
     def setup_table_view_tab(self):
         table_view_tab = DataView()
@@ -335,7 +325,7 @@ class TabbedWindow(QtWidgets.QTabWidget):
 
         stretch = QtWidgets.QHeaderView.Stretch
         table_view_tab.horizontalHeader().setSectionResizeMode(stretch)
-        
+
         table_view_tab.resizeColumnsToContents()
 
         return table_view_tab
@@ -367,12 +357,12 @@ class TabbedWindow(QtWidgets.QTabWidget):
         tube_id = self.search_view.mutable_text_box.text()
         # check if it's a valid tube ID, if not try to make it into one
         try:
-            self.database.db().get_tube(tube_id)
+            self.database.get_tube(tube_id)
         except KeyError:
             tube_id = "MSU0" + tube_id
 
         self.search_view.data_spot.setText(
-            str(self.database.db().get_tube(tube_id))
+            str(self.database.get_tube(tube_id))
         )
 
     def setup_plot_tab(self):
@@ -392,7 +382,7 @@ class TabbedWindow(QtWidgets.QTabWidget):
         tube_id_text_box_layout.addRow("Tube ID:", QtWidgets.QLineEdit())
         self.tube_id_text_box.setLayout(tube_id_text_box_layout)
 
-        # The way we're going to switch from entering data between the 
+        # The way we're going to switch from entering data between the
         # stations is by a combo box.
         self.station_select_combo = QtWidgets.QComboBox()
         self.station_select_combo.addItems([
@@ -449,7 +439,7 @@ class TabbedWindow(QtWidgets.QTabWidget):
 
 
 class MainWindow(QtWidgets.QMainWindow):
-    def __init__(self, data, db):
+    def __init__(self, data, database):
         super().__init__()
 
         self.title = "Database Viewer"
@@ -464,8 +454,9 @@ class MainWindow(QtWidgets.QMainWindow):
         main_layout = QtWidgets.QVBoxLayout()
         self.setLayout(main_layout)
 
-        self.tabbed_window = TabbedWindow(data, db)
+        self.tabbed_window = TabbedWindow(data, database)
         self.setCentralWidget(self.tabbed_window)
+
 
 def get_tension_measurement(list_of_records, type, mode):
     date_set_without_times = set()
@@ -498,7 +489,7 @@ def get_tension_measurement(list_of_records, type, mode):
                 ret_date = record.date
                 ret_measurement = record.tension
                 break
-    
+
     if mode == 'last passing':
         l = []
         for record in list_of_records:
@@ -511,9 +502,9 @@ def get_tension_measurement(list_of_records, type, mode):
     return (ret_date, ret_tens)
 
 
-def db_to_display_array(db):
+def db_to_display_array(database):
     ret_arr = []
-    tubes = db.get_tubes()
+    tubes = database.get_tubes()
 
     for tube in tubes:
         status = tube.status()
@@ -533,28 +524,28 @@ def db_to_display_array(db):
         try:
             (initial_tension_date, initial_tension) = \
                 get_tension_measurement(
-                    tube.tension.get_record('all'), 
+                    tube.tension.get_record('all'),
                     'initial',
                     'last'
                 )
         except ValueError:
             (initial_tension_date, initial_tension) = (
-                    DataModel.no_value_recorded_date, 
-                    DataModel.no_value_recorded_float
-                )
+                DataModel.no_value_recorded_date,
+                DataModel.no_value_recorded_float
+            )
 
         try:
             (final_tension_date, final_tension) = \
                 get_tension_measurement(
-                    tube.tension.get_record('all'), 
+                    tube.tension.get_record('all'),
                     'final',
                     'last'
                 )
         except ValueError:
             (final_tension_date, final_tension) = (
-                    DataModel.no_value_recorded_date, 
-                    DataModel.no_value_recorded_float
-                )
+                DataModel.no_value_recorded_date,
+                DataModel.no_value_recorded_float
+            )
 
         try:
             leak_rate = tube.leak.get_record().leak_rate
@@ -574,7 +565,7 @@ def db_to_display_array(db):
                 tube_id = int(tube_id[3:])
             except ValueError:
                 tube_id = 0
-        
+
         if swage_date is None:
             swage_date = DataModel.no_value_recorded_date
         elif initial_tension_date is None:
@@ -607,7 +598,7 @@ def db_to_display_array(db):
         ret_arr.append(l)
 
     # sort by swage date and tube ID
-    ret_arr = sorted(ret_arr, key=operator.itemgetter(3,1), reverse=True)
+    ret_arr = sorted(ret_arr, key=operator.itemgetter(3, 1), reverse=True)
     return ret_arr
 
 
@@ -626,17 +617,22 @@ def get_data_array_alt():
     return data_array
 
 
-def run():
-    path_str = str(Path())
-    database = db
+def get_new_database(path_str=None):
+    if path_str is None:
+        database = db.db()
+    else:
+        database = db.db(path_str)
+    return database
 
-    data_array = db_to_display_array(database.db())
+
+def run():
+    path_str = str(Path('database-4pm-backup-Jason.s'))
+    database = get_new_database(path_str)
+
+    data_array = db_to_display_array(database)
 
     if not data_array:
         data_array = get_data_array_alt()
-
-    # db_manager = db.db_manager()
-    # db_manager.update()
 
     app = QtWidgets.QApplication(sys.argv)
 
@@ -649,6 +645,7 @@ def run():
         sys.exit(app.exec_())
     elif pyside_version == 6:
         sys.exit(app.exec())
+
 
 if __name__ == '__main__':
     run()
