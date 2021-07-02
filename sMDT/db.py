@@ -21,6 +21,7 @@ import os
 import sys
 
 from copy import deepcopy
+from pathlib import Path
 
 from .tube import Tube
 from .data.swage import SwageRecord
@@ -137,7 +138,6 @@ class db:
         # tubes.close()
         self.close_database(tubes)
         return ret_tubes
-
 
     def get_IDs(self):
         db_lock = locks.Lock("database")
@@ -288,7 +288,8 @@ class db_manager():
             # print(self.size > len(tubes))
 
             # Check if the stored database is more recent.
-            if self.size > len(tubes):
+            # if self.size > len(tubes):
+            if self.size - len(tubes) > 10:
                 # print("Need to restore")
                 self.need_to_restore = True
                 # tubes = self.database_backup
@@ -299,13 +300,27 @@ class db_manager():
                 padding = '\n\n'
 
                 restored_str = '---------- DATABASE WAS RESTORED ----------'
-                log_activity.write(padding + restored_str)
+                data_restored_str = padding + restored_str + padding
+                log_activity.write(data_restored_str)
 
-                t = datetime.datetime.now().strftime("%d-%b-%Y %H:%M:%S")
-                time_str = f'Restored at {t}'
-                log_activity.write(time_str + padding)
+                t = datetime.datetime.now()
+                time_str = f'Restored at {t.strftime("%d-%b-%Y %H:%M:%S")}'
+                time_restored_str = time_str + padding
+                log_activity.write(time_restored_str)
 
-                print(padding + restored_str + time_str + padding)
+                print_str = data_restored_str + time_restored_str
+                print(print_str)
+
+                error_dir = Path('DatabaseError')
+                file_name = t.isoformat(timespec='seconds', sep='_') + '.txt'
+                error_file = error_dir / file_name
+
+                if not error_dir.exists():
+                    error_dir.mkdir()
+
+                with error_file.open('w+') as f:
+                    f.write(print_str)
+
             else:
                 addcount = editcount = delcount = 0
                 # log_activity = open('activity.log','a')
