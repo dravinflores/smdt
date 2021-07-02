@@ -31,8 +31,13 @@ class DarkCurrentRecord(Record):
     max_individual_current = 2 # nA
     max_collective_current = 8 # nA
 
-    def __init__(self, dark_current=None, date=datetime.now(), voltage=None, 
-            user=None):
+    def __init__(
+            self,
+            dark_current=None,
+            date=datetime.now(),
+            voltage=None,
+            user=None
+    ):
         super().__init__(user)
         self.dark_current = dark_current
         self.date = date
@@ -63,11 +68,13 @@ class DarkCurrent(Station, ABC):
         super().__init__()
 
     def __str__(self):
-        a = "Dark Current Data:  " + self.status().name + "\n"
+        a = "Dark Current Data:  " + (self.status().name or '') + "\n"
         b = ""
 
         # We want to print out each record.
-        for record in sorted(self.m_records, key=lambda i: i.date):
+        for record in sorted(
+                self.m_records, key=lambda i: (i.date is None, i.date)
+        ):
             b += record.__str__()
 
         b = b[:-1]
@@ -89,4 +96,3 @@ class DarkCurrent(Station, ABC):
             return Status.FAIL
         else:
             return Status.PASS
-

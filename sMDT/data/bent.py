@@ -20,7 +20,6 @@ from .status import Status
 from .record import Record
 
 
-
 class BentRecord(Record):
     """
     Class for objects representing individual records from the Bentness station.
@@ -38,6 +37,8 @@ class BentRecord(Record):
         self.bentness = bentness
 
     def fail(self):
+        if self.bentness is None:
+            return True
         if self.bentness > BentRecord.max_bentness:
             return True
         else:
@@ -53,8 +54,6 @@ class BentRecord(Record):
         return return_str
 
 
-
-
 class Bent(Station, ABC):
     """
     The Bentness station class, manages the relevant records for a particular tube.
@@ -63,11 +62,13 @@ class Bent(Station, ABC):
         super().__init__()
 
     def __str__(self):
-        a = "Bentness Data: " + self.status().name + "\n"
+        a = "Bentness Data: " + (self.status().name or '') + "\n"
         b = ""
 
         # We want to print out each record.
-        for record in sorted(self.m_records, key=lambda i: i.date):
+        for record in sorted(
+                self.m_records, key=lambda i: (i.date is None, i.date)
+        ):
             b += record.__str__()
 
         b = b[:-1]

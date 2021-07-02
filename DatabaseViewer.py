@@ -47,7 +47,7 @@ class DataModel(QtCore.QAbstractTableModel):
 
     # These are just baked in at the moment.
     horizontal_headers = [
-        "Status", "Tube ID", "Swage User", "Swage Date",
+        "Status", "Tube ID", "Initial Users", "Swage Date",
         "Initial Tension Date", "Initial Tension (g)",
         "Secondary Tension Date", "Secondary Tension (g)",
         "Leak Rate (mbar L/s)",
@@ -69,7 +69,10 @@ class DataModel(QtCore.QAbstractTableModel):
         self.timer = QtCore.QTimer()
         # self.connect(timer, QtCore.SIGNAL("timeout()"), self.update)
         self.timer.timeout.connect(self.update)
-        self.timer.start(5000)
+
+        fifteen_seconds = 15 * 1000
+
+        self.timer.start(fifteen_seconds)
 
         # remember how the data is sorted when updating the display
         self.column = 3
@@ -208,27 +211,49 @@ class DataView(QtWidgets.QTableView):
             # We need to get the digits for the barcode
             digits = self.model().index(index.row(), 1).data()
             tube_id = self.convert_to_barcode(digits)
-
             tube = self.model().database.get_tube(tube_id)
 
-            user_list = []
+            swage_user_list = []
+            tension_user_list = []
+            leak_user_list = []
+            dark_current_user_list = []
 
             # We need to do some special things for the users.
             for record in tube.swage.get_record('all'):
-                user_list.append(record.user)
+                swage_user_list.append(record.user)
             for record in tube.tension.get_record('all'):
-                user_list.append(record.user)
+                tension_user_list.append(record.user)
             for record in tube.leak.get_record('all'):
-                user_list.append(record.user)
+                leak_user_list.append(record.user)
             for record in tube.dark_current.get_record('all'):
-                user_list.append(record.user)
+                dark_current_user_list.append(record.user)
 
-            user_list = list(set(user_list))
+            # We only want unique users.
+            swage_user_list = list(set(swage_user_list))
+            tension_user_list = list(set(tension_user_list))
+            leak_user_list = list(set(leak_user_list))
+            dark_current_user_list = list(set(dark_current_user_list))
             data_str = "List of users:\n"
 
-            for name in user_list:
+            data_str += "\tSwage Users:\n"
+            for name in swage_user_list:
                 if name is not None:
-                    data_str += '\t' + name + '\n'
+                    data_str += '\t\t' + name + '\n'
+
+            data_str += "\tTension Users:\n"
+            for name in tension_user_list:
+                if name is not None:
+                    data_str += '\t\t' + name + '\n'
+
+            data_str += "\tLeak Users:\n"
+            for name in leak_user_list:
+                if name is not None:
+                    data_str += '\t\t' + name + '\n'
+
+            data_str += "\tDark Current Users:\n"
+            for name in dark_current_user_list:
+                if name is not None:
+                    data_str += '\t\t' + name + '\n'
         else:
             return
 
@@ -290,6 +315,8 @@ class TubeDataWindow(QtWidgets.QWidget):
         layout.addWidget(self.scrollable_window)
         self.setLayout(layout)
 
+        self.setFont(QtGui.QFont('Open Sans', 14))
+
     def setText(self, text_str):
         self.text_box.setText(text_str)
 
@@ -302,6 +329,8 @@ class TabbedWindow(QtWidgets.QTabWidget):
 
     def __init__(self, data, database, path_str):
         super().__init__()
+
+        self.database = database
 
         # Creating the widgets that will be associated with the tabs.
         self.table_view = self.setup_table_view_tab()
@@ -514,11 +543,33 @@ def db_to_display_array(database):
             status = tube.status()
             tube_id = tube.get_ID()
 
-            user_list = []
+            try:
+                first_swage_user = tube.swage.get_record('first').user[:3]
+            except:
+                first_swage_user = '---'
 
-            # We need to do some special things for the users.
-            for record in tube.swage.get_record('all'):
-                user_list.append(record.user)
+            try:
+                first_tension_user = tube.tension.get_record('first').user[:3]
+            except:
+                first_tension_user = '---'
+
+            try:
+                first_leak_user = tube.leak.get_record('first').user[:3]
+            except:
+                first_leak_user = '---'
+
+            try:
+                first_current_user = \
+                    tube.dark_current.get_record('first').user[:3]
+            except:
+                first_current_user = '---'
+
+            user_str = first_swage_user + ' | ' \
+                       + first_tension_user + ' | ' \
+                       + first_leak_user + ' | ' \
+                       + first_current_user
+
+            user_str = user_str.upper()
 
             try:
                 swage_date = tube.swage.get_record('last').date
@@ -590,7 +641,7 @@ def db_to_display_array(database):
             l = [
                 status,
                 tube_id,
-                user_list[0] if user_list else None,
+                user_str,
                 swage_date,
                 initial_tension_date,
                 initial_tension,

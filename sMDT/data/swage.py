@@ -38,19 +38,18 @@ class SwageRecord(Record):
         swage_length=None,
         clean_code=None, 
         date=datetime.now(), 
-        user=None, 
-        has_failed=False):
+        user=None
+    ):
 
         # Call the super class init to construct the object.
         super().__init__(user)
         self.raw_length = raw_length
         self.swage_length = swage_length
         self.clean_code = clean_code
-        self.date = date 
-        self.has_failed = has_failed
+        self.date = date
 
     def fail(self):
-        '''
+        """
         if self.raw_length is None or self.swage_length is None:
             return True
         elif self.raw_length < SwageRecord.min_raw_length \
@@ -60,11 +59,11 @@ class SwageRecord(Record):
             return True
         else:
             return False
-        '''
+        """
 
         # Tubes, at this point in time, are not going to be failed on the basis
         # of length.
-        return self.has_failed
+        return False
         
     def __str__(self):
         # Using string concatenation here.
@@ -86,11 +85,13 @@ class Swage(Station, ABC):
         super().__init__()
 
     def __str__(self):
-        a = "Swage Data: " + self.status().name + "\n"
+        a = "Swage Data: " + (self.status().name or '') + "\n"
         b = ""
 
         # We want to print out each record.
-        for record in sorted(self.m_records, key=lambda i: i.date):
+        for record in sorted(
+                self.m_records, key=lambda i: (i.date is None, i.date)
+        ):
             b += record.__str__()
 
         b = b[:-1]
@@ -102,6 +103,7 @@ class Swage(Station, ABC):
     def fail(self):
         if not self.visited():
             return False
+
         return self.get_record(mode='last').fail()
 
     def status(self):

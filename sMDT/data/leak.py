@@ -47,18 +47,20 @@ class LeakRecord(Record):
 
 
 class Leak(Station, ABC):
-    '''
+    """
     The Leak station class, manages the relevant records for a particular tube.
-    '''
+    """
     def __init__(self):
         super().__init__()
 
     def __str__(self):
-        a = "Leak Data: " + self.status().name + "\n"
+        a = "Leak Data: " + (self.status().name or '') + "\n"
         b = ""
 
         # We want to print out each record.
-        for record in sorted(self.m_records, key=lambda i: i.date):
+        for record in sorted(
+                self.m_records, key=lambda i: (i.date is None, i.date)
+        ):
             b += record.__str__()
 
         b = b[:-1]
@@ -79,4 +81,3 @@ class Leak(Station, ABC):
             return Status.FAIL
         else:
             return Status.PASS
-
