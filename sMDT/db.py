@@ -6,9 +6,10 @@
 #   Purpose: This is the class representing the database.
 #    It will act as the main interface for reading and writing to the database. 
 #
-#   Known Issues:
+#   Known Issues: The database appears to delete itself every-so-often.
 #
-#   Workarounds:
+#   Workarounds: In order to figure out why it's deleting itself, we're going
+#       to have a bunch of logging files to help.
 #
 ###############################################################################
 
@@ -41,6 +42,7 @@ class db:
         Constructor, builds the database object. Gets the path to the database
         """
         self.path = db_path
+        self.logger = DBLogger()
 
     def open_database(self):
         """
@@ -48,11 +50,19 @@ class db:
         be returned if the file cannot be found.
         """
         try:
+            write_str = "A request for read-only access to the " \
+                        "database has been made"
+            self.logger.write(write_str)
             r = shelve.open(self.path, 'r')
         except Exception as e:
             # We need to create the database on the fly.
             return dict()
+            write_str = f"The database was unable to be opened." \
+                        f"The error is as follows: {e}"
+            self.logger.write(write_str, mode='critical')
         else:
+            write_str = f"Database was able to be obtained."
+            self.logger.write(write_str)
             return r
 
     def close_database(self, shelf_obj):
@@ -60,15 +70,20 @@ class db:
         Close any opened shelve file.
         """
         try:
+            write_str = "Closing the database"
             shelf_obj.close()
         except Exception as e:
-            pass
+            write_str = f"Database was unable to be closed." \
+                        f"The error is as follows {e}."
+            self.logger.write(write_str, mode='critical')
 
     def size(self):
         """
         Return the integer size of the database. 
         May wait for the database to be unlocked
         """
+
+        self.logger.write("Locking the database to obtain size information.")
         db_lock = locks.Lock("database")
         db_lock.wait()
         # tubes = shelve.open(self.path)
@@ -76,6 +91,8 @@ class db:
         ret_size = len(tubes)
         # tubes.close()
         self.close_database(tubes)
+
+        self.logger.write(f"Size of the database was {ret_size}")
         return ret_size
 
     def add_tube(self, tube: Tube()):
@@ -95,6 +112,7 @@ class db:
         if not os.path.isdir(new_data_path):
             os.mkdir(new_data_path)
 
+        self.logger.write("Locking the database to add a tube.")
         file_lock = locks.Lock(filename)
         file_lock.lock()
         with open(os.path.join(new_data_path, filename), "wb") as f:
@@ -108,6 +126,8 @@ class db:
         """
         #db_lock = locks.Lock("database")
         #db_lock.wait()
+
+        self.logger.write("Request for a tube has been made.")
 
         # The database is opened up as read-only
         # tubes = shelve.open(self.path)
@@ -125,6 +145,7 @@ class db:
 
     def get_tubes(self, selection=None):
         # tubes = shelve.open(self.path)
+        self.logger.write("Request for all tubes has been made.")
         tubes = self.open_database()
         if selection:
             ret_tubes = []
@@ -143,6 +164,7 @@ class db:
         db_lock = locks.Lock("database")
         db_lock.wait()
         # tubes = shelve.open(self.path)
+        self.logger.write("Request for all tubes has been made.")
         tubes = self.open_database()
         ret_ids = list(tubes.keys())
         # tubes.close()
@@ -150,6 +172,8 @@ class db:
         return ret_ids
 
     def delete_tube(self, tube_id):
+        self.logger.write("Request to delete a tube has been made.")
+
         if type(tube_id) == str:
             ID = tube_id
         else:
@@ -172,6 +196,7 @@ class db:
         file_lock.unlock()
 
     def overwrite_tube(self, tube):
+        self.logger.write("Request to overwrite a tube has been made.")
         dt = datetime.datetime.now()
         timestamp = dt.timestamp()
 
@@ -210,19 +235,12 @@ class db_manager():
         self.testing = testing
 
         with shelve.open(self.path) as tubes:
-            # assert(tubes is type(dict))
             self.database_backup = deepcopy(dict(tubes))
 
-            '''
-            for (k, v) in self.database_backup.items():
-                print(f"key: {k}.")
-                print(f"value: {v}")
-                print('\n')
-            '''
-
-        # self.database_backup = db_backup
         self.size = len(self.database_backup)
         self.need_to_restore = False
+
+        self.logger = DBLogger(author="DB Manager", file='db_man_log.log')
 
     def wipe(self, confirm=False):
         """
@@ -230,6 +248,7 @@ class db_manager():
         Exercise extreme caution with this, but it is necessary 
         for many test cases.
         """
+        self.logger.write("A call has been made to wipe the database.")
         if confirm == 'confirm':
             db_lock = locks.Lock("database")
             db_lock.lock()
@@ -237,12 +256,12 @@ class db_manager():
             tubes = shelve.open(self.path, flag='n')
 
             tubes.close()
-
             db_lock.unlock()
         else:
             raise RuntimeError
 
     def cleanup(self) -> None:
+        self.logger.write("A call has been made for cleanup.")
         new_data_path = os.path.join(self.sMDT_DIR, "new_data")
         if not os.path.isdir(new_data_path):
             os.mkdir(new_data_path)
@@ -257,6 +276,7 @@ class db_manager():
         Needs to be ran after a db object calls add_tube(), 
         otherwise the database will not contain the data in time for get_tube()
         """
+        self.logger.write("A call has been made to update the database.")
 
         # dropbox_folder = os.path.dirname(sMDT_DIR)
 
@@ -281,19 +301,12 @@ class db_manager():
         new_data_path = os.path.join(self.sMDT_DIR, "new_data")
 
         with shelve.open(self.path) as tubes:
-            log_activity = open('activity.log','a')
-            # print(f"Size of self.size is {self.size}")
-            # print(f"Size of len(tubes) is {len(tubes)}")
-
-            # print(self.size > len(tubes))
+            log_activity = open('activity.log', 'a')
 
             # Check if the stored database is more recent.
-            # if self.size > len(tubes):
             if self.size - len(tubes) > 10:
-                # print("Need to restore")
+                self.logger.write("The database must be restored.")
                 self.need_to_restore = True
-                # tubes = self.database_backup
-                # tubes.update(self.database_backup)
                 for (code, tube) in self.database_backup.items():
                     tubes[code] = tube
 
@@ -322,6 +335,7 @@ class db_manager():
                     f.write(print_str)
 
             else:
+                self.logger.write("Database does not need to be restored.")
                 addcount = editcount = delcount = 0
                 # log_activity = open('activity.log','a')
                 t = time.localtime()
@@ -431,3 +445,34 @@ class db_manager():
 
         # unlock the database
         # db_lock.unlock()
+
+
+class DBLogger:
+    def __init__(self, author=None, file=None):
+        self.author = author
+        self.dropbox_path = Path(__file__).parents[1].resolve()
+        self.logging_path = self.dropbox_path / 'DatabaseLogging'
+
+        if not file:
+            self.logging_file = self.logging_path / 'database_log_extra.log'
+        else:
+            self.logging_file = self.logging_path / file
+
+        self.logging_path.mkdir(parents=True, exist_ok=True)
+
+        if not self.logging_file.exists():
+            self.logging_file.touch()
+
+    def write(self, write_str, external_author=None, mode='normal'):
+        current_time = datetime.datetime.now()
+        time_str = current_time.isoformat(timespec='seconds', sep=' ')
+
+        if external_author:
+            message = f"{time_str}: {mode} [{external_author}] {write_str}\n"
+        elif self.author:
+            message = f"{time_str}: {mode} [{self.author}] {write_str}\n"
+        else:
+            message = f"{time_str}: {mode} {write_str}\n"
+
+        with self.logging_file.open('a') as f:
+            f.write(message)
