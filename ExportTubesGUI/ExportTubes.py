@@ -284,6 +284,8 @@ class ExportTubesWidget(QtWidgets.QWidget):
                         "Tube has a failure."
                 )
 
+        self.barcode_entry.clear()
+
     def get_first_tension(self, tube):
         list_of_records = tube.tension.get_record('all')
         first_record = None
