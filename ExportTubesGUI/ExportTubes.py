@@ -20,6 +20,13 @@ def add_directory_to_path():
     sys.path.append(parent_directory)
 
 
+def add_directory_to_path_alt():
+    sMDT_DIR = os.path.dirname(os.path.abspath(__file__))
+    containing_dir = os.path.dirname(sMDT_DIR)
+    sys.path.append(containing_dir)
+
+
+add_directory_to_path_alt()
 from sMDT import db
 from sMDT.data import status
 
