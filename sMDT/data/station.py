@@ -13,10 +13,9 @@
 ###############################################################################
 
 modes = {
-    "last"  :  lambda station: station.m_records[-1],
-    "first" :  lambda station: station.m_records[0],
+    "last":  lambda station: station.m_records[-1] if station.m_records else '',
+    "first":  lambda station: station.m_records[0] if station.m_records else '',
     "all"   :  lambda station: station.m_records
-    
 }
 
 
@@ -57,7 +56,8 @@ class Station:
         """Given a selected mode, returns the respective record"""
         if type(mode) == str:
             return modes[mode](self)
-        elif type(mode) == type(lambda x: x): #Annoying but necessary hack to check if it's a lambda.
+        # Annoying but necessary hack to check if it's a lambda.
+        elif type(mode) == type(lambda x: x): 
             return mode(self)
         else:
             raise RuntimeError()

@@ -75,8 +75,10 @@ class Tube:
     def get_ID(self):
         return self.m_tube_id
 
-    def set_ID(self, ID):
-        self.m_tube_id = ID
+    def set_ID(self, barcode):
+        proper_length = len("MSU00123")
+        extra_character_index = proper_length
+        self.m_tube_id = barcode.strip()      
 
     def get_comments(self):
         return self.m_comments

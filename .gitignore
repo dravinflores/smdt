@@ -37,3 +37,6 @@ TensionStation/output/*.out
 
 # Not sure if Pytest is adding files.
 activity.log
+
+# We want to remove any logging files.
+DatabaseLogging/

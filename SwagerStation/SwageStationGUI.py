@@ -150,11 +150,11 @@ class SwageWidget(QtWidgets.QWidget):
 
     @QtCore.Slot()
     def write_to_database(self):
-        barcode = self.barcode_entry.text()
-        name = self.name_entry.text()
-        clean_code = self.clean_code_combo.currentText()
-        raw_len = self.raw_length_entry.text()
-        swage_len = self.swage_length_entry.text()
+        barcode = self.barcode_entry.text().strip()
+        name = self.name_entry.text().strip()
+        clean_code = self.clean_code_combo.currentText().strip()
+        raw_len = self.raw_length_entry.text().strip()
+        swage_len = self.swage_length_entry.text().strip()
 
         t = tube.Tube()
         t.set_ID(barcode)
