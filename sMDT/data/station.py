@@ -13,11 +13,10 @@
 ###############################################################################
 
 modes = {
-    "last":  lambda station: station.m_records[-1] if station.m_records else '',
-    "first":  lambda station: station.m_records[0] if station.m_records else '',
-    "all"   :  lambda station: station.m_records
+    "last": lambda station: station.m_records[-1],
+    "first": lambda station: station.m_records[0],
+    "all": lambda station: station.m_records
 }
-
 
 
 class Station:
@@ -36,7 +35,6 @@ class Station:
         # encountered the problem and traced it back here and found that
         # removing it fixed it
         self.m_records = []
-
 
     def __str__(self):
         raise NotImplementedError
@@ -57,7 +55,7 @@ class Station:
         if type(mode) == str:
             return modes[mode](self)
         # Annoying but necessary hack to check if it's a lambda.
-        elif type(mode) == type(lambda x: x): 
+        elif type(mode) == type(lambda x: x):
             return mode(self)
         else:
             raise RuntimeError()
