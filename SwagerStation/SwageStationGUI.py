@@ -196,7 +196,7 @@ class SwageWidget(QtWidgets.QWidget):
             except Exception as e:
                 self.text_box.setText(
                     f"There was an issue with entering tube {barcode}.\n"
-                    f"The error appears to be {e.what()}"
+                    f"The error appears to be {e}"
                 )
             else:
                 if swage_len is not None:
