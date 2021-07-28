@@ -364,7 +364,7 @@ class db_manager:
                                       "new_data folder")
 
                         # delete the file that we added the tube from
-                        os.remove(os.path.join(new_data_path, filename))  
+                        os.remove(os.path.join(self.new_data_dir, filename))  
 
                     t = time.localtime()
                     if logging:
