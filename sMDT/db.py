@@ -3,13 +3,14 @@
 #   Author(s): Paul Johnecheck, Dravin Flores
 #   Date Created: 11 April, 2021
 #
-#   Purpose: This is the class representing the database.
-#    It will act as the main interface for reading and writing to the database. 
+#   Purpose: This is the class representing the database. It will act 
+#       as the main interface for reading and writing to the database. 
 #
 #   Known Issues: The database appears to delete itself every-so-often.
 #
-#   Workarounds: In order to figure out why it's deleting itself, we're going
-#       to have a bunch of logging files to help.
+#   Workarounds: In order to better ensure that the database access is 
+#       restricted, tthe portalocker library is used; this is a cross-platform
+#       locking library.
 #
 ###############################################################################
 
@@ -278,7 +279,7 @@ class db_manager:
                     t = time.localtime()
                     for filename in os.listdir(self.new_data_dir):
                         new_data_file = open(
-                            os.path.join(new_data_dir, filename), 
+                            os.path.join(self.new_data_dir, filename), 
                             'rb'
                         ) 
 
