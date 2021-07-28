@@ -112,7 +112,7 @@ class db:
     def get_tube(self, barcode):
         tubes = self.open_shelve()
         try:
-            ret_tube = tubes[id]
+            ret_tube = tubes[barcode]
         except KeyError:
             self.close_shelve(tubes)
             raise KeyError
