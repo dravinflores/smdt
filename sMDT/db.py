@@ -98,8 +98,8 @@ class db:
         filename = str(timestamp) + str(random.randrange(0, 999)) + ".tube"
         file_obj = self.new_data_dir / filename
 
-        if not file_object.exists():
-            file_object.touch()
+        if not file_obj.exists():
+            file_obj.touch()
 
         s = str(self.lock_file.resolve())
         try:
@@ -150,8 +150,8 @@ class db:
         filename = str(timestamp) + str(random.randrange(0, 999)) + ".del.tube"
         file_obj = self.new_data_dir / filename
 
-        if not file_object.exists():
-            file_object.touch()
+        if not file_obj.exists():
+            file_obj.touch()
 
         tube = Tube()
         tube.set_ID(tube_id)
@@ -171,8 +171,8 @@ class db:
         filename = str(timestamp) + str(random.randrange(0, 999)) + ".edit.tube"
         file_obj = self.new_data_dir / filename
 
-        if not file_object.exists():
-            file_object.touch()
+        if not file_obj.exists():
+            file_obj.touch()
 
         s = str(self.lock_file.resolve())
         try:
