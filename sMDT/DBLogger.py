@@ -16,7 +16,9 @@
 import os
 import sys
 import uuid
+import datetime
 from pathlib import Path
+
 
 class DBLogger:
     def __init__(self, author=None, file=None):

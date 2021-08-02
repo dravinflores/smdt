@@ -1,1 +1,2 @@
-PySide6==6.1.0
+PySide6 >= 6.1.2
+portalocker >= 2.3.0

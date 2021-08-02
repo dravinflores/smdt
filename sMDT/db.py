@@ -9,7 +9,7 @@
 #   Known Issues: The database appears to delete itself every-so-often.
 #
 #   Workarounds: In order to better ensure that the database access is 
-#       restricted, tthe portalocker library is used; this is a cross-platform
+#       restricted, the portalocker library is used; this is a cross-platform
 #       locking library.
 #
 ###############################################################################
@@ -24,19 +24,14 @@ import sys
 
 import portalocker
 
-from copy import deepcopy
 from pathlib import Path
 
-from .tube import Tube
-from .data.swage import SwageRecord
-from .data.tension import TensionRecord
-from .data.leak import LeakRecord
-from .data.dark_current import DarkCurrentRecord
-from .legacy import station_pickler
-from . import locks
-from . import DBLogger
+from sMDT.tube import Tube
+from sMDT.legacy import station_pickler
+from sMDT import DBLogger
 
 logging = False
+
 
 class db:
     def __init__(self):
@@ -59,7 +54,7 @@ class db:
         # system. Whenever we ask to open a file, we will lock the 
         # 'db_file_lock.lock' file. Then, we'll use this exclusively accessed
         # file to open the database using shelve. The database file itself is 
-        # not locked, just an auxilary file.
+        # not locked, just an auxiliary file.
 
         # Before anything, we will go ahead and convert the path object into a 
         # normal string. This is because portalocker has it's own internal 
@@ -70,7 +65,7 @@ class db:
                 # We've got exclusive access to the database.
                 db_file = str(self.db_file.resolve())
                 return_dict = shelve.open(db_file, 'r')
-        except portalocker.LockException as e:
+        except portalocker.LockException:
             # Just in-case we can't open the database, we'll return an
             # empty dictionary.
             return_dict = dict()
@@ -200,12 +195,6 @@ class db_manager:
         self.archive = archive
         self.testing = testing
 
-        with shelve.open(self.path) as tubes:
-            self.database_backup = deepcopy(dict(tubes))
-
-        self.size = len(self.database_backup)
-        self.need_to_restore = False
-
     def wipe(self, confirm=False):
         if confirm == 'confirm':
             s = str(self.lock_file.resolve())
@@ -244,23 +233,9 @@ class db_manager:
 
                 # Check if the stored database is more recent.
                 if self.size - len(tubes) > 10:
-                    # self.logger.write("The database must be restored.")
-                    self.need_to_restore = True
-                    for (code, tube) in self.database_backup.items():
-                        tubes[code] = tube
-
-                    padding = '\n\n'
-
-                    restored_str = '---------- DATABASE WAS RESTORED ----------'
-                    data_restored_str = padding + restored_str + padding
-                    log_activity.write(data_restored_str)
-
+                    print_str = "\n----- Database Needs To Be Restored -----\n"
                     t = datetime.datetime.now()
-                    time_str = f'Restored at {t.strftime("%d-%b-%Y %H:%M:%S")}'
-                    time_restored_str = time_str + padding
-                    log_activity.write(time_restored_str)
-
-                    print_str = data_restored_str + time_restored_str
+                    time_str = f'At Time: {t.strftime("%d-%b-%Y %H:%M:%S")}\n\n'
                     print(print_str)
 
                     error_dir = Path('DatabaseError')
@@ -335,7 +310,6 @@ class db_manager:
                                 editcount += 1
                             tubes[tube.get_ID()] = tube
 
-
                         elif filename.endswith(".tube"):
                             if logging:
                                 log_activity.write(
@@ -378,6 +352,3 @@ class db_manager:
                             time.strftime("%H:%M:%S", t)
                         )
                     log_activity.close()
-
-                    self.database_backup = deepcopy(dict(tubes))
-                    self.size = len(self.database_backup)
