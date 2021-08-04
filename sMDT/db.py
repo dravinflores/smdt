@@ -232,10 +232,13 @@ class db_manager:
                 log_activity = open('activity.log', 'a')
 
                 # Check if the stored database is more recent.
-                if self.size - len(tubes) > 10:
-                    print_str = "\n----- Database Needs To Be Restored -----\n"
+                if not len(tubes) or len(tubes) < 50:
+                    print_str = f"\nThe Database has been corrupted. " 
+                    print_str += "Size is {len(tubes)}.\n"
+                    print_str += "The database will continue to sync. \n"
                     t = datetime.datetime.now()
                     time_str = f'At Time: {t.strftime("%d-%b-%Y %H:%M:%S")}\n\n'
+                    print_str += time_str
                     print(print_str)
 
                     error_dir = Path('DatabaseError')
@@ -249,106 +252,101 @@ class db_manager:
                     with error_file.open('w+') as f:
                         f.write(print_str)
 
-                else:
-                    addcount = editcount = delcount = 0
-                    t = time.localtime()
-                    for filename in os.listdir(self.new_data_dir):
-                        new_data_file = open(
-                            os.path.join(self.new_data_dir, filename), 
-                            'rb'
-                        ) 
+                addcount = editcount = delcount = 0
+                t = time.localtime()
+                for filename in os.listdir(self.new_data_dir):
+                    new_data_file = open(
+                        os.path.join(self.new_data_dir, filename), 'rb'
+                    ) 
 
-                        tube = pickle.load(new_data_file) 
-                        new_data_file.close()
+                    tube = pickle.load(new_data_file) 
+                    new_data_file.close()
 
-                        if filename.endswith(".del.tube"):
-                            if tube.get_ID() in tubes:
-                                del tubes[tube.get_ID()]
-                                if logging:
-
-                                    log_activity.write(
-                                        time.strftime("%d-%b-%Y %H:%M:%S", t) 
-                                        + "\tDeleting tube " 
-                                        + tube.get_ID() 
-                                        + " from database.\n"
-                                    )
-
-                                    print(
-                                        "Deleting tube", 
-                                        tube.get_ID(), 
-                                        "from database."
-                                    )
-                                    delcount += 1
-                            else:
-                                if logging:
-                                    log_activity.write(
-                                        time.strftime("%d-%b-%Y %H:%M:%S", t) 
-                                        + "\tAttempted to delete tube " 
-                                        + tube.get_ID() 
-                                        + ", tube not found.\n"
-                                    
-                                    )
-                                    print(
-                                        "Attempted to delete tube", 
-                                        tube.get_ID(), 
-                                        ", tube not found."
-                                    )
-
-                        elif filename.endswith(".edit.tube"):
+                    if filename.endswith(".del.tube"):
+                        if tube.get_ID() in tubes:
+                            del tubes[tube.get_ID()]
                             if logging:
                                 log_activity.write(
                                     time.strftime("%d-%b-%Y %H:%M:%S", t) 
-                                    + "\tRewriting the data of " 
+                                    + "\tDeleting tube " 
                                     + tube.get_ID() 
-                                    + " due to edit\n"
+                                    + " from database.\n"
                                 )
+
                                 print(
-                                    "Rewriting the data of", 
+                                    "Deleting tube", 
                                     tube.get_ID(), 
-                                    "due to edit"
+                                    "from database."
                                 )
-                                editcount += 1
-                            tubes[tube.get_ID()] = tube
-
-                        elif filename.endswith(".tube"):
-                            if logging:
-                                log_activity.write(
-                                    time.strftime("%d-%b-%Y %H:%M:%S", t) 
-                                    + "\tLoading tube or adding data to " 
-                                    + tube.get_ID() 
-                                    + " into database.\n"
-                                )
-                                print(
-                                    "Loading tube", 
-                                    tube.get_ID(), 
-                                    "into database."
-                                )
-
-                            if tube.get_ID() in tubes: 
-                                # add the tubes to the database
-                                temp = tubes[tube.get_ID()] + tube
-                                tubes[tube.get_ID()] = temp
-                            else:
-                                tubes[tube.get_ID()] = tube
-
-                            addcount += 1
+                                delcount += 1
                         else:
                             if logging:
-                                print("Unrecognized file type in "
-                                      "new_data folder")
+                                log_activity.write(
+                                    time.strftime("%d-%b-%Y %H:%M:%S", t) 
+                                    + "\tAttempted to delete tube " 
+                                    + tube.get_ID() 
+                                    + ", tube not found.\n"
+                                )
+                                print(
+                                    "Attempted to delete tube", 
+                                    tube.get_ID(), 
+                                    ", tube not found."
+                                )
 
-                        # delete the file that we added the tube from
-                        os.remove(os.path.join(self.new_data_dir, filename))  
+                    elif filename.endswith(".edit.tube"):
+                        if logging:
+                            log_activity.write(
+                                time.strftime("%d-%b-%Y %H:%M:%S", t) 
+                                + "\tRewriting the data of " 
+                                + tube.get_ID() 
+                                + " due to edit\n"
+                            )
+                            print(
+                                "Rewriting the data of", 
+                                tube.get_ID(), 
+                                "due to edit"
+                            )
+                            editcount += 1
+                        tubes[tube.get_ID()] = tube
 
-                    t = time.localtime()
-                    if logging:
-                        print(
-                            addcount, 
-                            "tubes added,", 
-                            editcount, 
-                            "edited,", 
-                            delcount, 
-                            "deleted at", 
-                            time.strftime("%H:%M:%S", t)
-                        )
-                    log_activity.close()
+                    elif filename.endswith(".tube"):
+                        if logging:
+                            log_activity.write(
+                                time.strftime("%d-%b-%Y %H:%M:%S", t) 
+                                + "\tLoading tube or adding data to " 
+                                + tube.get_ID() 
+                                + " into database.\n"
+                            )
+                            print(
+                                "Loading tube", 
+                                tube.get_ID(), 
+                                "into database."
+                            )
+
+                        if tube.get_ID() in tubes: 
+                            # add the tubes to the database
+                            temp = tubes[tube.get_ID()] + tube
+                            tubes[tube.get_ID()] = temp
+                        else:
+                            tubes[tube.get_ID()] = tube
+
+                        addcount += 1
+                    else:
+                        if logging:
+                            print("Unrecognized file type in new_data folder")
+
+                    # delete the file that we added the tube from
+                    os.remove(os.path.join(self.new_data_dir, filename))  
+
+                t = time.localtime()
+                if logging:
+                    print(
+                        addcount, 
+                        "tubes added,", 
+                        editcount, 
+                        "edited,", 
+                        delcount, 
+                        "deleted at", 
+                        time.strftime("%H:%M:%S", t)
+                    )
+                log_activity.close()
