@@ -72,11 +72,12 @@ class SwageWidget(QtWidgets.QWidget):
             "2: Wiped with Ethanol",
             "3: Only Vacuumed",
             "4: Vacuumed and Wiped with Ethanol",
-            "5: Vacuumed with Nitrogen"
+            "5: Vacuumed with Nitrogen",
+            "6: Sprayed with compressed air"
         ]
 
         self.clean_code_combo.addItems([
-            cc[0], cc[1], cc[2], cc[3], cc[4], cc[5]
+            cc[0], cc[1], cc[2], cc[3], cc[4], cc[5], cc[6]
         ])
         
         # Here is for all the data entries.
