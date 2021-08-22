@@ -12,6 +12,7 @@
 #   Updates:
 #   2021-06-13, Reinhard Schwienhorst: Update database every 5 seconds
 #   2021-06-24, Reinhard: Allow user to enter only 4 digits for tube ID
+#   2021-08-22, Reinhard: Fix warnings about alignment and fonts
 #
 ###############################################################################
 
@@ -111,7 +112,7 @@ class DataModel(QtCore.QAbstractTableModel):
                 return str(val)
 
         if role == QtCore.Qt.TextAlignmentRole:
-            return QtCore.Qt.AlignHCenter + QtCore.Qt.AlignVCenter
+            return QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter
 
         if role == QtCore.Qt.ForegroundRole:
             # Here we can control the text color itself.
@@ -315,7 +316,7 @@ class TubeDataWindow(QtWidgets.QWidget):
         layout.addWidget(self.scrollable_window)
         self.setLayout(layout)
 
-        self.setFont(QtGui.QFont('Open Sans', 14))
+        self.setFont(QtGui.QFont('Arial', 14))
 
     def setText(self, text_str):
         self.text_box.setText(text_str)
