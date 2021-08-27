@@ -52,25 +52,49 @@ def handle_enter(event):
         if entry_name.get() == '':
             entry_name.config({"background": "Red"})
             text_entryStatus.delete("1.0", tk.END)
-            text_entryStatus.insert("1.0", "Fill in all fields")
+            text_entryStatus.insert("1.0", "Fill in name")
             status = False
         if entry_barcode.get() == '':
             entry_barcode.config({"background": "Red"})
             text_entryStatus.delete("1.0", tk.END)
-            text_entryStatus.insert("1.0", "Fill in all fields")
+            text_entryStatus.insert("1.0", "Fill in barcode")
             status = False
         if entry_length.get() == '':
             entry_length.config({"background": "Red"})
             text_entryStatus.delete("1.0", tk.END)
-            text_entryStatus.insert("1.0", "Fill in all fields")
+            text_entryStatus.insert("1.0", "Fill in gap size")
             status = False
+        if len(entry_barcode.get()) != 8 and len(entry_barcode.get()) != 5:
+            entry_barcode.config({"background": "Red"})
+            text_entryStatus.delete("1.0", tk.END)
+            text_entryStatus.insert("1.0", "Incorrect barcode format")
+            status = False
+        if len(entry_barcode.get()) == 8:
+            if not entry_barcode.get()[3:].isdigit():
+                entry_barcode.config({"background": "Red"})
+                text_entryStatus.delete("1.0", tk.END)
+                text_entryStatus.insert("1.0", "Incorrect barcode format")
+                status = False
+        if len(entry_barcode.get()) == 5:
+            if not entry_barcode.get().isdigit():
+                entry_barcode.config({"background": "Red"})
+                text_entryStatus.delete("1.0", tk.END)
+                text_entryStatus.insert("1.0", "Incorrect barcode format")
+                status = False
         if status:         
             name = entry_name.get()
             barcode = entry_barcode.get()
+            # Add MSU to number only code
+            if len(barcode) == 5:
+                barcode  = 'MSU' + barcode
+            # Force first 3 letters to be capital
+            else:
+                barcode = 'MSU' + barcode[3:]
             firstLength = entry_length.get()
             write(barcode,firstLength,name)
             entry_barcode.delete(0, tk.END)
             entry_length.delete(0, tk.END)
+        entry_barcode.focus()
         
         
 window = tk.Tk()
@@ -110,7 +134,11 @@ button = tk.Button(
 )
 button.bind("<Button-1>", handle_enter)
 text_entryStatus = tk.Text(master=frame_entry, width=30, height=2)
+text_info = tk.Text(master=frame_entry, width=30, height=50, wrap=tk.WORD)
 
+# Info
+info = "Here is where we can put instructions for this station"
+text_info.insert("1.0", info)
 
 ############  Pack Everything Together  ##########
 entry = tk.Entry()
@@ -123,7 +151,13 @@ entry_barcode.pack()
 label_length.pack()
 entry_length.pack()
 
+text_entryStatus.pack()
+
 button.pack()
+
+text_info.pack()
+
+
 
 # Execute mainloop
 window.mainloop()
