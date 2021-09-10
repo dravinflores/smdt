@@ -43,8 +43,12 @@ class db:
         self.lock_file = self.dropbox_directory /'sMDT'/'locks'/'db_lock.lock'
         self.new_data_dir = self.dropbox_directory / 'sMDT' / 'new_data'
 
-        if not self.lock_file.exists():
-            self.lock_file.touch()
+        # We need to check if the database lock file exists. If
+        # not, then we'll have to make those directories.
+        self.lock_file.parent.mkdir(parents=True, exist_ok=True)
+
+        # Now we'll go ahead and create the lock file.
+        self.lock_file.touch(exist_ok=True)
 
         if logging:
             self.logger = DBLogger()
@@ -188,8 +192,8 @@ class db_manager:
         self.lock_file = self.dropbox_directory /'sMDT'/'locks'/'db_lock.lock'
         self.new_data_dir = self.dropbox_directory / 'sMDT' / 'new_data'
 
-        if not self.lock_file.exists():
-            self.lock_file.touch()
+        self.lock_file.parent.mkdir(parents=True, exist_ok=True)
+        self.lock_file.touch(exist_ok=True)
 
         self.path = str(self.db_file.resolve())
         self.archive = archive
