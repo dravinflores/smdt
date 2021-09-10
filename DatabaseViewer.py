@@ -12,7 +12,6 @@
 #   Updates:
 #   2021-06-13, Reinhard Schwienhorst: Update database every 5 seconds
 #   2021-06-24, Reinhard: Allow user to enter only 4 digits for tube ID
-#   2021-08-22, Reinhard: Fix warnings about alignment and fonts
 #
 ###############################################################################
 
@@ -48,7 +47,7 @@ class DataModel(QtCore.QAbstractTableModel):
 
     # These are just baked in at the moment.
     horizontal_headers = [
-        "Status", "Tube ID", "Initial Users", "Swage Date",
+        "Status", "Tube ID", "Initial Users", "Mfg Date",
         "Initial Tension Date", "Initial Tension (g)",
         "Secondary Tension Date", "Secondary Tension (g)",
         "Leak Rate (mbar L/s)",
@@ -572,9 +571,8 @@ def db_to_display_array(database):
 
             user_str = user_str.upper()
 
-            try:
-                swage_date = tube.swage.get_record('last').date
-            except IndexError:
+            swage_date = tube.get_mfg_date()
+            if swage_date == None:
                 swage_date = DataModel.no_value_recorded_date
 
             try:
@@ -618,9 +616,12 @@ def db_to_display_array(database):
                 tube_id = 0
             else:
                 try:
-                    tube_id = int(tube_id[3:])
+                    tube_id = int(tube_id[2:])
                 except ValueError:
-                    tube_id = 0
+                    try:
+                        tube_id = int(tube_id[3:])
+                    except ValueError:
+                        tube_id = 0
 
             if swage_date is None:
                 swage_date = DataModel.no_value_recorded_date
