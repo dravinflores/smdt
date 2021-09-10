@@ -10,6 +10,7 @@
 #   Known Issues:
 #
 #   Workarounds:
+#  9/8/21, Reinhard: Return incomplete status if last entry had voltage zero
 #
 ###############################################################################
 from abc import ABC
@@ -92,7 +93,12 @@ class DarkCurrent(Station, ABC):
     def status(self):
         if not self.visited():
             return Status.INCOMPLETE
-        elif self.fail():
+        try:
+            if self.get_record(mode='last').voltage <=0:
+                return Status.INCOMPLETE
+        except TypeError:
+            return Status.INCOMPLETE
+        if self.fail():
             return Status.FAIL
         else:
             return Status.PASS

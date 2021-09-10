@@ -122,7 +122,10 @@ class station_pickler:
                         try:
                             sDate = datetime.datetime.strptime(filename, '%d.%m.%Y_%H_%M_%S.csv')
                         except ValueError:
-                            sDate = None
+                            try:
+                                sDate = datetime.datetime.strptime(filename, '%m.%d.%Y_%H_%M_%S.csv')
+                            except ValueError:
+                                sDate = None
 
                     tube = Tube()
                     tube.set_ID(barcode)
@@ -204,9 +207,12 @@ class station_pickler:
                         continue
 
                     try:
-                        sDate = datetime.datetime.strptime(date, '%d.%m.%Y %H.%M.%S')
+                        sDate = datetime.datetime.strptime(filename, 'data_%d.%m.%Y_%H_%M_%S.out')
                     except ValueError:
-                        sDate = None
+                        try:
+                            sDate = datetime.datetime.strptime(filename, 'data_%m.%d.%Y_%H_%M_%S.out')
+                        except ValueError:
+                            sDate = None
 
                     # Create tube instance
                     tube = Tube()
@@ -264,7 +270,8 @@ class station_pickler:
                             pressure = line[1]  # Not used
                             pass_fail = line[2]  # Useless
                             date = line[3]
-                            time1 = line[4]
+                            time1 = lin
+                            e[4]
                             user = line[5]
                         except ValueError:
                             self.error_files['Leak'].add(filename)

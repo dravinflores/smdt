@@ -49,6 +49,11 @@ class Tube:
         ret_str = ""
         if self.get_ID():
             ret_str += self.get_ID() + '-' + (self.status().name or '') + '\n'
+        date_str=self.get_mfg_date()
+        if date_str != None:
+            ret_str += 'Manufacture date ' +str(date_str) + '\n'
+        else:
+            ret_str += 'No information on manufacture date\n'
         if len(self.m_comments) != 0:
             ret_str += "\nComments:\n"
         for comment, user, date, error_code in self.m_comments:
@@ -111,6 +116,8 @@ class Tube:
                 or self.leak is None \
                 or self.dark_current is None:
             return Status.INCOMPLETE
+        
+        if self.status_bentness() == Status.FAIL: return Status.FAIL
 
         if any([i.status() == Status.FAIL for i in stations if i is not None]) \
                 or self.comment_fails() \
@@ -129,6 +136,18 @@ class Tube:
             # are properly mutually exclusive
             raise RuntimeError
 
+    def status_bentness(self):
+        # special case accounting: if bent is 0.8, then this is pass for some but fail for others
+        # in that case, check if swage is incomplete, if so then mark as fail, otherwise mark bent as
+        # pass
+        if not self.bent.visited(): return Status.PASS
+        if self.bent.status()==Status.INCOMPLETE and self.swage is not None: return Status.PASS
+        if self.bent.bentness()==0.8 and self.swage is None: return Status.FAIL
+        if self.bent.bentness()==0.8 and self.swage.status() == Status.INCOMPLETE: return Status.FAIL
+        return self.bent.status()
+            
+        
+        
     def to_dict(self):
         tube_in_dict = dict()
         swager_station = dict()
@@ -192,3 +211,50 @@ class Tube:
         tube_in_dict[self.m_tube_id] = tube_data_dict
 
         return tube_in_dict
+    def get_mfg_date(self):
+        swage_date=None
+        try:
+            for record in self.swage.m_records:
+                swage_date = record.date
+                if swage_date != None: return swage_date
+        except IndexError:
+            swage_date = None
+
+        # swage record doesn't contain a date, check bent
+        if swage_date == None:
+            try:
+                for record in self.bent.m_records:
+                    swage_date = record.date
+                    if swage_date != None: return swage_date
+            except IndexError:
+                swage_date = None
+                
+        # swage and bent record doesn't contain a date, check tension
+        if swage_date == None:
+            try:
+                for record in self.tension.m_records:
+                    swage_date = record.date
+                    if swage_date != None: return swage_date
+            except IndexError:
+                swage_date = None
+
+        # swage and bent and tension record doesn't contain a date, check dark_current
+        if swage_date == None:
+            try:
+                for record in self.dark_current.m_records:
+                    swage_date = record.date
+                    if swage_date != None: return swage_date
+            except IndexError:
+                swage_date = None
+            
+        # station records doesn't contain a date, check comments
+        if swage_date == None:
+            if len(self.m_comments) != 0:
+                for comment, user, date, error_code in self.m_comments:
+                    swage_date=date
+                    if swage_date != None: return swage_date
+            #else:
+            #print("Error getting any date for tube, "+self.get_ID())
+                
+
+        return swage_date

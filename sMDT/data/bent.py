@@ -3,8 +3,8 @@
 #   Author(s): Dravin Flores, Paul Johnecheck
 #   Date Created: 02 April, 2021
 #
-#   Purpose: This file houses the swage station class. This class stores the
-#       data collected from the swage station into an object.
+#   Purpose: This file houses the bentness class. This class stores the
+#       data collected from the bentness measurement into an object.
 #
 #   Known Issues:
 #
@@ -38,8 +38,8 @@ class BentRecord(Record):
 
     def fail(self):
         if self.bentness is None:
-            return True
-        if self.bentness > BentRecord.max_bentness:
+            return False
+        if self.bentness >= BentRecord.max_bentness:
             return True
         else:
             return False
@@ -88,3 +88,8 @@ class Bent(Station, ABC):
             return Status.FAIL
         else:
             return Status.PASS
+
+    def bentness(self):
+        if not self.visited():
+            return 0.0
+        return self.get_record(mode='last').bentness

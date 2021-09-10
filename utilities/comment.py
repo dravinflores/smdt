@@ -19,7 +19,7 @@ import os
 import sys
 import datetime
 
-DROPBOX_DIR = os.path.dirname(os.path.dirname(__file__))
+DROPBOX_DIR = os.path.dirname(os.path.abspath(os.path.dirname(__file__)))
 sys.path.append(DROPBOX_DIR)
 
 from sMDT import db, tube
