@@ -2,10 +2,11 @@
 # sMDT tube construction, collect data from previous week
 # 
 # Author: Reinhard Schwienhorst, based on DatabaseViewer example
-# 2021-06-02
+# 2021-06-27
 #
 
 from datetime import datetime, timedelta
+from dateutil.relativedelta import relativedelta
 
 from sMDT import db, tube
 from sMDT.data import status
@@ -20,16 +21,15 @@ totGood=0
 totInc=0
 totBent=0
 
-# Start date is the date when we started makign tubes for the tube PRR
-StartDate=datetime(year=2020, month=8,day=14, hour=23, minute=59)
-#StartDate=datetime(year=2021, month=7,day=30, hour=23, minute=59)
-week = 0
-TodayDate=datetime.today()
+# Start date for making tubes was August 14, 2020
+# enter it as August 1 so that we stay at the month boundary
+StartDate=datetime(year=2020, month=8,day=1, hour=23, minute=59)
+month = 0
 
-
-while StartDate < TodayDate:
+while StartDate < datetime.today():
     # counters
-    TubesWeeklySwaged=0
+    TubesMonthlySwaged=0
+    errorTubes=0
     goodTubes=0
     incTubes=0
     bentTubes=0
@@ -38,17 +38,16 @@ while StartDate < TodayDate:
     swageFail=0
     commentFail=0
     tubesErr=0
-    if(week > 0): StartDate=StartDate+timedelta(days=7)
-    week +=1
-    EndDate = StartDate+timedelta(days=7)
+
+    if(month > 0): StartDate=StartDate+relativedelta(months=1)
+    month +=1
+    EndDate = StartDate+relativedelta(months=1)
 
 
     for tube in tubes:
         #print(tube.get_ID())
         isGood = tube.status()
 
-        #if tube.get_ID()[:3]!="MSU": print(tube.get_ID())
-        #continue
         # get the swage date and start processing
         swage_date=tube.get_mfg_date()
         # skip all of the early tubes that have no date
@@ -57,7 +56,7 @@ while StartDate < TodayDate:
             continue
 
         if swage_date < EndDate and swage_date > StartDate :
-            TubesWeeklySwaged+=1
+            TubesMonthlySwaged+=1
             #print(swage_date)
             if isGood == status.Status.PASS: goodTubes+=1
             elif isGood == status.Status.INCOMPLETE:
@@ -75,7 +74,6 @@ while StartDate < TodayDate:
                     incTubes+=1
             elif isGood == status.Status.FAIL:
                 #print(tube.get_ID())
-                # check for the cause of the failure
                 if tube.status_bentness() == status.Status.FAIL:
                     bentTubes+=1
                 elif tube.swage.status()== status.Status.FAIL:
@@ -87,22 +85,24 @@ while StartDate < TodayDate:
                 elif tube.comment_fails():
                     commentFail+=1
 
-    print("Week from ",StartDate," to ", EndDate)
-    TubesWeeklySwaged -= bentTubes
-    if TubesWeeklySwaged>0:
-        print("Total ",TubesWeeklySwaged," swaged, good+incomplete ",goodTubes,"+",incTubes,"=",goodTubes+incTubes,", failure rate %2.1f" % (100.-(goodTubes+incTubes)/TubesWeeklySwaged*100.))
-        print("  Failure reason for",TubesWeeklySwaged-goodTubes-incTubes," tubes: Swage:",swageFail,", Tension:",tensionFail,", dark:",darkFail, ", comment:",commentFail)
-        print("   Plus",bentTubes,"bent tubes")
+    
+    TubesMonthlySwaged -=bentTubes
+    print("For month",StartDate.strftime("%B %Y"))
+    if TubesMonthlySwaged>0:
+        print("Total ",TubesMonthlySwaged," swaged, good+incomplete ",goodTubes,"+",incTubes,"=",goodTubes+incTubes,", failure rate %2.1f%%" % (100.-(goodTubes+incTubes)/TubesMonthlySwaged*100.))
+        print("  Failure reason for",TubesMonthlySwaged-goodTubes-incTubes," tubes: Swage:",swageFail,", Tension:",tensionFail,", dark:",darkFail, ", comment:",commentFail)
+        print("  Plus",bentTubes,"bent tubes.")
 
-        totTubes+=TubesWeeklySwaged
+        totTubes+=TubesMonthlySwaged
         totGood+=goodTubes
         totInc+=incTubes
         totBent+=bentTubes
     else:
         print("No tube swaged")
-# end of loop over weeks
+# end of loop over months
 #
 print("Summary:")
-print("Total ",totTubes," swaged, good+incomplete ",totGood,"+",totInc,"=",totGood+totInc,", failure rate %2.1f" % (100.-(totGood+totInc)/totTubes*100.))
-print("Plus ",tubesErr," tubes without a date and ",totBent,"tubes that were bent.")
+print("Total ",totTubes," swaged, good+incomplete ",totGood,"+",totInc,"=",totGood+totInc,", fail",totTubes-totGood-totInc,", failure rate %2.1f%%" % (100.-(totGood+totInc)/totTubes*100.))
+print("PLus",totBent," bent tubes.")
+print("Plus ",tubesErr," tubes without a date")
 sys.exit(0)
