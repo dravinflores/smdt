@@ -270,8 +270,7 @@ class station_pickler:
                             pressure = line[1]  # Not used
                             pass_fail = line[2]  # Useless
                             date = line[3]
-                            time1 = lin
-                            e[4]
+                            time1 = line[4]
                             user = line[5]
                         except ValueError:
                             self.error_files['Leak'].add(filename)
