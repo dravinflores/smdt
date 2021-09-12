@@ -1,3 +1,21 @@
+###############################################################################
+#   File: MergeGitDropbox
+#   Author(s): Paul Johnecheck
+#   Date Created: 9/12/2021
+#
+#   Purpose: This script is designed to make it easier to reconcile differences
+#   between the dropbox and the github. Currently, it expects a path to the dropbox directory
+#   and a path to the local github repository.
+#   Uncommenting line 25 will do the reverse, compares them in the opposite direction.
+#   This script will be improved further in the future.
+#
+#   Known Issues:
+#
+#   Workarounds:
+#
+###############################################################################
+
+
 import filecmp
 import os
 from shutil import copy
