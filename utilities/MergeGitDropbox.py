@@ -22,10 +22,13 @@ from shutil import copy
 import pathlib
 
 
-dropbox_dir = r'C:\sMDT'
+#dropbox_dir = r'C:\sMDT'
+dropbox_dir = r'C:\Users\Third\Dropbox\sMDT'
 github_dir = r'C:\Users\Third\source\repos\dravinflores\smdt'
+#github_dir = r'C:\sMDT-github-premerge'
 
-tracked_extensions = [".py"]#, ".vi"]
+
+tracked_extensions = [".py", ".vi"]
 
 
 mode = input("Modes:\n(1): Compare only\n(2): Add missing files to each\n(3): Update from GitHub\n(4): Update from "
