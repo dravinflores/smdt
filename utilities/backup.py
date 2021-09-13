@@ -46,6 +46,8 @@ def progressBar(iterable, prefix = '', suffix = '', decimals = 1, length = 100, 
 
 
 if __name__ == "__main__":
+    if len(sys.argv) == 2:
+        backup_dir = sys.argv[1] # User specified backup directory
 
     if not os.path.isdir(backup_dir):
         os.mkdir(backup_dir)
@@ -63,20 +65,17 @@ if __name__ == "__main__":
     i = 0
     while True:
         try:
-            zip_filename = datetime.date.today().isoformat() + "-" + str(i) + ".backup.zip"
+            zip_filename = str(datetime.datetime.now()).replace(":","-") + "-" + str(i) + ".backup.zip"
             zf = zipfile.ZipFile(os.path.join(backup_dir, zip_filename), mode='x')
             break
         except FileExistsError:
             i += 1
 
 
-    zf.write(os.path.join(backup_dir, "database.s.dir"), arcname="database.s.dir")
-    zf.write(os.path.join(backup_dir, "database.s.bak"), arcname="database.s.bak")
-    zf.write(os.path.join(backup_dir, "database.s.dat"), arcname="database.s.dat")
+    zf.write(os.path.join(backup_dir, "database.s"), arcname="database.s")
     zf.close()
 
-    os.remove(os.path.join(backup_dir, "database.s.dir"))
-    os.remove(os.path.join(backup_dir, "database.s.dat"))
-    os.remove(os.path.join(backup_dir, "database.s.bak"))
+    os.remove(os.path.join(backup_dir, "database.s"))
 
-    input("Backup done. Press enter to continue...")
+
+    print("Backup done.")

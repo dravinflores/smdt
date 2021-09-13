@@ -29,13 +29,15 @@ from sMDT import db, tube
 from sMDT.data import swage
 from sMDT.data.status import Status
 
+
+database = db.db()
+
 # Returns a list of the status of the tube, in this order:
 # swage status, tension status, leak status, dark current status
 def getStatus(code):
     #raise NotImplementedError
     #return 1 # for now, this is not implemented correctly
     try:
-        database = db.db()
         tube1 = database.get_tube(code)
         sStatus = tube1.swage.status()
         tStatus = tube1.tension.status()
@@ -73,7 +75,6 @@ def getData(code):
 # Returns booleans to indicate which tests failed
 def getFailedTests(code):
     try:
-        database = db.db()
         tube1 = database.get_tube(code)
         sfail = tube1.swage.fail()
         tfail = tube1.tension.fail()
@@ -92,8 +93,9 @@ def textToList(barcodeList):
     return list(filter(lambda a: a != '', barcodes))
 
 # Check if one of the codes in the text is bad and display it
-def checkCodes(barcodeList):
+def checkCodes(Event):
     barcodeList = text_list.get('1.0',tk.END)[0:-1]
+    if len(barcodeList)%8!=0: return
     text_serrors.config(state=tk.NORMAL)
     text_serrors.delete("1.0", tk.END)
     text_terrors.config(state=tk.NORMAL)
@@ -179,6 +181,10 @@ def handle_enter(event):
         text_serrors.insert('1.0',"Tubes \nwritten")
     text_serrors.config(state=tk.DISABLED)
 
+def handle_update(event):
+    database = db.db()
+
+
 window = tk.Tk()
 window.title("Export Log GUI")
 window.columnconfigure(0, weight=1, minsize=75)
@@ -218,6 +224,16 @@ button = tk.Button(
     )
 button.bind("<Button-1>", handle_enter)
 
+update_button = tk.Button(
+    master=frame_entry,
+    text="Update Database",
+    width=20,
+    height=2,
+    bg="blue",
+    fg="yellow",
+    )
+update_button.bind("<Button-1>", handle_update)
+
 ############ Swage Error Frame ################
 label_serrors = tk.Label(master=frame_error, text='Swage \n Errors')
 text_serrors = tk.Text(master=frame_error,
@@ -248,6 +264,7 @@ text_derrors.config(state=tk.DISABLED)
 
 ############  Pack Everything Together  ##########
 entry = tk.Entry()
+update_button.pack()
 label_name.pack()
 entry_name.pack()
 
