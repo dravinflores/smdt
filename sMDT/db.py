@@ -188,7 +188,7 @@ class db_manager:
 
         if not db_path:
             self.db_file = self.dropbox_directory / 'database.s'
-        
+
         self.lock_file = self.dropbox_directory /'sMDT'/'locks'/'db_lock.lock'
         self.new_data_dir = self.dropbox_directory / 'sMDT' / 'new_data'
 
@@ -236,9 +236,9 @@ class db_manager:
                 log_activity = open('activity.log', 'a')
 
                 # Check if the stored database is more recent.
-                if not len(tubes) or len(tubes) < 50:
+                if not (len(tubes) or len(tubes) < 50) and not self.testing:
                     print_str = f"\nThe Database has been corrupted. " 
-                    print_str += "Size is {len(tubes)}.\n"
+                    print_str += "Size is {}.\n".format(len(tubes))
                     print_str += "The database will continue to sync. \n"
                     t = datetime.datetime.now()
                     time_str = f'At Time: {t.strftime("%d-%b-%Y %H:%M:%S")}\n\n'

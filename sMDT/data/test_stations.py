@@ -75,12 +75,12 @@ def test_swage_status():
     s.add_record(SwageRecord(raw_length=-9.71, swage_length=0.07))
     assert s.status() == Status.PASS
     s.add_record(
-        SwageRecord(raw_length=-99999999, swage_length=-0.11, has_failed=True)
+        SwageRecord(raw_length=-99999999, swage_length=-0.11)
     )
 
     # The swage station's fail() method has not been implemented yet. 
-    assert s.fail()
-    assert s.status() == Status.FAIL
+    assert not s.fail()
+    assert s.status() == Status.PASS
 
 
 def test_leak_status():
@@ -101,11 +101,11 @@ def test_dark_current_status():
     dc = DarkCurrent()
     assert dc.status() == Status.INCOMPLETE
 
-    dc.add_record(DarkCurrentRecord(dark_current=0))
+    dc.add_record(DarkCurrentRecord(dark_current=0, voltage=3000))
     assert dc.status() == Status.PASS
 
     # dc.add_record(DarkCurrentRecord(dark_current=0.15))
-    dc.add_record(DarkCurrentRecord(dark_current=100))
+    dc.add_record(DarkCurrentRecord(dark_current=100, voltage=3000))
     assert dc.fail()
     assert dc.status() == Status.FAIL
 

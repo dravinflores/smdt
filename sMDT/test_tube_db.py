@@ -156,12 +156,16 @@ def test_tube_status():
 
     tube2 = Tube()
     tube2.leak.add_record(leak.LeakRecord(leak_rate=0))
+    assert tube2.leak.status() == Status.PASS
     assert tube2.status() == Status.INCOMPLETE
-    tube2.dark_current.add_record(dark_current.DarkCurrentRecord(dark_current=0))
+    tube2.dark_current.add_record(dark_current.DarkCurrentRecord(dark_current=0, voltage=3000))
+    assert tube2.dark_current.status() == Status.PASS
     assert tube2.status() == Status.INCOMPLETE
     tube2.swage.add_record(swage.SwageRecord(raw_length=-9.81, swage_length=0.07))
+    assert tube2.swage.status() == Status.PASS
     assert tube2.status() == Status.INCOMPLETE
     tube2.tension.add_record(tension.TensionRecord(tension=350, date=datetime.datetime.now()))
+    assert tube2.tension.status() == Status.PASS
     assert tube2.status() == Status.PASS
     tube2.tension.add_record(tension.TensionRecord(tension=350, date=datetime.datetime.now()-datetime.timedelta(days=15)))
     assert tube2.status() == Status.PASS
