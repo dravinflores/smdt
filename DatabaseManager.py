@@ -17,7 +17,7 @@ if __name__ == "__main__":
 		ARCHIVE = True
 		LOOP = True
 		CLEANUP = False
-		NOPICKLER = True
+		NOPICKLER = False
 
 		db_man = db.db_manager(archive=ARCHIVE, testing=NOPICKLER)
 		if WIPE:
