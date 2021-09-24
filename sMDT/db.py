@@ -98,7 +98,7 @@ class db:
         file_obj = self.new_data_dir / filename
 
         if not file_obj.exists():
-            file_obj.mkdir(parents=True, exist_ok=True)
+            file_obj.parent.mkdir(parents=True, exist_ok=True)
             file_obj.touch()
 
         s = str(self.lock_file.resolve())
