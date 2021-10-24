@@ -94,7 +94,12 @@ class DarkCurrent(Station, ABC):
         if not self.visited():
             return Status.INCOMPLETE
         try:
-            if self.get_record(mode='last').voltage <=0:
+            # We compare with 0.0 V because whenenver a channel trips, the 
+            # nominal voltage is automatically recorded as 0.0. Comparing
+            # with 2600 V would be rather pointless. This is why some
+            # tubes with 0 nA of stray current will be recorded as 
+            # incomplete, as they will be recorded as 0 nA at 0 V.
+            if self.get_record(mode='last').voltage <= 0.0:
                 return Status.INCOMPLETE
         except TypeError:
             return Status.INCOMPLETE
