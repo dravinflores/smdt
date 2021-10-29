@@ -1,5 +1,5 @@
 ###############################################################################
-#   File: tension_plots.py
+#   File: devious_plots.py
 #   Author(s):  Paul Johnecheck
 #   Date Created: 5 October, 2021
 #
