@@ -14,7 +14,7 @@
 #
 ###############################################################################
 from abc import ABC
-from datetime import datetime
+from datetime import datetime, date
 import textwrap
 
 from .station import Station
@@ -99,7 +99,7 @@ class DarkCurrent(Station, ABC):
             # with 2600 V would be rather pointless. This is why some
             # tubes with 0 nA of stray current will be recorded as 
             # incomplete, as they will be recorded as 0 nA at 0 V.
-            if self.get_record(mode='last').voltage <= 0.0:
+            if self.get_record(mode='last').date > datetime(2021, 5, 13) and self.get_record(mode='last').voltage <= 0.0:
                 return Status.INCOMPLETE
         except TypeError:
             return Status.INCOMPLETE
