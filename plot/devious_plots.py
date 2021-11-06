@@ -134,30 +134,34 @@ class Plotter:
         self.remove_outliers = remove_outliers
         self.outlier_stdev = 2
 
-    def add_plot(self, plot_tup, f):
-        self.plots.append((plot_tup, f))
+    def add_plot(self, plot_tup, f, plot_type=None):
+        self.plots.append((plot_tup, f, plot_type))
 
     def plot(self):
         nrows = int(np.ceil(len(self.plots)/2))
         ncol = 2
-        fig, axs = plt.subplots(nrows, 2)
+        if len(self.plots) == 1:
+            ncol = 1
+        fig, axs = plt.subplots(nrows, ncol)
         fig.tight_layout()
         for i,plot in enumerate(self.plots):
-            self.plots[i] = (plot[0], [plot[1](tube, self.min_date) for tube in self.tubes if plot[1](tube, self.min_date)])
+            self.plots[i] = (plot[0], [plot[1](tube, self.min_date) for tube in self.tubes if plot[1](tube, self.min_date)], plot[2])
+        if type(axs) != np.ndarray:
+            axs = np.array([axs])
         for i,ax in enumerate(axs.flat):
-                (title, x_label, y_label), data_tups = self.plots[i]
+                (title, x_label, y_label), data_tups, plot_type = self.plots[i]
                 data_by_date = [[] for i in range(self.num_days)]
                 [data_by_date[(date.date() - self.min_date).days - 1].append(data) for data, date in data_tups if date.date() > self.min_date]
                 data_avg_by_date = [sum(date_list) / len(date_list) if date_list else np.nan for date_list in data_by_date]
                 data_stdev_by_date = [np.std(date_list) if date_list else np.nan for date_list in data_by_date]
                 data_median_by_date = [np.median(date_list) if date_list else np.nan for date_list in data_by_date]
 
-                if self.remove_outliers:
+                if self.remove_outliers and plot_type != "median_only":
                     all_data = []
                     [all_data.extend([data for data in date_list if not np.isnan(data)]) for date_list in data_by_date]
-                    total_mean = sum(all_data)/len(all_data)
-                    total_stdev = np.std([data for data, date in data_tups if date.date() > self.min_date])
-                    data_by_date = [[data for data in date_list if np.abs(data - total_mean) < total_stdev * self.outlier_stdev] for date_list in data_by_date]
+                    total_med = np.median(all_data)
+                    med_stdev = np.median([stdev for stdev in data_stdev_by_date if not np.isnan(stdev)])
+                    data_by_date = [[data for data in date_list if np.abs(data - total_med) < med_stdev * self.outlier_stdev] for date_list in data_by_date]
 
                     #recalculate values to plot with outliers removed
                     data_avg_by_date = [sum(date_list) / len(date_list) if date_list else np.nan for date_list in data_by_date]
@@ -165,8 +169,8 @@ class Plotter:
                     data_median_by_date = [np.median(date_list) if date_list else np.nan for date_list in data_by_date]
 
 
-
-                ax.errorbar(self.dates, data_avg_by_date, yerr=data_stdev_by_date, fmt="o")
+                if plot_type != "median_only":
+                    ax.errorbar(self.dates, data_avg_by_date, yerr=data_stdev_by_date, fmt="o")
                 ax.scatter(self.dates, data_median_by_date, c='r', marker='x')
                 ax.set_title(title)
                 ax.set_xlabel(x_label)
@@ -182,23 +186,24 @@ class Plotter:
 if __name__ == '__main__':
 
     #past N days
-    NUM_DAYS = 120
+    NUM_DAYS = 60
 
     REMOVE_OUTLIERS = True
-    #a data point is an outlier if it is greater than N standard deviations from the mean of medians.
-    N_STDEV = 4
+    #a data point is an outlier if it is greater than N standard deviations from the median of all the data.
+    N_STDEV = 10
+    #the standard deviation itself was excessively thrown off by outliers, so we use the median stdev of all days instead
 
 
     plotter = Plotter(NUM_DAYS, REMOVE_OUTLIERS, N_STDEV)
-    plotter.add_plot(("Raw Length Average by Day", "Date, Past 60 Days", "Raw Length (mm)"), get_raw_length)
-    plotter.add_plot(("Pre-Swage Tension Average by Day", "Date, Past 60 Days", "Tension (g)"), get_tension1)
-    plotter.add_plot(("Swage Length Average by Day", "Date, Past 60 Days", "Raw Length (mm)"), get_swage_length)
-    plotter.add_plot(("Post-Swage Tension Average by Day", "Date, Past 60 Days", "Tension (g)"), get_tension2)
-    plotter.add_plot(("Difference between Raw and Swage Length Average by Day", "Date, Past 60 Days", "Lenth Difference (mm)"), get_length_diffs)
-    plotter.add_plot(("Difference between Pre and Post Swage Tension Average by Day", "Date, Past 60 Days", "Tension Difference (g)"), get_length_diffs)
-    plotter.add_plot(("Leak Rate Average by Day", "Date, Past 60 Days", "Leak Rate (mbar l/s)"), get_leak)
-    plotter.add_plot(("Dark Current Average by Day", "Date, Past 60 Days", "Leak Rate (nA)"), get_dark_current)
+    #plotter.add_plot(("Raw Length Averages by Day", "Date, Past {} Days".format(NUM_DAYS), "Raw Length (mm)"), get_raw_length)
+    plotter.add_plot(("Pre-Swage Tension Averages by Day", "Date, Past {} Days".format(NUM_DAYS), "Tension (g)"), get_tension1)
+    plotter.add_plot(("Swage Length Averages by Day", "Date, Past {} Days".format(NUM_DAYS), "Swage Length (mm)"), get_swage_length)
+    plotter.add_plot(("Post-Swage Tension Averages by Day", "Date, Past {} Days".format(NUM_DAYS), "Tension (g)"), get_tension2)
+    plotter.add_plot(("Difference between Raw and Swage Length Averages by Day", "Date, Past {} Days".format(NUM_DAYS), "Lenth Difference (mm)"), get_length_diffs)
+    plotter.add_plot(("Difference between Pre and Post Swage Tension Averages by Day", "Date, Past {} Days".format(NUM_DAYS), "Tension Difference (g)"), get_tension_diffs)
+    plotter.add_plot(("Leak Rate Averages by Day", "Date, Past {} Days".format(NUM_DAYS), "Leak Rate (mbar l/s)"), get_leak)
+    plotter.add_plot(("Dark Current Median by Day", "Date, Past {} Days".format(NUM_DAYS), "Dark Current (nA)"), get_dark_current, 'median_only')
     plotter.plot()
 
 
-    plt.show()
+
