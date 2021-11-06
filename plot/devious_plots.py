@@ -33,239 +33,172 @@ LEAK_MAX = 100000
 DARK_MIN = 0
 DARK_MAX = 100000
 
+def get_tension1(tube, min_date):
+    swage_records = sorted([record for record in tube.swage.m_records if record.date], key=lambda rec: rec.date)
+    swage_length_rec = None
+    try:  # gets the first SwageRecord with a value for swage_length
+        swage_length_rec = next(rec for rec in swage_records if rec.swage_length and rec.date.date() > min_date)
+    except StopIteration:
+        # tube has no swage length recorded
+        pass
+    if swage_length_rec:  # only consider the tensions if the tube has been swaged
+        # sort tension records by date
+        tension_records = sorted(tube.tension.m_records, key=lambda rec: rec.date)
+        pre_tension_rec = None
+        try:  # gets the last TensionRecord before the tube was swaged
+            generator = (rec for rec in tension_records if rec.date < swage_length_rec.date)
+            while True:
+                pre_tension_rec = next(generator)
+        except StopIteration:
+            # we hit this exception after we run out of tension records before swaging,
+            # meaning pre_tension record is now the last record before swaging
+                return (pre_tension_rec.tension, pre_tension_rec.date) if pre_tension_rec else None
+
+def get_tension2(tube, min_date):
+    swage_records = sorted([record for record in tube.swage.m_records if record.date], key=lambda rec: rec.date)
+    swage_length_rec = None
+    try:  # gets the first SwageRecord with a value for swage_length
+        swage_length_rec = next(rec for rec in swage_records if rec.swage_length and rec.date.date() > min_date)
+    except StopIteration:
+        # tube has no swage length recorded
+        pass
+    if swage_length_rec:  # only consider the tensions if the tube has been swaged
+        # sort tension records by date
+        tension_records = sorted(tube.tension.m_records, key=lambda rec: rec.date)
+        try:  # gets the first TensionRecord after the tube was swaged
+            post_tension_rec = next(rec for rec in tension_records if rec.date > swage_length_rec.date)
+            return (post_tension_rec.tension, post_tension_rec.date)
+        except StopIteration:
+            pass
+
+def get_raw_length(tube, min_date):
+    swage_records = sorted([record for record in tube.swage.m_records if record.date], key=lambda rec: rec.date)
+    try:  # gets the first SwageRecord with a value for raw_length
+        raw_length_rec = next(rec for rec in swage_records if rec.raw_length and rec.date.date() > min_date)
+        return (raw_length_rec.raw_length, raw_length_rec.date)
+    except StopIteration:
+        pass
+
+def get_swage_length(tube, min_date):
+    swage_records = sorted([record for record in tube.swage.m_records if record.date], key=lambda rec: rec.date)
+    try:  # gets the first SwageRecord with a value for swage_length
+        swage_length_rec = next(rec for rec in swage_records if rec.swage_length and rec.date.date() > min_date)
+        return (swage_length_rec.swage_length, swage_length_rec.date)
+    except StopIteration:
+        pass
+
+def get_length_diffs(tube, min_date):
+    try:
+        swage_length, date = get_swage_length(tube, min_date)
+        raw_length = get_raw_length(tube, min_date)[0]
+        return (swage_length - raw_length, date)
+    except TypeError:
+        return None
+
+def get_tension_diffs(tube, min_date):
+    try:
+        tension1, date = get_tension1(tube, min_date)
+        tension2 = get_tension2(tube, min_date)[0]
+        return (tension2 - tension1, date)
+    except TypeError:
+        return None
+
+def get_leak(tube, min_date):
+    leak_records = sorted([record for record in tube.leak.m_records if record.date], key=lambda rec: rec.date)
+    try:  # gets the first SwageRecord with a value for swage_length
+        leak_rec = next(rec for rec in leak_records if rec.leak_rate and rec.date.date() > min_date)
+        return (leak_rec.leak_rate, leak_rec.date)
+
+    except StopIteration:
+        # tube has no swage length recorded
+        pass
+
+def get_dark_current(tube, min_date):
+    dark_records = sorted([record for record in tube.dark_current.m_records if record.date], key=lambda rec: rec.date)
+    try:  # gets the first SwageRecord with a value for swage_length
+        dark_rec = next(rec for rec in dark_records if rec.dark_current and rec.date.date() > min_date)
+        return (dark_rec.dark_current, dark_rec.date)
+    except StopIteration:
+        # tube has no swage length recorded
+        pass
+
+
+class Plotter:
+    def __init__(self, num_days, remove_outliers=False, outlier_stdev=2):
+        database = db()
+        self.tubes = database.get_tubes()
+        self.plots = []
+        self.num_days = num_days
+        self.min_date = date.today() - timedelta(days=num_days)
+        self.dates = [self.min_date + timedelta(days=(n+1)) for n in range(num_days)]
+        self.remove_outliers = remove_outliers
+        self.outlier_stdev = 2
+
+    def add_plot(self, plot_tup, f):
+        self.plots.append((plot_tup, f))
+
+    def plot(self):
+        nrows = int(np.ceil(len(self.plots)/2))
+        ncol = 2
+        fig, axs = plt.subplots(nrows, 2)
+        fig.tight_layout()
+        for i,plot in enumerate(self.plots):
+            self.plots[i] = (plot[0], [plot[1](tube, self.min_date) for tube in self.tubes if plot[1](tube, self.min_date)])
+        for i,ax in enumerate(axs.flat):
+                (title, x_label, y_label), data_tups = self.plots[i]
+                data_by_date = [[] for i in range(self.num_days)]
+                [data_by_date[(date.date() - self.min_date).days - 1].append(data) for data, date in data_tups if date.date() > self.min_date]
+                data_avg_by_date = [sum(date_list) / len(date_list) if date_list else np.nan for date_list in data_by_date]
+                data_stdev_by_date = [np.std(date_list) if date_list else np.nan for date_list in data_by_date]
+                data_median_by_date = [np.median(date_list) if date_list else np.nan for date_list in data_by_date]
+
+                if self.remove_outliers:
+                    all_data = []
+                    [all_data.extend([data for data in date_list if not np.isnan(data)]) for date_list in data_by_date]
+                    total_mean = sum(all_data)/len(all_data)
+                    total_stdev = np.std([data for data, date in data_tups if date.date() > self.min_date])
+                    data_by_date = [[data for data in date_list if np.abs(data - total_mean) < total_stdev * self.outlier_stdev] for date_list in data_by_date]
+
+                    #recalculate values to plot with outliers removed
+                    data_avg_by_date = [sum(date_list) / len(date_list) if date_list else np.nan for date_list in data_by_date]
+                    data_stdev_by_date = [np.std(date_list) if date_list else np.nan for date_list in data_by_date]
+                    data_median_by_date = [np.median(date_list) if date_list else np.nan for date_list in data_by_date]
+
+
+
+                ax.errorbar(self.dates, data_avg_by_date, yerr=data_stdev_by_date, fmt="o")
+                ax.scatter(self.dates, data_median_by_date, c='r', marker='x')
+                ax.set_title(title)
+                ax.set_xlabel(x_label)
+                ax.set_ylabel(y_label)
+                ax.set_xticks(self.dates[::7])
+                ax.xaxis.set_major_formatter(mdates.DateFormatter('%m-%d'))
+                ax.grid()
+
+        plt.show()
+
+
 
 if __name__ == '__main__':
 
-    database = db()
-    tubes = database.get_tubes()
+    #past N days
+    NUM_DAYS = 120
 
-    # all these are lists of tuples, (value, date)
-    tensions1 = []
-    tensions2 = []
-    raw_lengths = []
-    swage_lengths = []
-    length_diffs = []
-    tension_diffs = []
-    leaks = []
-    dark_currents = []
+    REMOVE_OUTLIERS = True
+    #a data point is an outlier if it is greater than N standard deviations from the mean of medians.
+    N_STDEV = 4
 
 
-    min_date = date.today() - timedelta(days=60)
-
-    for tube in tubes:
-
-        # sort swage records by date, remove records with no date
-        swage_records = sorted([record for record in tube.swage.m_records if record.date], key=lambda rec: rec.date)
-
-        swage_length_rec = None
-        try:  # gets the first SwageRecord with a value for swage_length
-            swage_length_rec = next(rec for rec in swage_records if rec.swage_length and rec.date.date() > min_date)
-
-            # remove outliers
-            if SWAGE_MIN < swage_length_rec.swage_length < SWAGE_MAX or not REMOVE_OUTLIERS:
-                swage_lengths.append((swage_length_rec.swage_length, swage_length_rec.date))
-
-        except StopIteration:
-            # tube has no swage length recorded
-            pass
-
-        try:  # gets the first SwageRecord with a value for raw_length
-            raw_length_rec = next(rec for rec in swage_records if rec.raw_length and rec.date.date() > min_date)
-
-            # remove outliers
-            if RAW_MIN < raw_length_rec.raw_length < RAW_MAX or not REMOVE_OUTLIERS:
-                raw_lengths.append((raw_length_rec.raw_length, raw_length_rec.date))
-
-        except StopIteration:
-            # tube has no raw length recorded
-            pass
-
-        if swage_length_rec:  # only consider the tensions if the tube has been swaged
-
-            # sort tension records by date
-            tension_records = sorted(tube.tension.m_records, key=lambda rec: rec.date)
-
-            try:  # gets the last TensionRecord before the tube was swaged
-                generator = (rec for rec in tension_records if rec.date < swage_length_rec.date)
-                while True:
-                    pre_tension_rec = next(generator)
-
-            except StopIteration:
-                # we hit this exception after we run out of tension records before swaging,
-                # meaning pre_tension record is now the last record before swaging
-                # remove outliers
-                if TENSION_MIN < pre_tension_rec.tension < TENSION_MAX or not REMOVE_OUTLIERS:
-                    tensions1.append((pre_tension_rec.tension, pre_tension_rec.date))
-
-            try:  # gets the first TensionRecord after the tube was swaged
-                post_tension_rec = next(rec for rec in tension_records if rec.date > swage_length_rec.date)
-                # remove outliers
-                if TENSION_MIN < post_tension_rec.tension < TENSION_MAX or not REMOVE_OUTLIERS:
-                    tensions2.append((post_tension_rec.tension, post_tension_rec.date))
-
-            except StopIteration:
-                # no tension record after swage
-                pass
-
-        if swage_length_rec and post_tension_rec:
-            if SWAGE_MIN < swage_length_rec.swage_length < SWAGE_MAX and RAW_MIN < raw_length_rec.raw_length < RAW_MAX or not REMOVE_OUTLIERS:
-                length_diffs.append((swage_length_rec.swage_length - raw_length_rec.raw_length, swage_length_rec.date))
-            if TENSION_MIN < pre_tension_rec.tension < TENSION_MAX and TENSION_MIN < post_tension_rec.tension < TENSION_MAX or not REMOVE_OUTLIERS:
-                tension_diffs.append((post_tension_rec.tension - pre_tension_rec.tension, swage_length_rec.date))
-
-        leak_records = sorted([record for record in tube.leak.m_records if record.date], key=lambda rec: rec.date)
-        try:  # gets the first SwageRecord with a value for swage_length
-            leak_rec = next(rec for rec in leak_records if rec.leak_rate and rec.date.date() > min_date)
-
-            # remove outliers
-            if LEAK_MIN < leak_rec.leak_rate < LEAK_MAX or not REMOVE_OUTLIERS:
-                leaks.append((leak_rec.leak_rate, leak_rec.date))
-
-        except StopIteration:
-            # tube has no swage length recorded
-            pass
-
-        dark_records = sorted([record for record in tube.dark_current.m_records if record.date], key=lambda rec: rec.date)
-        try:  # gets the first SwageRecord with a value for swage_length
-            dark_rec = next(rec for rec in dark_records if rec.dark_current and rec.date.date() > min_date)
-
-            # remove outliers
-            if DARK_MIN < dark_rec.dark_current < DARK_MAX or not REMOVE_OUTLIERS:
-                dark_currents.append((dark_rec.dark_current, dark_rec.date))
-
-        except StopIteration:
-            # tube has no swage length recorded
-            pass
-
-
-
-    # all these are 2d lists each sublist represents a day., measurement_dates[0] is a list of measurements
-    raw_len_dates = [[] for i in range(60)]
-    swage_len_dates = [[] for i in range(60)]
-    tension1_dates = [[] for i in range(60)]
-    tension2_dates = [[] for i in range(60)]
-    len_dif_dates = [[] for i in range(60)]
-    tens_dif_dates = [[] for i in range(60)]
-    dark_dates = [[] for i in range(60)]
-    leak_dates = [[] for i in range(60)]
-
-    #build the 2d array
-    [raw_len_dates[(date.date()-min_date).days - 1].append(length) for length, date in raw_lengths if date.date() > min_date]
-    #for length, date in raw_lengths: #equivalent code to the above line
-    #    date_index = (date.date()-min_date).days - 1
-    #    (raw_len_dates[date_index]).append(length)
-    [swage_len_dates[(date.date() - min_date).days - 1].append(length) for length, date in swage_lengths if date.date() > min_date]
-    [tension1_dates[(date.date() - min_date).days - 1].append(tension) for tension, date in tensions1 if date.date() > min_date]
-    #for tension, date in tensions1: #equivalent code to the above line
-    #    date_index = (date.date()-min_date).days - 1
-    #    try:
-    #        (tension1_dates[date_index]).append(tension)
-    #    except IndexError:
-    #        print(tension, date)
-    [tension2_dates[(date.date() - min_date).days - 1].append(tension) for tension, date in tensions2 if date.date() > min_date]
-    [len_dif_dates[(date.date() - min_date).days - 1].append(diff) for diff, date in length_diffs if date.date() > min_date]
-    [tens_dif_dates[(date.date() - min_date).days - 1].append(diff) for diff, date in tension_diffs if date.date() > min_date]
-    [dark_dates[(date.date() - min_date).days - 1].append(dark) for dark, date in dark_currents if date.date() > min_date]
-    [leak_dates[(date.date() - min_date).days - 1].append(leak) for leak, date in leaks if date.date() > min_date]
-
-    # calculate averages, "if date_list else np.nan" causes a point to be omitted if there is no data for that day
-    # raw_len_avg = [] # Commented block is equivalent to the first line
-    # for date_list in raw_len_dates:
-    #    if date_list:
-    #        date_max = max([length for length in date_list])
-    #        date_sum = sum([length for length in date_list])
-    #        date_len = len(date_list)
-    #        raw_len_avg.append(date_sum/date_len)
-    #    else:
-    #        raw_len_avg.append(np.nan)
-    raw_len_avg = [sum([length for length in date_list]) / len(date_list) if date_list else np.nan for date_list in raw_len_dates]
-    swage_len_avg = [sum([length for length in date_list]) / len(date_list) if date_list else np.nan for date_list in swage_len_dates]
-    tension1_avg = [sum([tension for tension in date_list]) / len(date_list) if date_list else np.nan for date_list in tension1_dates]
-    tension2_avg = [sum([tension for tension in date_list]) / len(date_list) if date_list else np.nan for date_list in tension2_dates]
-    len_dif_avg = [sum([diff for diff in date_list]) / len(date_list) if date_list else np.nan for date_list in len_dif_dates]
-    tens_dif_avg = [sum([diff for diff in date_list]) / len(date_list) if date_list else np.nan for date_list in tens_dif_dates]
-    dark_avg = [sum([dark for dark in date_list]) / len(date_list) if date_list else np.nan for date_list in dark_dates]
-    leak_avg = [sum([leak for leak in date_list]) / len(date_list) if date_list else np.nan for date_list in leak_dates]
-
-    # calculate standard deviations
-    raw_len_stdev = [np.std(date_list) if date_list else np.nan for date_list in raw_len_dates]
-    swage_len_stdev = [np.std(date_list) if date_list else np.nan for date_list in swage_len_dates]
-    tension1_stdev = [np.std(date_list) if date_list else np.nan for date_list in tension1_dates]
-    tension2_stdev = [np.std(date_list) if date_list else np.nan for date_list in tension2_dates]
-    len_dif_stdev = [np.std(date_list) if date_list else np.nan for date_list in len_dif_dates]
-    tens_dif_stdev = [np.std(date_list) if date_list else np.nan for date_list in tens_dif_dates]
-    leak_stdev = [np.std(date_list) if date_list else np.nan for date_list in leak_dates]
-    dark_stdev = [np.std(date_list) if date_list else np.nan for date_list in dark_dates]
-
-    # plot
-    dates = [min_date + timedelta(days=(n+1)) for n in range(60)]
-
-    fig, ((raw_plot, tension1_plot), (swage_plot, tension2_plot), (len_dif_plot, tens_dif_plot), (dark_plot, leak_plot)) = plt.subplots(4,2)
-    fig.tight_layout()
-
-    raw_plot.errorbar(dates, raw_len_avg, yerr=raw_len_stdev, fmt="o")
-    raw_plot.set_title("Raw Length Average by Day")
-    raw_plot.set_xlabel("Date, Past 60 Days")
-    raw_plot.set_ylabel("Raw Length (mm)")
-    raw_plot.set_xticks(dates[::7])
-    raw_plot.xaxis.set_major_formatter(mdates.DateFormatter('%m-%d'))
-    raw_plot.grid()
-
-    swage_plot.errorbar(dates, swage_len_avg, yerr=swage_len_stdev, fmt="o")
-    swage_plot.set_title("Swage Length Average by Day")
-    swage_plot.set_xlabel("Date, Past 60 Days")
-    swage_plot.set_ylabel("Swage Length (mm)")
-    swage_plot.set_xticks(dates[::7])
-    swage_plot.xaxis.set_major_formatter(mdates.DateFormatter('%m-%d'))
-    swage_plot.grid()
-
-    tension1_plot.errorbar(dates, tension1_avg, yerr=tension1_stdev, fmt="o")
-    tension1_plot.set_title("Pre-Swage Tension Average by Day")
-    tension1_plot.set_xlabel("Date, Past 60 Days")
-    tension1_plot.set_ylabel("Tension (g)")
-    tension1_plot.set_xticks(dates[::7])
-    tension1_plot.xaxis.set_major_formatter(mdates.DateFormatter('%m-%d'))
-    tension1_plot.grid()
-
-    tension2_plot.errorbar(dates, tension2_avg, yerr=tension2_stdev, fmt="o")
-    tension2_plot.set_title("Post-Swage Tension Average by Day")
-    tension2_plot.set_xlabel("Date, Past 60 Days")
-    tension2_plot.set_ylabel("Tension (g)")
-    tension2_plot.set_xticks(dates[::7])
-    tension2_plot.xaxis.set_major_formatter(mdates.DateFormatter('%m-%d'))
-    tension2_plot.grid()
-
-    len_dif_plot.errorbar(dates, len_dif_avg, yerr=len_dif_stdev, fmt="o")
-    len_dif_plot.set_title("Difference between Raw and Swage Length Average by Day")
-    len_dif_plot.set_xlabel("Date, Past 60 Days")
-    len_dif_plot.set_ylabel("Lenth Difference (mm)")
-    len_dif_plot.set_xticks(dates[::7])
-    len_dif_plot.xaxis.set_major_formatter(mdates.DateFormatter('%m-%d'))
-    len_dif_plot.grid()
-
-    tens_dif_plot.errorbar(dates, tens_dif_avg, yerr=tens_dif_stdev, fmt="o")
-    tens_dif_plot.set_title("Difference between Pre and Post Swage Tension Average by Day")
-    tens_dif_plot.set_xlabel("Date, Past 60 Days")
-    tens_dif_plot.set_ylabel("Tension Difference (g)")
-    tens_dif_plot.set_xticks(dates[::7])
-    tens_dif_plot.xaxis.set_major_formatter(mdates.DateFormatter('%m-%d'))
-    tens_dif_plot.grid()
-
-    leak_plot.errorbar(dates, leak_avg, yerr=leak_stdev, fmt="o")
-    leak_plot.set_title("Leak Rate Average by Day")
-    leak_plot.set_xlabel("Date, Past 60 Days")
-    leak_plot.set_ylabel("Leak Rate (mbar l/s)")
-    leak_plot.set_xticks(dates[::7])
-    leak_plot.xaxis.set_major_formatter(mdates.DateFormatter('%m-%d'))
-    leak_plot.grid()
-
-    dark_plot.errorbar(dates, dark_avg, yerr=dark_stdev, fmt="o")
-    dark_plot.set_title("Dark Current Average by Day")
-    dark_plot.set_xlabel("Date, Past 60 Days")
-    dark_plot.set_ylabel("Leak Rate (nA)")
-    dark_plot.set_xticks(dates[::7])
-    dark_plot.xaxis.set_major_formatter(mdates.DateFormatter('%m-%d'))
-    dark_plot.grid()
+    plotter = Plotter(NUM_DAYS, REMOVE_OUTLIERS, N_STDEV)
+    plotter.add_plot(("Raw Length Average by Day", "Date, Past 60 Days", "Raw Length (mm)"), get_raw_length)
+    plotter.add_plot(("Pre-Swage Tension Average by Day", "Date, Past 60 Days", "Tension (g)"), get_tension1)
+    plotter.add_plot(("Swage Length Average by Day", "Date, Past 60 Days", "Raw Length (mm)"), get_swage_length)
+    plotter.add_plot(("Post-Swage Tension Average by Day", "Date, Past 60 Days", "Tension (g)"), get_tension2)
+    plotter.add_plot(("Difference between Raw and Swage Length Average by Day", "Date, Past 60 Days", "Lenth Difference (mm)"), get_length_diffs)
+    plotter.add_plot(("Difference between Pre and Post Swage Tension Average by Day", "Date, Past 60 Days", "Tension Difference (g)"), get_length_diffs)
+    plotter.add_plot(("Leak Rate Average by Day", "Date, Past 60 Days", "Leak Rate (mbar l/s)"), get_leak)
+    plotter.add_plot(("Dark Current Average by Day", "Date, Past 60 Days", "Leak Rate (nA)"), get_dark_current)
+    plotter.plot()
 
 
     plt.show()
