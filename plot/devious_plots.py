@@ -20,19 +20,6 @@ sys.path.append(dropbox_dir)
 from sMDT.db import db
 
 
-#If True, the code will remove outliers outside of the following values
-REMOVE_OUTLIERS = True
-RAW_MIN = -12
-RAW_MAX = -8
-SWAGE_MIN = -2
-SWAGE_MAX = 2
-TENSION_MIN = 200
-TENSION_MAX = 500
-LEAK_MIN = 0
-LEAK_MAX = 100000
-DARK_MIN = 0
-DARK_MAX = 100000
-
 def get_tension1(tube, min_date):
     swage_records = sorted([record for record in tube.swage.m_records if record.date], key=lambda rec: rec.date)
     swage_length_rec = None
