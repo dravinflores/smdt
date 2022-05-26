@@ -11,6 +11,7 @@
 #   Known Issues:
 #
 #   Workarounds:
+# 2022-05-26, Reinhard: Also process username for dark current csv files
 #
 ###############################################################################
 
