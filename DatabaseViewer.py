@@ -12,6 +12,7 @@
 #   Updates:
 #   2021-06-13, Reinhard Schwienhorst: Update database every 5 seconds
 #   2021-06-24, Reinhard: Allow user to enter only 4 digits for tube ID
+#   2022-06, Sara: Add UMich info for color and second tension
 #
 ###############################################################################
 
@@ -32,7 +33,7 @@ import sys
 
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 
-from sMDT import db
+from sMDT import db as db
 from sMDT.data import status
 import sys
 
@@ -80,7 +81,6 @@ class DataModel(QtCore.QAbstractTableModel):
 
     def data(self, index, role):
         val = self.m_data[index.row()][index.column()]
-
         # For the data we want to print to the screen.
         if role == QtCore.Qt.DisplayRole:
             # First we want to check for any unrecorded values and alert
@@ -99,12 +99,16 @@ class DataModel(QtCore.QAbstractTableModel):
                 return val.strftime(DataModel.date_fmt_str)
             elif isinstance(val, float):
                 return f"{val:0.2f}"
-            elif isinstance(val, status.Status):
+            elif isinstance(val, (status.Status, status.UMich_Status)):
+                if val == status.UMich_Status.UMICH_COMPLETE:
+                    return "COMPLETE"
+                elif val == status.UMich_Status.UMICH_INCOMPLETE:
+                    return "INCOMPLETE"
                 if val == status.Status.FAIL:
                     return "FAIL"
                 elif val == status.Status.PASS:
                     return "PASS"
-                else:
+                elif val == status.Status.INCOMPLETE:
                     return "INCOMPLETE"
             else:
                 # What else are we going to catch? Integers?
@@ -121,12 +125,15 @@ class DataModel(QtCore.QAbstractTableModel):
             '''
 
         if role == QtCore.Qt.BackgroundRole:
-            # Here we can control the background color itself.
-            if isinstance(val, status.Status):
-                if val == status.Status.FAIL:
+            # Here we can control the background color itself.            
+            if isinstance(val, (status.Status, status.UMich_Status)):
+                if val == status.UMich_Status.UMICH_COMPLETE or val == status.UMich_Status.UMICH_INCOMPLETE:
+                    return QtGui.QColor('blue')  
+                elif val == status.Status.FAIL:
                     return QtGui.QColor('red')
                 elif val == status.Status.PASS:
-                    return QtGui.QColor('green')
+                    return QtGui.QColor('green')  
+
                 else:
                     return QtGui.QColor('orange')
             else:
@@ -227,7 +234,6 @@ class DataView(QtWidgets.QTableView):
                 leak_user_list.append(record.user)
             for record in tube.dark_current.get_record('all'):
                 dark_current_user_list.append(record.user)
-
             # We only want unique users.
             swage_user_list = list(set(swage_user_list))
             tension_user_list = list(set(tension_user_list))
@@ -540,7 +546,13 @@ def db_to_display_array(database):
 
     for tube in tubes:
         try:
-            status = tube.status()
+            status = tube.status_umich()
+
+            if status == None:
+                status = tube.status()
+            else:
+                status = tube.status_umich()
+
             tube_id = tube.get_ID()
 
             try:
@@ -590,12 +602,24 @@ def db_to_display_array(database):
 
             try:
                 (final_tension_date, final_tension) = \
-                    get_tension_measurement(
-                        tube.tension.get_record('all'),
-                        'final',
-                        'last'
-                    )
-            except ValueError:
+                    (tube.umich_tension.get_record().umich_date,
+                    tube.umich_tension.get_record().umich_tension)
+                    # get_tension_measurement(
+                    #     tube.tension.get_record('all'),
+                    #     'final',
+                    #     'last'
+                    # )
+                if isinstance(final_tension, (float, int)):
+                    final_tension = final_tension
+                else:
+                    final_tension = DataModel.no_value_recorded_float
+
+                if isinstance(final_tension_date, (datetime.datetime)):
+                    final_tension_date = final_tension_date
+                else: 
+                    final_tension_date= DataModel.no_value_recorded_date
+
+            except:
                 (final_tension_date, final_tension) = (
                     DataModel.no_value_recorded_date,
                     DataModel.no_value_recorded_float
@@ -609,6 +633,17 @@ def db_to_display_array(database):
                 dark_current = tube.dark_current.get_record().dark_current
             except IndexError:
                 dark_current = DataModel.no_value_recorded_float
+
+            unrecorded_str = "-- NO RECORD --"
+
+            # try:
+            #     umich_tension = tube.umich_tension.get_record().umich_tension
+            #     if umich_tension == None:
+            #         umich_tension = unrecorded_str
+            #     else:
+            #         umich_tension = umich_tension
+            # except IndexError:
+            #     umich_tension = unrecorded_str
 
             if tube_id is None:
                 tube_id = 0
@@ -650,7 +685,7 @@ def db_to_display_array(database):
                 final_tension_date,
                 final_tension,
                 leak_rate,
-                dark_current,
+                dark_current
             ]
             ret_arr.append(l)
 
