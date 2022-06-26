@@ -1,3 +1,8 @@
+###############################################################################
+#   File: status.py
+#   Author(s): Dravin Flores, Paul Johnecheck, Sara Sawford
+#   Status code for sMDT tubes
+#
 
 from enum import IntEnum
 
@@ -5,6 +10,13 @@ class Status(IntEnum):
     FAIL = 0
     PASS = 2
     INCOMPLETE = 1
+
+class UMich_Status(IntEnum):
+    UMICH_COMPLETE = 3
+    UMICH_INCOMPLETE = 4
+    NO_DATA = 5
+    PASS = 6
+    FAIL = 7
 
 class ErrorCodes(IntEnum):
     NO_ERROR = 0
