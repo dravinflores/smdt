@@ -6,9 +6,8 @@
 #   Purpose: This is the class representing a tube.
 #    an application will create these and store them in the database
 #
-#   Known Issues:
-#
-#   Workarounds:
+#   Modifications:
+#   2022-06 Sara Sawford, add UMich information
 #
 ###############################################################################
 
@@ -17,8 +16,12 @@ from .data.swage import Swage
 from .data.tension import Tension
 from .data.leak import Leak
 from .data.dark_current import DarkCurrent
-from .data.status import Status, ErrorCodes
+from .data.status import Status, UMich_Status, ErrorCodes
 from .data.bent import Bent
+from .data.umich import UMich_Tension
+from .data.umich import UMich_DarkCurrent
+from .data.umich import UMich_Bent
+from .data.umich import UMich_Misc
 
 
 class Tube:
@@ -33,6 +36,12 @@ class Tube:
         self.bent = Bent()
         self.comment_fail = False
 
+        self.umich_tension = UMich_Tension()
+        self.umich_dark_current = UMich_DarkCurrent()
+        self.umich_bent = UMich_Bent()
+        self.umich_misc = UMich_Misc()
+
+
     def __add__(self, other):
         ret = Tube()
         ret.m_tube_id = self.m_tube_id
@@ -43,12 +52,20 @@ class Tube:
         ret.tension = self.tension + other.tension
         ret.bent = self.bent + other.bent
         ret.legacy_data = dict(self.legacy_data, **other.legacy_data)
+
         return ret
 
     def __str__(self):
         ret_str = ""
         if self.get_ID():
-            ret_str += self.get_ID() + '-' + (self.status().name or '') + '\n'
+
+            # Checks for the status from UMich
+            try:
+                ret_str += self.get_ID() + '-' + ((self.status()).name or '') + ' / ' + (self.status_umich().name or '') + '\n'
+
+            except:
+                ret_str += self.get_ID() + '-' + (self.status().name or '') + '\n'
+
         date_str=self.get_mfg_date()
         if date_str != None:
             ret_str += 'Manufacture date ' +str(date_str) + '\n'
@@ -74,6 +91,15 @@ class Tube:
         ret_str += self.leak.__str__()
         ret_str += self.bent.__str__()
         ret_str += self.dark_current.__str__()
+
+        # For tubes that haven't been sent to UMich, no further strings are added to the return string
+        try:
+            ret_str += self.umich_tension.__str__()
+            ret_str += self.umich_dark_current.__str__()
+            ret_str += self.umich_bent.__str__()
+            ret_str += self.umich_misc.__str__()
+        except:
+            pass
 
         return ret_str
 
@@ -117,7 +143,8 @@ class Tube:
                 or self.dark_current is None:
             return Status.INCOMPLETE
         
-        if self.status_bentness() == Status.FAIL: return Status.FAIL
+        if self.status_bentness() == Status.FAIL: 
+           return Status.FAIL
 
         if any([i.status() == Status.FAIL for i in stations if i is not None]) \
                 or self.comment_fails() \
@@ -136,6 +163,18 @@ class Tube:
             # are properly mutually exclusive
             raise RuntimeError
 
+
+    
+    def status_umich(self):
+        # Uses 'done?' column recorded in umich_misc to check if the tube is complete, incomplete, or not received
+        try:
+            if self.umich_misc.status() == UMich_Status.PASS: 
+                return UMich_Status.UMICH_COMPLETE
+            elif self.umich_misc.status() == UMich_Status.UMICH_INCOMPLETE:
+                return UMich_Status.UMICH_INCOMPLETE
+        except:
+            pass
+
     def status_bentness(self):
         # special case accounting: if bent is 0.8, then this is pass for some but fail for others
         # in that case, check if swage is incomplete, if so then mark as fail, otherwise mark bent as
@@ -145,23 +184,36 @@ class Tube:
         if self.bent.bentness()==0.8 and self.swage is None: return Status.FAIL
         if self.bent.bentness()==0.8 and self.swage.status() == Status.INCOMPLETE: return Status.FAIL
         return self.bent.status()
+
+
             
         
         
     def to_dict(self):
+        #a dictionary of each station records
+        #becomes a dictionary of all station records
+        #becomes a dictionary for all tubes
         tube_in_dict = dict()
         swager_station = dict()
         tension_station = dict()
         leak_station = dict()
         dark_current_station = dict()
         bentness_station = dict()
+        dict_umich_tension = dict()
+        dict_umich_dark_current = dict()
+        dict_umich_bent = dict()
+        dict_umich_misc = dict()
 
         swager_station['m_records'] = []
         tension_station['m_records'] = []
         leak_station['m_records'] = []
         dark_current_station['m_records'] = []
         bentness_station['m_records'] = []
-
+        dict_umich_tension['m_records'] = []
+        dict_umich_dark_current['m_records'] = []
+        dict_umich_bent['m_records'] = []
+        dict_umich_misc['m_records'] = []
+    
         for record in self.swage.get_record('all'):
             record_dict = dict()
             record_dict['raw_length'] = record.raw_length
@@ -201,16 +253,63 @@ class Tube:
             record_dict["user"] = record.user
             bentness_station['m_records'].append(record_dict)
 
+        #UMich Tension
+        for record in self.umich_tension.get_record('all'):
+            record_dict = dict()
+            record_dict["umich_tension"] = record.umich_tension
+            record_dict["umich_frequency"] = record.umich_frequency
+            record_dict["umich_date"] = record.umich_date
+            record_dict["tension_flag"] = record.tension_flag
+            record_dict["freq_diff"] = record.freq_diff
+            record_dict["tens_diff"] = record.tens_diff
+            record_dict["time_diff"] = record.time_diff
+            record_dict["flag_scd_tension"] = record.flag_scd_tension
+            dict_umich_tension['m_records'].append(record_dict)
+
+        #UMich DC
+        for record in self.umich_dark_current.get_record('all'):
+            record_dict = dict()
+            record_dict["dark current"] = record.dark_current
+            record_dict["date"] = record.date
+            record_dict["dc_flag"] = record.dc_flag
+            record_dict["hv_time"] = record.hv_time
+            dict_umich_dark_current['m_records'].append(record_dict)
+
+        #UMich Bentness
+        for record in self.umich_bent.get_record('all'):
+            record_dict = dict()
+            record_dict["umich bentness"] = record.umich_bent
+            dict_umich_bent['m_records'].append(record_dict)
+
+        #UMich Misc
+        for record in self.umich_misc.get_record('all'):
+            record_dict = dict()
+            record_dict["prod_site"] = record.prod_site
+            record_dict["endplug type"] = record.endplug_type
+            record_dict["first scan"] = record.first_scan
+            record_dict["flag endplug"] = record.flag_endplug
+            record_dict["length"] = record.length
+            record_dict["done"] = record.done
+            dict_umich_misc['m_records'].append(record_dict)
+        
+
+
+
         tube_data_dict = dict()
 
         tube_data_dict['swage_station'] = swager_station
         tube_data_dict['tension_station'] = tension_station
         tube_data_dict['leak_station'] = leak_station
         tube_data_dict['dark_current_station'] = dark_current_station
+        tube_data_dict['umich_tension'] = dict_umich_tension
+        tube_data_dict['umich_dark_current'] = dict_umich_dark_current
+        tube_data_dict['umich_bent'] = dict_umich_bent
+        tube_data_dict['umich_misc'] = dict_umich_misc
 
         tube_in_dict[self.m_tube_id] = tube_data_dict
 
         return tube_in_dict
+
     def get_mfg_date(self):
         swage_date=None
         try:
