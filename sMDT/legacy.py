@@ -8,10 +8,8 @@
 #       dictionaries to a list of tube objects, as well as go backwards and do the inverse operation.
 #       
 #
-#   Known Issues:
-#
-#   Workarounds:
-# 2022-05-26, Reinhard: Also process username for dark current csv files
+#   Modifications:
+#   2020-06 Sara Sawford, Add UMIch information pickling
 #
 ###############################################################################
 
@@ -27,6 +25,10 @@ from .data.swage import Swage, SwageRecord
 from .data.tension import Tension, TensionRecord
 from .data.leak import Leak, LeakRecord
 from .data.dark_current import DarkCurrent, DarkCurrentRecord
+from .data.umich import UMich_Tension, UMich_TensionRecord
+from .data.umich import UMich_DarkCurrent, UMich_DarkCurrentRecord
+from .data.umich import UMich_Bent, UMich_BentRecord
+from .data.umich import UMich_Misc, UMich_MiscRecord
 from .data.bent import Bent, BentRecord
 from .data.status import ErrorCodes
 
@@ -39,7 +41,7 @@ class station_pickler:
     '''
 
     sMDT_DIR = os.path.dirname(os.path.abspath(__file__))
-
+    
     def __init__(self, path, archive=True, logging=True):
         '''
         Constructor, builds the pickler object. Gets the path to the directory it should look for/create the relevant
@@ -68,7 +70,7 @@ class station_pickler:
         swage_directory = os.path.join(self.path, "SwagerStation")
         archive_directory = os.path.join(swage_directory, "archive")
         CSV_directory = os.path.join(swage_directory, "SwagerData")
-        new_data_directory = os.path.join(self.sMDT_DIR, "new_data")
+        new_data_directory = os.path.join(self.sMDT_DIR, "sara_new_data")
 
         for directory in [swage_directory, CSV_directory, archive_directory, new_data_directory]:
             if not os.path.isdir(directory):
@@ -172,7 +174,7 @@ class station_pickler:
         tension_directory = os.path.join(self.path, "TensionStation")
         archive_directory = os.path.join(tension_directory, "archive")
         CSV_directory = os.path.join(tension_directory, "output")
-        new_data_directory = os.path.join(self.sMDT_DIR, "new_data")
+        new_data_directory = os.path.join(self.sMDT_DIR, "sara_new_data")
 
         for directory in [tension_directory, CSV_directory, archive_directory, new_data_directory]:
             if not os.path.isdir(directory):
@@ -250,7 +252,7 @@ class station_pickler:
         CSV_directory = os.path.join(self.path, 'LeakDetector')
         archive_directory = os.path.join(leak_directory, "archive")
 
-        new_data_directory = os.path.join(self.sMDT_DIR, "new_data")
+        new_data_directory = os.path.join(self.sMDT_DIR, "sara_new_data")
 
         for directory in [leak_directory, CSV_directory, archive_directory, new_data_directory]:
             if not os.path.isdir(directory):
@@ -324,13 +326,14 @@ class station_pickler:
         CSV_directory = os.path.join(self.path, 'DarkCurrent', '3015V Dark Current')
         archive_directory = os.path.join(darkcurrent_directory, "archive")
 
-        new_data_directory = os.path.join(self.sMDT_DIR, "new_data")
+        new_data_directory = os.path.join(self.sMDT_DIR, "sara_new_data")
 
         for directory in [darkcurrent_directory, CSV_directory, archive_directory, new_data_directory]:
             if not os.path.isdir(directory):
                 os.mkdir(directory)
 
         for filename in os.listdir(CSV_directory):
+            #print("Opening file ",filename)
             with open(os.path.join(CSV_directory, filename)) as CSV_file:
 
                 tube = Tube()
@@ -341,7 +344,6 @@ class station_pickler:
 
                 for line in CSV_file.readlines():
                     voltage = None
-                    user=""
                     if self.archive:
                         archive_file.write(line)
                     line = line.split(',')
@@ -353,11 +355,6 @@ class station_pickler:
                         current = float(line[0])
                         date = line[1]
                         voltage = float(line[2])  # Not stored currently
-                    elif len(line) == 4:
-                        current = float(line[0])
-                        date = line[1]
-                        voltage = float(line[2])
-                        user = line[3]
                     # Report to terminal unknown formats
                     else:
                         if self.logging:
@@ -373,7 +370,7 @@ class station_pickler:
 
                     tube.dark_current.add_record(DarkCurrentRecord(dark_current=current,
                                                                    date=sDate,
-                                                                   voltage=voltage,user=user))
+                                                                   voltage=voltage))
                     if self.logging:
                         print("Pickling dark current data for tube", barcode)
 
@@ -398,7 +395,7 @@ class station_pickler:
         CSV_directory = os.path.join(bentness_directory, 'BentnessData')
         archive_directory = os.path.join(bentness_directory, "archive")
 
-        new_data_directory = os.path.join(self.sMDT_DIR, "new_data")
+        new_data_directory = os.path.join(self.sMDT_DIR, "sara_new_data")
 
         for directory in [bentness_directory, CSV_directory, archive_directory, new_data_directory]:
             if not os.path.isdir(directory):
@@ -457,6 +454,116 @@ class station_pickler:
             if self.archive:
                 os.remove(os.path.join(CSV_directory, filename))
 
+
+    def pickle_umich(self):
+
+        umich_directory = os.path.join(self.path, "UMich/")
+
+        CSV_directory = os.path.join(umich_directory, 'UMichData')
+        archive_directory = os.path.join(umich_directory, "archive")
+
+        new_data_directory = os.path.join(self.sMDT_DIR, "sara_new_data")
+
+        for directory in [umich_directory, CSV_directory, archive_directory, new_data_directory]:
+            if not os.path.isdir(directory):
+                os.mkdir(directory)
+
+        for filename in os.listdir(CSV_directory):
+            with open(os.path.join(CSV_directory, filename)) as CSV_file:
+                
+                if self.archive:
+                    archive_file = open(os.path.join(archive_directory, filename), 'a')
+
+                for line in CSV_file.readlines():
+                    tube = Tube()
+                    if self.archive:
+                        archive_file.write(line)
+                    line = line.split(',')
+                    
+                    if line[0] == "tubeID":
+                        break
+                    else:
+                        #20 columns in umich.csv
+                        barcode = line[0]
+                        prod_site = line[1]
+                        endplug_type = line[2]
+                        first_scan = line[3]
+                        bent = float(line[4])
+                        flag_endplug = line[5]
+                        last_tension_date = line[6]
+                        length = float(line[7])
+                        frequency = float(line[8])
+                        tension = float(line[9])
+                        tension_flag = line[10]
+                        freq_diff = float(line[11])
+                        tens_diff = float(line[12])
+                        time_diff = float(line[13])
+                        flag_scd_tens = float(line[14])
+                        dc_day = line[15]
+                        dc = float(line[16])
+                        hv_times = float(line[17])
+                        dc_flag = line[18]
+                        done = line[19]
+
+                    try:
+                        first_scan = first_scan.replace("\n","")
+                        sDate = datetime.datetime.strptime(first_scan, '%m.%d.%Y_%H_%M_%S')
+                    except ValueError:
+                        sDate = None
+                        if self.logging:
+                            print("File " + filename + " has unknown format")
+                        self.error_files['UMich'].add(filename)                        
+                        continue
+
+                    tube.set_ID(barcode)
+                    tube.umich_tension.add_record(UMich_TensionRecord(
+                                umich_tension = tension,
+                                umich_frequency = frequency,
+                                umich_date = last_tension_date,
+                                tension_flag = tension_flag,
+                                freq_diff = freq_diff,
+                                tens_diff = tens_diff,
+                                time_diff = time_diff,
+                                flag_scd_tension = flag_scd_tens
+
+                    ))
+
+                    tube.umich_dark_current.add_record(UMich_DarkCurrentRecord(
+                                umich_dark_current = dc,
+                                umich_date = dc_day,
+                                dc_flag = dc_flag,
+                                hv_time = hv_times
+                    ))
+
+                    tube.umich_bent.add_record(UMich_BentRecord(
+                                umich_bent = bent
+                    ))
+
+
+                    tube.umich_misc.add_record(UMich_MiscRecord(
+                                prod_site = prod_site,
+                                endplug_type = endplug_type,
+                                first_scan = first_scan,
+                                flag_endplug = flag_endplug,
+                                length = length,
+                                done = done
+                    ))
+
+                    if self.logging:
+                        print("Pickling umich data for tube", barcode)
+
+                    pickled_filename = str(datetime.datetime.now().timestamp()) + \
+                                       str(random.randrange(100, 999)) + 'umich.tube'
+
+                    # Lock and write tube instance to pickle file
+                    # file_lock = locks.Lock(pickled_filename)
+                    # file_lock.lock()
+                    with open(os.path.join(new_data_directory, pickled_filename), "wb") as f:
+                        pickle.dump(tube, f)
+                    # file_lock.unlock()
+
+            if self.archive:
+                os.remove(os.path.join(CSV_directory, filename))
 
 
             # dict_keys = [
