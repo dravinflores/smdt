@@ -1,5 +1,5 @@
 ###############################################################################
-#   File: cleanup.py
+#   File: empty_database.py
 #   Author(s): Reinhard Schwienhorst
 #   Date Created: June, 2022
 #
