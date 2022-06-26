@@ -1,10 +1,12 @@
 ###############################################################################
-#   File: DatabaseViewer.py
+#   File: update_database.py
 #   Author(s): Sara Sawford
 #   Date Created: 24 June, 2022
 #
 #   Purpose: This program reads in the CSV file from UMich and creates
 #       a new Tube object to be added to the database
+#    It also reads in the old database that only contains MSU information
+#    and creates a new database that contains everything.
 #
 #   Known Issues:
 #
@@ -12,6 +14,7 @@
 #               NoneType records were removed
 #
 #   Updates:
+#   2022-06, Reinhard Schwienhorst: Insert counter and delays 
 #
 ###############################################################################
 
@@ -267,7 +270,7 @@ for barcode in tube_dict:
         # update and maybe sleep every 1000 tubes to give the manager time to keep up
         if counter%1000 == 0:
                 print("Processing tube ",counter," , ID ",barcode)
-                time.sleep(5)
+                time.sleep(3)
 
         # Tube object has records from MSU database
         tube = msu_tube_records(tube, old)
@@ -312,5 +315,4 @@ for barcode in umich_barcodes:
 
 print("Finished! Now you have to wait for the manager to add all of the tubes")
 old_database.close_shelve(tube_dict)
-
 
