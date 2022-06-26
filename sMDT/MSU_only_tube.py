@@ -35,7 +35,7 @@ class MSU_only_Tube:
 
 
     def __add__(self, other):
-        ret = Old_Tube()
+        ret = MSU_only_Tube()
         ret.m_tube_id = self.m_tube_id
         ret.m_comments = self.m_comments + other.m_comments
         ret.swage = self.swage + other.swage
