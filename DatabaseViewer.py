@@ -100,11 +100,13 @@ class DataModel(QtCore.QAbstractTableModel):
             elif isinstance(val, float):
                 return f"{val:0.2f}"
             elif isinstance(val, (status.Status, status.UMich_Status)):
-                if val == status.UMich_Status.UMICH_COMPLETE:
-                    return "COMPLETE"
-                elif val == status.UMich_Status.UMICH_INCOMPLETE:
-                    return "INCOMPLETE"
-                if val == status.Status.FAIL:
+                if isinstance(val, status.UMich_Status):
+                    if val == status.UMich_Status.PASS:
+                        return "PASS"
+                    elif val == status.UMich_Status.UMICH_INCOMPLETE:
+                        return "INCOMPLETE"
+                
+                elif val == status.Status.FAIL:
                     return "FAIL"
                 elif val == status.Status.PASS:
                     return "PASS"
@@ -127,8 +129,11 @@ class DataModel(QtCore.QAbstractTableModel):
         if role == QtCore.Qt.BackgroundRole:
             # Here we can control the background color itself.            
             if isinstance(val, (status.Status, status.UMich_Status)):
-                if val == status.UMich_Status.UMICH_COMPLETE or val == status.UMich_Status.UMICH_INCOMPLETE:
-                    return QtGui.QColor('blue')  
+                if isinstance(val, status.UMich_Status):
+                    if val != status.UMich_Status:
+                        return QtGui.QColor('blue')  
+                    else:
+                        pass
                 elif val == status.Status.FAIL:
                     return QtGui.QColor('red')
                 elif val == status.Status.PASS:
@@ -546,13 +551,14 @@ def db_to_display_array(database):
 
     for tube in tubes:
         try:
-            status = tube.status_umich()
-
-            if status == None:
+            status = tube.status_umich().name
+            #print(status)
+            if status == 'NO_DATA':
                 status = tube.status()
             else:
                 status = tube.status_umich()
 
+            #print(status)
             tube_id = tube.get_ID()
 
             try:
