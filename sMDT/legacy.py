@@ -8,8 +8,9 @@
 #       dictionaries to a list of tube objects, as well as go backwards and do the inverse operation.
 #       
 #
-#   Modifications:
-#   2020-06 Sara Sawford, Add UMIch information pickling
+#   Known Issues:
+#
+#   Workarounds:
 #
 ###############################################################################
 
@@ -70,7 +71,7 @@ class station_pickler:
         swage_directory = os.path.join(self.path, "SwagerStation")
         archive_directory = os.path.join(swage_directory, "archive")
         CSV_directory = os.path.join(swage_directory, "SwagerData")
-        new_data_directory = os.path.join(self.sMDT_DIR, "sara_new_data")
+        new_data_directory = os.path.join(self.sMDT_DIR, "new_data")
 
         for directory in [swage_directory, CSV_directory, archive_directory, new_data_directory]:
             if not os.path.isdir(directory):
@@ -174,7 +175,7 @@ class station_pickler:
         tension_directory = os.path.join(self.path, "TensionStation")
         archive_directory = os.path.join(tension_directory, "archive")
         CSV_directory = os.path.join(tension_directory, "output")
-        new_data_directory = os.path.join(self.sMDT_DIR, "sara_new_data")
+        new_data_directory = os.path.join(self.sMDT_DIR, "new_data")
 
         for directory in [tension_directory, CSV_directory, archive_directory, new_data_directory]:
             if not os.path.isdir(directory):
@@ -252,7 +253,7 @@ class station_pickler:
         CSV_directory = os.path.join(self.path, 'LeakDetector')
         archive_directory = os.path.join(leak_directory, "archive")
 
-        new_data_directory = os.path.join(self.sMDT_DIR, "sara_new_data")
+        new_data_directory = os.path.join(self.sMDT_DIR, "new_data")
 
         for directory in [leak_directory, CSV_directory, archive_directory, new_data_directory]:
             if not os.path.isdir(directory):
@@ -326,7 +327,7 @@ class station_pickler:
         CSV_directory = os.path.join(self.path, 'DarkCurrent', '3015V Dark Current')
         archive_directory = os.path.join(darkcurrent_directory, "archive")
 
-        new_data_directory = os.path.join(self.sMDT_DIR, "sara_new_data")
+        new_data_directory = os.path.join(self.sMDT_DIR, "new_data")
 
         for directory in [darkcurrent_directory, CSV_directory, archive_directory, new_data_directory]:
             if not os.path.isdir(directory):
@@ -344,6 +345,7 @@ class station_pickler:
 
                 for line in CSV_file.readlines():
                     voltage = None
+                    user=""
                     if self.archive:
                         archive_file.write(line)
                     line = line.split(',')
@@ -354,9 +356,14 @@ class station_pickler:
                     elif len(line) == 3:
                         current = float(line[0])
                         date = line[1]
-                        voltage = float(line[2])  # Not stored currently
-                    # Report to terminal unknown formats
+                        voltage = float(line[2])
+                    elif len(line) == 4:
+                        current = float(line[0])
+                        date = line[1]
+                        voltage = float(line[2])
+                        user = line[3].strip()
                     else:
+                        # Report to terminal unknown formats
                         if self.logging:
                             print("File " + filename + " has unknown format")
                         self.error_files['DarkCurrent'].add(filename)
@@ -370,7 +377,7 @@ class station_pickler:
 
                     tube.dark_current.add_record(DarkCurrentRecord(dark_current=current,
                                                                    date=sDate,
-                                                                   voltage=voltage))
+                                                                   voltage=voltage,user=user))
                     if self.logging:
                         print("Pickling dark current data for tube", barcode)
 
@@ -395,7 +402,7 @@ class station_pickler:
         CSV_directory = os.path.join(bentness_directory, 'BentnessData')
         archive_directory = os.path.join(bentness_directory, "archive")
 
-        new_data_directory = os.path.join(self.sMDT_DIR, "sara_new_data")
+        new_data_directory = os.path.join(self.sMDT_DIR, "new_data")
 
         for directory in [bentness_directory, CSV_directory, archive_directory, new_data_directory]:
             if not os.path.isdir(directory):
@@ -462,7 +469,7 @@ class station_pickler:
         CSV_directory = os.path.join(umich_directory, 'UMichData')
         archive_directory = os.path.join(umich_directory, "archive")
 
-        new_data_directory = os.path.join(self.sMDT_DIR, "sara_new_data")
+        new_data_directory = os.path.join(self.sMDT_DIR, "new_data")
 
         for directory in [umich_directory, CSV_directory, archive_directory, new_data_directory]:
             if not os.path.isdir(directory):
