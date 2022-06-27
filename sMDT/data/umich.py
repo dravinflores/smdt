@@ -20,11 +20,63 @@ from abc import ABC
 from .station import Station
 from .record import Record
 
-
+from sMDT.data.leak import Leak, LeakRecord
 from sMDT.data.tension import Tension,TensionRecord
 from sMDT.data.bent import Bent, BentRecord
 from sMDT.data.dark_current import DarkCurrent, DarkCurrentRecord
 from sMDT.data.status import UMich_Status
+
+class UMich_LeakRecord(LeakRecord):
+        def __init__(self,leak_rate = None,date=None,user=None):
+                super().__init__(user)
+                self.leak_rate = leak_rate
+                self.date = date
+
+        def __str__(self):
+                a = f"Leak Rate: {self.leak_rate} mbar l/s\n"
+                b = f"Recorded on: {self.date}\n"
+                return a + b
+
+class UMich_Leak(Leak):
+    def __init__(self):
+        super().__init__()
+
+    def __str__(self):
+        a = "UMich Leak Data: " + (self.status().name or '') + "\n"
+        b = ""
+
+        # Iterates through each record per tube
+       	if self.status() == UMich_Status.PASS:     
+            for record in sorted(
+                    # Checks that the bentness is a float; if not, either n/a or 0 in the csv file
+                    self.m_records, key=lambda i: (i.leak_rate is not None, i.leak_rate) 
+                    ):
+                b += record.__str__()
+                b = b[:-1]
+            
+        else:
+            pass
+        return a + textwrap.indent(b, '\t') + '\n'
+
+
+    def status(self):
+
+        # If there are no UMich records for the tube, set status to NO_DATA
+        record = None
+        
+        try:
+            record = self.get_record().leak_rate     
+        except:
+            pass
+        
+        if isinstance(record, float):
+            return UMich_Status.PASS
+        elif isinstance(record, (int, str)):
+            return UMich_Status.UMICH_INCOMPLETE
+        else:
+            return UMich_Status.NO_DATA
+
+
 
 
 
@@ -345,17 +397,16 @@ class UMich_Misc(Station, ABC):
             
             
     def status(self):
-
-        record = None
-
+        if not self.visited():
+            return UMich_Status.NO_DATA
         # Using the 'done?' column to determine status of entire tube
         try:
             record = self.get_record().done
-        except:
-            pass
-        if record == 'yes':
-            return UMich_Status.PASS
-        elif record == 'no':
-            return UMich_Status.UMICH_INCOMPLETE
-        elif record == None:
+            if record == 'yes':
+                return UMich_Status.PASS
+            elif record == 'no':
+                return UMich_Status.UMICH_INCOMPLETE
+            elif record == None:
+                return UMich_Status.NO_DATA
+        except TypeError:
             return UMich_Status.NO_DATA

@@ -1,8 +1,3 @@
-###############################################################################
-#   File: status.py
-#   Author(s): Dravin Flores, Paul Johnecheck, Sara Sawford
-#   Status code for sMDT tubes
-#
 
 from enum import IntEnum
 
