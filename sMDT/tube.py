@@ -22,7 +22,7 @@ from .data.umich import UMich_Tension
 from .data.umich import UMich_DarkCurrent
 from .data.umich import UMich_Bent
 from .data.umich import UMich_Misc
-
+from .data.umich import UMich_Leak
 
 class Tube:
     def __init__(self):
@@ -40,7 +40,7 @@ class Tube:
         self.umich_dark_current = UMich_DarkCurrent()
         self.umich_bent = UMich_Bent()
         self.umich_misc = UMich_Misc()
-
+        self.umich_leak = UMich_Leak()
 
     def __add__(self, other):
         ret = Tube()
@@ -52,6 +52,15 @@ class Tube:
         ret.tension = self.tension + other.tension
         ret.bent = self.bent + other.bent
         ret.legacy_data = dict(self.legacy_data, **other.legacy_data)
+
+        try:
+            ret.umich_tension = self.umich_tension + other.umich_tension
+            ret.umich_bent = self.umich_bent + other.umich_bent
+            ret.umich_dark_current = self.umich_dark_current + other.umich_dark_current
+            ret.umich_misc = self.umich_misc + other.umich_misc
+            ret.umich_leak = self.umich_leak + other.umich_leak
+        except:
+            return ret        
 
         return ret
 
@@ -98,7 +107,9 @@ class Tube:
             ret_str += self.umich_dark_current.__str__()
             ret_str += self.umich_bent.__str__()
             ret_str += self.umich_misc.__str__()
+       	    ret_str += self.umich_leak.__str__() 
         except:
+            ret_str += "Not sent to UMich.\n"
             pass
 
         return ret_str
@@ -167,13 +178,7 @@ class Tube:
     
     def status_umich(self):
         # Uses 'done?' column recorded in umich_misc to check if the tube is complete, incomplete, or not received
-        try:
-            if self.umich_misc.status() == UMich_Status.PASS: 
-                return UMich_Status.UMICH_COMPLETE
-            elif self.umich_misc.status() == UMich_Status.UMICH_INCOMPLETE:
-                return UMich_Status.UMICH_INCOMPLETE
-        except:
-            pass
+        return self.umich_misc.status()
 
     def status_bentness(self):
         # special case accounting: if bent is 0.8, then this is pass for some but fail for others
@@ -203,6 +208,7 @@ class Tube:
         dict_umich_dark_current = dict()
         dict_umich_bent = dict()
         dict_umich_misc = dict()
+        dict_umich_leak = dict()
 
         swager_station['m_records'] = []
         tension_station['m_records'] = []
@@ -213,7 +219,8 @@ class Tube:
         dict_umich_dark_current['m_records'] = []
         dict_umich_bent['m_records'] = []
         dict_umich_misc['m_records'] = []
-    
+        dict_umich_leak['m_records'] = []
+ 
         for record in self.swage.get_record('all'):
             record_dict = dict()
             record_dict['raw_length'] = record.raw_length
@@ -291,8 +298,13 @@ class Tube:
             record_dict["length"] = record.length
             record_dict["done"] = record.done
             dict_umich_misc['m_records'].append(record_dict)
-        
 
+        #UMich Leak
+        for record in self.umich_leak.get_record('all'):
+            record_dict = dict()
+            record_dict["umich_leak_rate"] = record.leak_rate 
+            record_dict["date"] = record.date
+            dict_umich_leak['m_records'].append(record_dict)
 
 
         tube_data_dict = dict()
@@ -305,6 +317,7 @@ class Tube:
         tube_data_dict['umich_dark_current'] = dict_umich_dark_current
         tube_data_dict['umich_bent'] = dict_umich_bent
         tube_data_dict['umich_misc'] = dict_umich_misc
+        tube_data_dict['umich_leak'] = dict_umich_leak 
 
         tube_in_dict[self.m_tube_id] = tube_data_dict
 
