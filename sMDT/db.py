@@ -11,8 +11,6 @@
 #   Workarounds: In order to better ensure that the database access is 
 #       restricted, the portalocker library is used; this is a cross-platform
 #       locking library.
-#  Modifications:
-#  2022-06, Sara Sawford, Reinhard Schwienhorst, add UMich information
 #
 ###############################################################################
 
@@ -310,6 +308,7 @@ class db_manager:
                     ) 
 
                     try:
+                        print("loading file ",self.new_data_dir,", ",new_data_file)
                         tube = pickle.load(new_data_file) 
                         new_data_file.close()
                     except EOFError:
