@@ -334,7 +334,10 @@ class station_pickler:
                 os.mkdir(directory)
 
         for filename in os.listdir(CSV_directory):
-            #print("Opening file ",filename)
+            if not filename.endswith("csv"):
+                #print("skipping ",filename)
+                continue
+            print("Opening file ",filename)
             with open(os.path.join(CSV_directory, filename)) as CSV_file:
 
                 tube = Tube()
@@ -346,23 +349,21 @@ class station_pickler:
                 for line in CSV_file.readlines():
                     voltage = None
                     user=""
+                    HVchan="" # the channel on the high voltage power supply is not written to the database for now
                     if self.archive:
                         archive_file.write(line)
                     line = line.split(',')
                     # Check there are 2 columns
-                    if len(line) == 2:
+                    if len(line) > 1:
                         current = float(line[0])
                         date = line[1]
-                    elif len(line) == 3:
-                        current = float(line[0])
-                        date = line[1]
+                    if len(line) > 2:
                         voltage = float(line[2])
-                    elif len(line) == 4:
-                        current = float(line[0])
-                        date = line[1]
-                        voltage = float(line[2])
+                    if len(line) > 3:
                         user = line[3].strip()
-                    else:
+                    if len(line) > 4:
+                        HVchan = line[4].strip()
+                    if len(line) < 1 or len(line) > 5:
                         # Report to terminal unknown formats
                         if self.logging:
                             print("File " + filename + " has unknown format")
