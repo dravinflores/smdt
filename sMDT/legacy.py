@@ -363,7 +363,7 @@ class station_pickler:
                         user = line[3].strip()
                     if len(line) > 4:
                         HVchan = line[4].strip()
-                    if len(line) < 1 or len(line) > 5:
+                    if len(line) < 1 or len(line) > 6:
                         # Report to terminal unknown formats
                         if self.logging:
                             print("File " + filename + " has unknown format")
