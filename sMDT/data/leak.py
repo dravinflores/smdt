@@ -9,6 +9,8 @@
 #   Known Issues:
 #
 #   Workarounds:
+#    2022-09-26, Reinhard: Update threshold for leak station following service in September, and
+#                          degrading performance that started in July.
 #
 ###############################################################################
 from abc import ABC
@@ -26,7 +28,9 @@ class LeakRecord(Record):
     """
 
     # Here are the project defined limits.
-    threshold_leak = 1.0E-5
+    threshold_leak_before_2022 = 1.0E-5
+    threshold_2022 = "2022-07-01"
+    threshold_leak_after_2022 = 5.0E-7
 
     def __init__(self, leak_rate=None, date=datetime.now(), user=None):
         super().__init__(user)
@@ -43,7 +47,12 @@ class LeakRecord(Record):
         if self.leak_rate is None:
             return True
         else:
-            return self.leak_rate > LeakRecord.threshold_leak
+            # if date is before July 2022, then use old threshold of 1E05, otherwise tighter new threshold
+            if self.date < datetime.strptime(self.threshold_2022, "%Y-%m-%d"):
+                threshold = self.threshold_leak_before_2022
+            else:
+                threshold = self.threshold_leak_after_2022
+            return self.leak_rate > threshold
 
 
 class Leak(Station, ABC):
