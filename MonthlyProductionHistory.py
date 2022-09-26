@@ -34,6 +34,7 @@ while StartDate < datetime.today():
     incTubes=0
     bentTubes=0
     tensionFail=0
+    leakFail=0
     darkFail=0
     swageFail=0
     commentFail=0
@@ -53,6 +54,28 @@ while StartDate < datetime.today():
         # skip all of the early tubes that have no date
         if swage_date == None:
             tubesErr+=1
+            continue
+
+        # for each tube, first check if it is swaged
+        try:
+            swage=tube.swage
+        except AttributeError:
+            # swage record doesn't exist, skip to the next tube
+            print(tube.get_ID()," swage record doesn't exist")
+            continue
+        try:
+            swage_record = swage.get_record('first')
+        except IndexError:
+            # no swage record entry, skip to the next tube
+            continue
+        except AttributeError:
+            # swage record exists, but is not of the correct attribute, print it out
+            if swage_record != "":
+                print("tube ",tube.get_ID()," swage record ",swage_record)
+            continue
+        # skip this tube if the swage record is an empty string
+        if isinstance(swage_record,str):
+            #print("swage record is a string:",swage_record)
             continue
 
         if swage_date < EndDate and swage_date > StartDate :
@@ -79,7 +102,15 @@ while StartDate < datetime.today():
                 elif tube.swage.status()== status.Status.FAIL:
                     swageFail+=1 
                 elif tube.tension.status()== status.Status.FAIL:
-                    tensionFail+=1 
+                    # if the swaged tube hasn't been tension tested yet, declare it incomplete
+                    dt=tube.swage.get_record(mode='last').date
+                    if dt > tube.tension.get_record(mode='last').date:
+                        #print("tube not yet tested after swaging")
+                        incTubes+=1
+                    else:
+                        tensionFail+=1 
+                elif tube.leak.status()== status.Status.FAIL:
+                    leakFail+=1 
                 elif tube.dark_current.status()== status.Status.FAIL:
                     darkFail+=1
                 elif tube.comment_fails():
@@ -90,7 +121,7 @@ while StartDate < datetime.today():
     print("For month",StartDate.strftime("%B %Y"))
     if TubesMonthlySwaged>0:
         print("Total ",TubesMonthlySwaged," swaged, good+incomplete ",goodTubes,"+",incTubes,"=",goodTubes+incTubes,", failure rate %2.1f%%" % (100.-(goodTubes+incTubes)/TubesMonthlySwaged*100.))
-        print("  Failure reason for",TubesMonthlySwaged-goodTubes-incTubes," tubes: Swage:",swageFail,", Tension:",tensionFail,", dark:",darkFail, ", comment:",commentFail)
+        print("  Failure reason for",TubesMonthlySwaged-goodTubes-incTubes," tubes: Swage:",swageFail,", Tension:",tensionFail,", Leak:",leakFail,", dark:",darkFail, ", comment:",commentFail)
         print("  Plus",bentTubes,"bent tubes.")
 
         totTubes+=TubesMonthlySwaged
