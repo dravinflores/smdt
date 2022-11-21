@@ -372,6 +372,7 @@ class station_pickler:
 
                     try:
                         date = date.replace("\n","")
+                        date = date.replace(" ","")
                         sDate = datetime.datetime.strptime(date, '%d_%m_%Y_%H_%M_%S')
                     except ValueError:
                         sDate = None
