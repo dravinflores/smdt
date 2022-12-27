@@ -6,14 +6,23 @@
 #
 # Modifications:
 # 2022-06, Reinhard: Move high-level functionality to autotension_gui
-import math
+#          Alexandru: Abort when user presses "Esc"
+#                     Random rare bug where program overtensions infinitly -->
+#                     Added a failsafe to continue on to the rest of the tensioning process when this
+#                     occurs.
+# 2022-12, Reinhard: Update "step" function to have half of the tolerance of "step_to" function
+#                    in order to avoid infinite loops.
+#
 
+import math
+import keyboard
 import nidaqmx
 import time
 import matplotlib.pyplot as plt
 import numpy as np
 
 from nidaqmx.constants import TerminalConfiguration, AcquisitionType
+from win32gui import GetWindowText, GetForegroundWindow
 
 def V_to_g(V):
     return V * 100
@@ -42,9 +51,6 @@ class Plotter:
         plt.plot(np.array(self.X), np.array(self.Y), 'r-')
         plt.tight_layout()
         plt.gcf().canvas.flush_events()
-        #plt.pause(0.0001)
-
-        #plt.show(block=False)
         plt.draw()
         plt.show(block=False)
 
@@ -67,6 +73,8 @@ class Stepper:
         self.noise_reduction = noise_reduction
         self.stride = stride
         self.isPaused = False
+        self.current_window = (GetWindowText(GetForegroundWindow()))
+        self.desired_window_name = "Tension"
 
     def __del__(self):
         self.read_task.stop()
@@ -85,11 +93,13 @@ class Stepper:
             self.isPaused=False
 
     def step(self, target=320, tolerance=10):
+        # tolerance when taking one step is smaller to allow for fluctuations
+        myTolerance=tolerance/2.
         V = self.read_task.read(number_of_samples_per_channel=self.n_samp)
         V = self.noise_reduction(V)
         measured = V_to_g(V)
         error = target - measured
-        if abs(error) > tolerance:
+        if abs(error) > myTolerance:
             if error > 0:
                 for i in range(self.stride):
                     self.step_task.write(5)
@@ -115,8 +125,13 @@ class Stepper:
             if abs(target - measured) < tolerance:
                 done = True
                 self.hold(target, tolerance, 1, callback)
-        #self.read_task.stop()
-        #self.step_task.stop()
+            if(measured > 450):
+                done = True
+            if(keyboard.is_pressed("Esc")):
+                done = True
+                self.pause()
+                return 0
+        return 1
 
     def hold(self, target, tolerance=10, hold_time=10, callback=None):
         time0 = math.inf
@@ -131,11 +146,10 @@ class Stepper:
                 callback(measured)
             if abs(target - measured) < tolerance and time0 == math.inf:
                 time0 = time.time()
-
-        #self.read_task.stop()
-        #self.step_task.stop()
-
-
+            if(keyboard.is_pressed("Esc")):
+                self.pause()
+                return 0
+        return 1
 
 if __name__ == '__main__':
     with nidaqmx.Task() as read_task, nidaqmx.Task() as step_task:
@@ -163,4 +177,3 @@ if __name__ == '__main__':
             else:
                 step_task.write(7)
                 step_task.write(6)
-
