@@ -4,6 +4,9 @@
 # Author: Reinhard Schwienhorst, based on DatabaseViewer example
 # 2021-06-27
 #
+# Changes:
+# 2023-01-30, RS: Add handling of flag for production site
+#
 
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
@@ -54,6 +57,9 @@ while StartDate < datetime.today():
         # skip all of the early tubes that have no date
         if swage_date == None:
             tubesErr+=1
+            continue
+        # skip tubes made at UMich
+        if tube.made_at_umich():
             continue
 
         # for each tube, first check if it is swaged
