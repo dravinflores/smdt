@@ -4,6 +4,9 @@
 # Author: Reinhard Schwienhorst, based on DatabaseViewer example
 # 2021-06-02
 #
+# Changes:
+# 2023-01-30 Add flag to check production site
+#
 
 from datetime import datetime, timedelta
 
@@ -56,6 +59,9 @@ while StartDate < saturday:
         # skip all of the early tubes that have no date
         if swage_date == None:
             tubesErr+=1
+            continue
+        # skip tubes made at UMich
+        if tube.made_at_umich():
             continue
 
         # for each tube, first check if it is swaged
