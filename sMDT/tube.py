@@ -8,6 +8,7 @@
 #
 #   Modifications:
 #   2022-06 Sara Sawford, add UMich information
+#   2023-01-30, RS: Add method to get production site info for each tube
 #
 ###############################################################################
 
@@ -323,6 +324,25 @@ class Tube:
 
         return tube_in_dict
 
+    # Was this tube made at UMich? If yes, return true
+    def made_at_umich(self):
+        try:
+            for record in self.umich_misc.m_records:
+                if record.prod_site == "UM":
+                        return True
+        except IndexError:
+            return False
+        return False
+
+    # Was this tube made at MSU? If yes, return true
+    # we don't have  flag for this, but we can check if the tube was made at UMich.
+    def made_at_msu(self):
+        return not self.made_at_umich()
+
+    
+    #
+    # a routine that loops through all of the tube information to figure out which date
+    # this tube was made
     def get_mfg_date(self):
         swage_date=None
         try:
@@ -367,6 +387,21 @@ class Tube:
                     if swage_date != None: return swage_date
             #else:
             #print("Error getting any date for tube, "+self.get_ID())
-                
+
+        # None of the MSU records for this tube contain a date, check UMich
+        if swage_date == None:
+            try:
+                for record in self.umich_tension.m_records:
+                    swage_date = record.date
+                    if swage_date != None: return swage_date
+            except IndexError:
+                swage_date = None
+        if swage_date == None:
+            try:
+                for record in self.umich_dark_current.m_records:
+                    swage_date = record.date
+                    if swage_date != None: return swage_date
+            except IndexError:
+                swage_date = None
 
         return swage_date
