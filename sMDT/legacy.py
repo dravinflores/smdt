@@ -78,6 +78,12 @@ class station_pickler:
                 os.mkdir(directory)
 
         for filename in os.listdir(CSV_directory):
+            # skip directories
+            if os.path.isdir(filename):
+                   continue
+            # skip .DS_store
+            if filename==".DS_Store":
+                continue
             with open(os.path.join(CSV_directory, filename)) as CSV_file:
                 if self.archive:
                     archive_file = open(os.path.join(archive_directory, filename), 'a')
@@ -182,6 +188,12 @@ class station_pickler:
                 os.mkdir(directory)
 
         for filename in os.listdir(CSV_directory):
+            # skip directories
+            if os.path.isdir(filename):
+                   continue
+            # skip .DS_store
+            if filename==".DS_Store":
+                continue
             with open(os.path.join(CSV_directory, filename)) as CSV_file:
                 if self.archive:
                     archive_file = open(os.path.join(archive_directory, filename), 'a')
@@ -417,6 +429,12 @@ class station_pickler:
                 os.mkdir(directory)
 
         for filename in os.listdir(CSV_directory):
+            # skip directories
+            if os.path.isdir(filename):
+                   continue
+            # skip .DS_store
+            if filename==".DS_Store":
+                continue
             with open(os.path.join(CSV_directory, filename)) as CSV_file:
                 
                 if self.archive:
@@ -484,6 +502,12 @@ class station_pickler:
                 os.mkdir(directory)
 
         for filename in os.listdir(CSV_directory):
+            # skip directories
+            if os.path.isdir(filename):
+                   continue
+            # skip .DS_store
+            if filename==".DS_Store":
+                continue
             with open(os.path.join(CSV_directory, filename)) as CSV_file:
                 
                 if self.archive:
